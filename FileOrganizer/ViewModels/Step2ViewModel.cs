@@ -21,7 +21,7 @@ public partial class Step2ViewModel : StepViewModel
     [ObservableProperty]
     private int _fileTypesCount = 10;
 
-    public int MaxFileTypes => Math.Min(50, Files.Select(f => f.FileType).Distinct().Count());
+    public int MaxFileTypes => Files.Select(f => f.FileType).Distinct().Count();
 
     partial void OnFileTypesCountChanged(int value)
     {
@@ -102,9 +102,9 @@ public partial class Step2ViewModel : StepViewModel
             {
                 Labels = groupedByMonth.Select(g => g.Key).ToArray(),
                 LabelsRotation = 45,
-                SeparatorsPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
+                SeparatorsPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
                 SeparatorsAtCenter = false,
-                TicksPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
+                TicksPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
                 TicksAtCenter = true
             }
         };
@@ -114,13 +114,17 @@ public partial class Step2ViewModel : StepViewModel
             new Axis // First Y-axis for count
             {
                 Name = "File Count",
-                Position = LiveChartsCore.Measure.AxisPosition.Start
+                Position = LiveChartsCore.Measure.AxisPosition.Start,
+                SeparatorsPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
+                TicksPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
             },
 
             new Axis // Second Y-axis for size
             {
                 Name = "Size (MB)",
-                Position = LiveChartsCore.Measure.AxisPosition.End
+                Position = LiveChartsCore.Measure.AxisPosition.End,
+                SeparatorsPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
+                TicksPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
             }
         ];
     }
@@ -158,6 +162,7 @@ public partial class Step2ViewModel : StepViewModel
                 Stroke = new SolidColorPaint(SizeColor){StrokeThickness = 4},
                 Fill = new SolidColorPaint(SizeColorFill),
                 GeometryFill = new SolidColorPaint(SizeColor),
+                GeometryStroke =  new SolidColorPaint(SizeColor),
                 GeometrySize = 8
             }
         };
@@ -168,9 +173,9 @@ public partial class Step2ViewModel : StepViewModel
             {
                 Labels = groupedByType.Select(g => g.Key).ToArray(),
                 LabelsRotation = 45,
-                SeparatorsPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
+                SeparatorsPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
                 SeparatorsAtCenter = false,
-                TicksPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
+                TicksPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
                 TicksAtCenter = true
             }
         ];
@@ -180,13 +185,17 @@ public partial class Step2ViewModel : StepViewModel
             new Axis // First Y-axis for count
             {
                 Name = "File Count",
-                Position = LiveChartsCore.Measure.AxisPosition.Start
+                Position = LiveChartsCore.Measure.AxisPosition.Start,
+                SeparatorsPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
+                TicksPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
             },
 
             new Axis // Second Y-axis for size
             {
                 Name = "Size (MB)",
-                Position = LiveChartsCore.Measure.AxisPosition.End
+                Position = LiveChartsCore.Measure.AxisPosition.End,
+                SeparatorsPaint = new SolidColorPaint(new SKColor(35, 35, 35)),
+                TicksPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
             }
         ];
 
