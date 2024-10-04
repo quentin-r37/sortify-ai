@@ -40,7 +40,8 @@ namespace FileOrganizer.ViewModels
             var newAnalysisModel = new Analysis
             {
                 Name = "New Analysis",
-                CreatedDate = DateTime.Now
+                CreatedDate = DateTime.Now,
+                Path = "C:\\Users\\quent\\Downloads"
             };
             var newAnalysisViewModel = new AnalysisViewModel(newAnalysisModel, _mainWindow);
             Analyses.Add(newAnalysisViewModel);

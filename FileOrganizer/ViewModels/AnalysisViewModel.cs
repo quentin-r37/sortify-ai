@@ -69,7 +69,8 @@ public partial class AnalysisViewModel : ObservableObject
         {
             StepNumber = 1,
             Icon = "fa-folder",
-            Description = "Step 1"
+            Description = "Step 1",
+            Path = analysis.Path
         };
         Step2 = new Step2ViewModel(this, window)
         {
