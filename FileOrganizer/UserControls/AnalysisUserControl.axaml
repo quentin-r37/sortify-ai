@@ -42,13 +42,19 @@
 						<StackPanel Orientation="Vertical">
 							<Button Width="64" Height="64" CornerRadius="100">
 								<Panel>
-                                    <avalonia:Icon FontSize="30" Margin="0,0,0,0">
+                                    <avalonia:Icon FontSize="30" Margin="0,0,0,0" Classes.IsCompleted="{Binding Path=IsCompleted}" >
                                         <avalonia:Icon.Value>
                                             <MultiBinding Converter="{StaticResource StepViewModelToIconConverter}">
                                                 <Binding Path="IsCompleted"/>
                                                 <Binding Path="."/>
                                             </MultiBinding>
                                         </avalonia:Icon.Value>
+
+										<avalonia:Icon.Styles>
+											<Style Selector="avalonia|Icon.IsCompleted">
+												<Setter Property="Foreground" Value="LightGreen"></Setter>
+                                            </Style>
+                                        </avalonia:Icon.Styles>
                                     </avalonia:Icon>
 								</Panel>
                             </Button>

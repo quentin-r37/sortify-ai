@@ -8,73 +8,73 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FileOrganizer.UserControls.Step2UserControl" x:DataType="viewModels:Step2ViewModel">
 
-	<Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20" Padding="20" BorderBrush="{DynamicResource SemiGrey2Color}">
+	<DockPanel>
+		<Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20"  BorderBrush="{DynamicResource SemiGrey2Color}">
+			<ScrollViewer>
+				<Border Padding="20">
+					<StackPanel >
+						<Label DockPanel.Dock="Top" Content="Analysis" FontWeight="DemiBold" Margin="0,0,0,20"></Label>
+						<Expander DockPanel.Dock="Top" Margin="0,0,0,20">
+							<Expander.Header>
+								<Label FontWeight="Normal">Size and number of files by month</Label>
 
-		<ScrollViewer>
-			<StackPanel>
-				<Label DockPanel.Dock="Top" Content="Analysis" FontWeight="DemiBold" Margin="0,0,0,20"></Label>
-				<Expander DockPanel.Dock="Top">
-					<Expander.Header>
-						<Label FontWeight="Normal">Size and number of files by month</Label>
+							</Expander.Header>
+							<avalonia:CartesianChart
+								Series="{Binding FilesByMonthSeries}"
+								XAxes="{Binding FilesByMonthXAxis}"
+								YAxes="{Binding FilesByMonthYAxes}"
+								Height="500" />
+						</Expander>
+						<Expander DockPanel.Dock="Top" Margin="0,0,0,20" >
+							<Expander.Header>
+								<Label FontWeight="Normal">Size and number of files by file type</Label>
 
-					</Expander.Header>
-					<avalonia:CartesianChart
-                        Series="{Binding FilesByMonthSeries}"
-                        XAxes="{Binding FilesByMonthXAxis}"
-                        YAxes="{Binding FilesByMonthYAxes}"
-                        Height="500" />
-				</Expander>
+							</Expander.Header>
+							<DockPanel>
+								<avalonia:CartesianChart DockPanel.Dock="Top"
+									Series="{Binding FilesByTypeSeries}"
+									XAxes="{Binding FilesByTypeXAxis}"
+									YAxes="{Binding FilesByTypeYAxes}"
+									Height="500" />
+								<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,5,0,10">
+									<TextBlock Text="Number of file types to show:" VerticalAlignment="Center"/>
+									<Slider
+										Minimum="1"
+										Maximum="{Binding MaxFileTypes}"
+										Value="{Binding FileTypesCount}"
+										Width="200"
+										Margin="10,0"/>
+									<TextBlock Text="{Binding FileTypesCount}" VerticalAlignment="Center"/>
+								</StackPanel>
+							</DockPanel>
+						</Expander>
+						<Expander DockPanel.Dock="Top" Margin="0,0,0,20" >
+							<Expander.Header>
+								<Label FontWeight="Normal">File list</Label>
+							</Expander.Header>
+							<DataGrid MaxHeight="500" ItemsSource="{Binding Files}" IsScrollInertiaEnabled="True"
+									  AutoGenerateColumns="False" IsReadOnly="True"
+									  GridLinesVisibility="All"
+									  Margin="0,0,0,20" >
 
+								<DataGrid.Columns>
+									<DataGridTextColumn Header="Name"  Binding="{Binding Path=Name}"/>
+									<DataGridTextColumn Header="Created Date" Binding="{Binding Path=CreatedDate}" />
+									<DataGridTextColumn Header="FileType" Binding="{Binding Path=FileType}" />
+									<DataGridTextColumn Header="Size" Binding="{Binding Path=Size}" />
+								</DataGrid.Columns>
+							</DataGrid>
+						</Expander>
+						<UniformGrid >
+							<Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+							<Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
+						</UniformGrid>
+					</StackPanel>
+				</Border>
 
-				<Expander DockPanel.Dock="Top"  >
-					<Expander.Header>
-						<Label FontWeight="Normal">Size and number of files by file type</Label>
+			</ScrollViewer>
+		</Border>
 
-					</Expander.Header>
-					<DockPanel>
-						<avalonia:CartesianChart DockPanel.Dock="Top"
-							Series="{Binding FilesByTypeSeries}"
-							XAxes="{Binding FilesByTypeXAxis}"
-							YAxes="{Binding FilesByTypeYAxes}"
-							Height="500" />
-						<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,5,0,10">
-							<TextBlock Text="Number of file types to show:" VerticalAlignment="Center"/>
-							<Slider
-								Minimum="1"
-								Maximum="{Binding MaxFileTypes}"
-								Value="{Binding FileTypesCount}"
-								Width="200"
-								Margin="10,0"/>
-							<TextBlock Text="{Binding FileTypesCount}" VerticalAlignment="Center"/>
-						</StackPanel>
-					</DockPanel>
+    </DockPanel>
 
-
-				</Expander>
-
-				<Expander DockPanel.Dock="Top"  >
-					<Expander.Header>
-						<Label FontWeight="Normal">File list</Label>
-					</Expander.Header>
-					<DataGrid MaxHeight="500" ItemsSource="{Binding Files}" IsScrollInertiaEnabled="True"
-                              AutoGenerateColumns="False" IsReadOnly="True"
-                              GridLinesVisibility="All"
-                              Margin="0,0,0,20" >
-
-						<DataGrid.Columns>
-							<DataGridTextColumn Header="Name"  Binding="{Binding Path=Name}"/>
-							<DataGridTextColumn Header="Created Date" Binding="{Binding Path=CreatedDate}" />
-							<DataGridTextColumn Header="FileType" Binding="{Binding Path=FileType}" />
-							<DataGridTextColumn Header="Size" Binding="{Binding Path=Size}" />
-						</DataGrid.Columns>
-					</DataGrid>
-				</Expander>
-				<UniformGrid >
-					<Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
-					<Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
-				</UniformGrid>
-			</StackPanel>
-		</ScrollViewer>
-
-	</Border>
 </UserControl>
