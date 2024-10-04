@@ -46,7 +46,7 @@
 					</ExperimentalAcrylicBorder.Material>
 				</ExperimentalAcrylicBorder>
 				<Border Margin="10,35,20,20" CornerRadius="20" >
-					<ContentControl Padding="40" Content="{Binding SelectedAnalysis}"/>
+					<ContentControl Padding="40,0" Content="{Binding SelectedAnalysis}"/>
 				</Border>
 			</Panel>
 

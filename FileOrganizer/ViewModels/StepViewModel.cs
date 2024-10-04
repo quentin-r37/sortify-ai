@@ -13,4 +13,7 @@ public partial class StepViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isCompleted;
+
+    [ObservableProperty]
+    private bool _isNotLastStep;
 }

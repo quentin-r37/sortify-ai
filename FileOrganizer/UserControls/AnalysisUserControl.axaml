@@ -9,11 +9,11 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FileOrganizer.UserControls.AnalysisUserControl" x:DataType="viewModels:AnalysisViewModel">
 
-<UserControl.Resources>
-	<converters:StepViewModelToIconConverter x:Key="StepViewModelToIconConverter"></converters:StepViewModelToIconConverter>
-</UserControl.Resources>
+	<UserControl.Resources>
+		<converters:StepViewModelToIconConverter x:Key="StepViewModelToIconConverter"></converters:StepViewModelToIconConverter>
+	</UserControl.Resources>
 
-    <UserControl.DataTemplates>
+	<UserControl.DataTemplates>
 		<DataTemplate DataType="viewModels:Step1ViewModel">
 			<userControls:Step1UserControl />
 		</DataTemplate>
@@ -29,37 +29,78 @@
 	</UserControl.DataTemplates>
 
 	<DockPanel>
-		<StackPanel DockPanel.Dock="Top" Orientation="Vertical"  Margin="0,10,0,10">
-			<ItemsControl  x:DataType="viewModels:AnalysisViewModel" ItemsSource="{Binding Steps}">
+		<StackPanel DockPanel.Dock="Top" Orientation="Vertical" Margin="0,0,0,0">
+			<DockPanel HorizontalAlignment="Stretch" Margin="0,0,0,20">
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <Label FontSize="18" Content="{Binding AnalysisName}" VerticalAlignment="Center" ></Label>
+                    <Button avalonia:Attached.Icon="fa-pencil" Margin="10,0,0,0" />
+				</StackPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+                    <Button avalonia:Attached.Icon="fa-chevron-left" />
+                    <Button avalonia:Attached.Icon="fa-chevron-right" Margin="10,0,0,0"/>
+				</StackPanel>
+            </DockPanel>
+            <ItemsControl x:DataType="viewModels:AnalysisViewModel" ItemsSource="{Binding Steps}">
 				<ItemsControl.ItemsPanel>
 					<ItemsPanelTemplate>
 						<UniformGrid Rows="1" />
 					</ItemsPanelTemplate>
 				</ItemsControl.ItemsPanel>
-
 				<ItemsControl.ItemTemplate>
 					<DataTemplate x:DataType="viewModels:StepViewModel">
-						<StackPanel Orientation="Vertical">
-							<Button Width="64" Height="64" CornerRadius="100">
-								<Panel>
-                                    <avalonia:Icon FontSize="30" Margin="0,0,0,0" Classes.IsCompleted="{Binding Path=IsCompleted}" >
-                                        <avalonia:Icon.Value>
-                                            <MultiBinding Converter="{StaticResource StepViewModelToIconConverter}">
-                                                <Binding Path="IsCompleted"/>
-                                                <Binding Path="."/>
-                                            </MultiBinding>
-                                        </avalonia:Icon.Value>
+						<Grid ColumnDefinitions="Auto,*">
+                            <!-- Step Button -->
+							<StackPanel Grid.Column="0" Orientation="Vertical">
+								<Button Width="64" Height="64" CornerRadius="100" Margin="0,0,0,10" Classes.IsCurrentStep="{Binding Path=IsCurrentStep}">
+									<Panel>
+										<avalonia:Icon FontSize="30" Margin="0,0,0,0"   Classes.IsCompleted="{Binding Path=IsCompleted}">
+											<avalonia:Icon.Value>
+												<MultiBinding Converter="{StaticResource StepViewModelToIconConverter}">
+													<Binding Path="IsCompleted"/>
+													<Binding Path="."/>
+												</MultiBinding>
+											</avalonia:Icon.Value>
+											<avalonia:Icon.Styles>
+												<Style Selector="avalonia|Icon.IsCompleted">
+													<Setter Property="Foreground" Value="LightGreen"/>
+												</Style>
+											</avalonia:Icon.Styles>
+										</avalonia:Icon>
+									</Panel>
+									<Button.Styles>
+                                        <Style Selector="Button.IsCurrentStep">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SemiColorPrimary}"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                        </Style>
+                                    </Button.Styles>
+								</Button>
+								<Label HorizontalAlignment="Center" Classes.IsCurrentStep="{Binding Path=IsCurrentStep}" Content="{Binding Description}">
+									<Label.Styles>
+										<Style Selector="Label.IsCurrentStep">
+											<Setter Property="FontWeight" Value="DemiBold"></Setter>
+                                        </Style>
+                                    </Label.Styles>
+								</Label>
 
-										<avalonia:Icon.Styles>
-											<Style Selector="avalonia|Icon.IsCompleted">
-												<Setter Property="Foreground" Value="LightGreen"></Setter>
-                                            </Style>
-                                        </avalonia:Icon.Styles>
-                                    </avalonia:Icon>
-								</Panel>
-                            </Button>
-                            <Label HorizontalAlignment="Center" Content="{Binding Description}"></Label>
-						</StackPanel>
+							</StackPanel>
+
+							<!-- Dashed Arrow (Shown if not the last item) -->
+							<Grid Grid.Column="1" VerticalAlignment="Center">
+								<Border Height="2" CornerRadius="5"
+                                        Background="Gray"
+                                        BorderThickness="0"
+                                        Margin="20,0"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Stretch">
+									<Border.OpacityMask>
+										<LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+											<GradientStop Offset="0.0" Color="Transparent"/>
+											<GradientStop Offset="1" Color="Black"/>
+										</LinearGradientBrush>
+									</Border.OpacityMask>
+								</Border>
+							</Grid>
+						</Grid>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>

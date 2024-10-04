@@ -59,6 +59,7 @@ public partial class AnalysisViewModel : ObservableObject
         {
             step.IsCurrentStep = step.StepNumber == CurrentStep;
             step.IsCompleted = step.StepNumber < CurrentStep;
+            step.IsNotLastStep = step.StepNumber != Steps.Count ;
         }
     }
 
