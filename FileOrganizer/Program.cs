@@ -1,5 +1,8 @@
 ﻿using Avalonia;
 using System;
+using Projektanker.Icons.Avalonia;
+using Projektanker.Icons.Avalonia.FontAwesome;
+using Avalonia.Media;
 
 namespace FileOrganizer
 {
@@ -14,9 +17,27 @@ namespace FileOrganizer
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
-            => AppBuilder.Configure<App>()
+        {
+
+            IconProvider.Current
+                .Register<FontAwesomeIconProvider>();
+
+            return AppBuilder.Configure<App>()
                 .UsePlatformDetect()
                 .WithInterFont()
                 .LogToTrace();
+        }
+    }
+
+    public static class AvaloniaAppBuilderExtensions
+    {
+        private static string DefaultFontFamily => "avares://FileOrganizer/Assets#Source Han Sans CN";
+
+        public static AppBuilder WithSourceHanSansCNFont(this AppBuilder builder) =>
+            builder.With(new FontManagerOptions
+            {
+                DefaultFamilyName = DefaultFontFamily,
+                FontFallbacks = new[] { new FontFallback { FontFamily = new FontFamily(DefaultFontFamily) } }
+            });
     }
 }

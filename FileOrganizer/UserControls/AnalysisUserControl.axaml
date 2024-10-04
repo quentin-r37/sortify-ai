@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             xmlns:userControls="clr-namespace:FileOrganizer.UserControls"
+             xmlns:avalonia="https://github.com/projektanker/icons.avalonia"
+             xmlns:converters="clr-namespace:FileOrganizer.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FileOrganizer.UserControls.AnalysisUserControl" x:DataType="viewModels:AnalysisViewModel">
+
+<UserControl.Resources>
+	<converters:StepViewModelToIconConverter x:Key="StepViewModelToIconConverter"></converters:StepViewModelToIconConverter>
+</UserControl.Resources>
+
+    <UserControl.DataTemplates>
+		<DataTemplate DataType="viewModels:Step1ViewModel">
+			<userControls:Step1UserControl />
+		</DataTemplate>
+		<DataTemplate DataType="viewModels:Step2ViewModel">
+			<userControls:Step2UserControl />
+		</DataTemplate>
+		<DataTemplate DataType="viewModels:Step3ViewModel">
+			<userControls:Step3UserControl />
+		</DataTemplate>
+		<DataTemplate DataType="viewModels:Step4ViewModel">
+			<userControls:Step4UserControl />
+		</DataTemplate>
+	</UserControl.DataTemplates>
+
+	<DockPanel>
+		<StackPanel DockPanel.Dock="Top" Orientation="Vertical"  Margin="0,10,0,10">
+			<ItemsControl  x:DataType="viewModels:AnalysisViewModel" ItemsSource="{Binding Steps}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<UniformGrid Rows="1" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+
+				<ItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="viewModels:StepViewModel">
+						<StackPanel Orientation="Vertical">
+							<Button Width="64" Height="64" CornerRadius="100">
+								<Panel>
+                                    <avalonia:Icon FontSize="30" Margin="0,0,0,0">
+                                        <avalonia:Icon.Value>
+                                            <MultiBinding Converter="{StaticResource StepViewModelToIconConverter}">
+                                                <Binding Path="IsCompleted"/>
+                                                <Binding Path="."/>
+                                            </MultiBinding>
+                                        </avalonia:Icon.Value>
+                                    </avalonia:Icon>
+								</Panel>
+                            </Button>
+                            <Label HorizontalAlignment="Center" Content="{Binding Description}"></Label>
+						</StackPanel>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</StackPanel>
+		<ContentControl Margin="0,20,0,0" Content="{Binding CurrentStepViewModel}"/>
+	</DockPanel>
+
+
+</UserControl>

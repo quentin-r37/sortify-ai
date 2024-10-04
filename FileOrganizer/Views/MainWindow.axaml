@@ -3,20 +3,41 @@
         xmlns:vm="using:FileOrganizer.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:fileOrganizer="clr-namespace:FileOrganizer"
+        xmlns:userControls="clr-namespace:FileOrganizer.UserControls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FileOrganizer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="FileOrganizer"
+        Title="FileOrganizer" SystemDecorations="Full"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
         >
 
-
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+	<Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="Black"
+                    TintOpacity="1"
+                    MaterialOpacity="0.7" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+		<DockPanel>
+            <Border Margin="20,20,10,20">
+                <userControls:SidebarView DataContext="{Binding}" DockPanel.Dock="Left" Width="250"/>
+			</Border>
+			<Border Margin="10,35,20,20" CornerRadius="20" Background="{DynamicResource SemiColorBackground0}">
+				<ContentControl Padding="40" Content="{Binding SelectedAnalysis}"/>
+			</Border>
+		</DockPanel>
+	</Panel>
 </Window>
