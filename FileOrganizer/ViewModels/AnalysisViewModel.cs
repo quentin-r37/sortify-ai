@@ -3,6 +3,10 @@ using FileOrganizer.Models;
 using FileOrganizer.Views;
 using System.Collections.ObjectModel;
 using System;
+using Avalonia;
+using CommunityToolkit.Mvvm.Input;
+using Avalonia.Interactivity;
+using Avalonia.Styling;
 
 namespace FileOrganizer.ViewModels;
 public partial class AnalysisViewModel : ObservableObject
@@ -33,7 +37,7 @@ public partial class AnalysisViewModel : ObservableObject
         {
             if (_model.Name == value) return;
             _model.Name = value;
-            OnPropertyChanged(); 
+            OnPropertyChanged();
         }
     }
 
@@ -59,7 +63,7 @@ public partial class AnalysisViewModel : ObservableObject
         {
             step.IsCurrentStep = step.StepNumber == CurrentStep;
             step.IsCompleted = step.StepNumber < CurrentStep;
-            step.IsNotLastStep = step.StepNumber != Steps.Count ;
+            step.IsNotLastStep = step.StepNumber != Steps.Count;
         }
     }
 
@@ -104,6 +108,27 @@ public partial class AnalysisViewModel : ObservableObject
     public Step2ViewModel Step2 { get; }
     public Step3ViewModel Step3 { get; }
     public Step4ViewModel Step4 { get; }
+
+    [ObservableProperty]
+    private bool _isEditing;
+
+    [RelayCommand]
+    private void ToggleEditMode()
+    {
+        IsEditing = !IsEditing;
+    }
+
+    [RelayCommand]
+    public void Next()
+    {
+        NextStep();
+    }
+
+    [RelayCommand]
+    public void Previous()
+    {
+        PreviousStep();
+    }
 
     public void NextStep()
     {

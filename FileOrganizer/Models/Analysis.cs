@@ -15,6 +15,5 @@ namespace FileOrganizer.Models
         public DateTime CreatedDate { get; set; }
         public OrganizationType OrganizationType { get; set; }
         public List<FileItem> Files { get; set; }
-        public AnalysisResult Result { get; set; }
     }
 }

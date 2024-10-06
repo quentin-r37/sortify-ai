@@ -16,7 +16,7 @@
 	</Application.DataTemplates>
 
 	<Application.Styles>
-		<semi:SemiTheme Locale="en-US" />
+        <StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
         <StyleInclude Source="avares://Semi.Avalonia.DataGrid/Index.axaml" />
 	</Application.Styles>
 </Application>

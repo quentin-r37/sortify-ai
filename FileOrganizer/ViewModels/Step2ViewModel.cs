@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Models;
@@ -17,10 +19,23 @@ namespace FileOrganizer.ViewModels;
 public partial class Step2ViewModel : StepViewModel
 {
     private readonly AnalysisViewModel _parent;
-    public ObservableCollection<FileItemViewModel> Files { get; set; }
+    public List<FileItemViewModel> Files { get; set; }
+    private List<FileItemViewModel> _allFiles { get; set; }
+
+    public DataGridCollectionView GroupedGridData { get; set; }
 
     [ObservableProperty]
     private int _fileTypesCount = 10;
+
+    [ObservableProperty]
+    private bool _filterAllFiles = true;
+
+    partial void OnFilterAllFilesChanged(bool value)
+    {
+        RefreshFilesFilter();
+    }
+
+    public SolidColorPaint LegendTextPaint { get; set; } = new SolidColorPaint(new SKColor(255, 255, 255));
 
     public int MaxFileTypes => Files.Select(f => f.FileType).Distinct().Count();
 
@@ -29,31 +44,45 @@ public partial class Step2ViewModel : StepViewModel
         CalculateFilesByType();
     }
 
-    // Properties for charts (e.g., SizeByTypeChartData)
-
     public Step2ViewModel(AnalysisViewModel parent, MainWindow? window)
     {
         _parent = parent;
-        Files = new ObservableCollection<FileItemViewModel>();
+        Files = [];
     }
 
     public void LoadFiles(string? path)
     {
-        var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
-            .Select(filePath => new FileItemViewModel(new FileItem
+        _allFiles = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
+            .Select(filePath =>
             {
-                Path = filePath,
-                Name = System.IO.Path.GetFileName((string?)filePath),
-                Size = new FileInfo(filePath).Length,
-                CreatedDate = File.GetCreationTime((string)filePath),
-                ModifiedDate = File.GetLastWriteTime((string)filePath),
-                FileType = System.IO.Path.GetExtension((string?)filePath)
-            }));
-        Files.Clear();
-        foreach (var file in files)
+                var file = new FileInfo(filePath);
+                var relativePath = Path.GetRelativePath(path, file.DirectoryName);
+                return new FileItemViewModel(new FileItem
+                {
+                    Path = filePath,
+                    Name = Path.GetFileName(filePath),
+                    Size = file.Length,
+                    CreatedDate = file.CreationTime,
+                    ModifiedDate = file.LastWriteTime,
+                    FileType = Path.GetExtension(filePath),
+                    DirectoryName = relativePath == "." ? "" : relativePath
+                });
+            }).ToList();
+
+        RefreshFilesFilter();
+    }
+
+    private void RefreshFilesFilter()
+    {
+        var filtered = _allFiles;
+        if (!FilterAllFiles)
         {
-            Files.Add(file);
+            filtered = _allFiles.Where(model => model.FileType == ".docx").ToList();
         }
+        Files.Clear();
+        Files.AddRange(filtered);
+        GroupedGridData = new DataGridCollectionView(Files);
+        GroupedGridData.GroupDescriptions.Add(new DataGridPathGroupDescription("DirectoryName"));
         CalculateChartsData();
     }
 
@@ -135,6 +164,10 @@ public partial class Step2ViewModel : StepViewModel
                 MinLimit = 0
             }
         ];
+
+        OnPropertyChanged(nameof(FilesByMonthSeries));
+        OnPropertyChanged(nameof(FilesByMonthXAxis));
+        OnPropertyChanged(nameof(FilesByMonthYAxes));
     }
 
     private static readonly SKColor CountColor = new SKColor(25, 118, 210); // Blue

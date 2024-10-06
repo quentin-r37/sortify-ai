@@ -5,15 +5,31 @@
              xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
              xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:skiaSharpView="clr-namespace:LiveChartsCore.SkiaSharpView;assembly=LiveChartsCore.SkiaSharpView"
+             xmlns:converters="clr-namespace:FileOrganizer.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FileOrganizer.UserControls.Step2UserControl" x:DataType="viewModels:Step2ViewModel">
+
+	<UserControl.Resources>
+		<converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+    </UserControl.Resources>
 
 	<DockPanel>
 		<Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20"  BorderBrush="{DynamicResource SemiGrey2Color}">
 			<ScrollViewer>
 				<Border Padding="20">
-					<StackPanel >
-						<Label DockPanel.Dock="Top" Content="Analysis" FontWeight="DemiBold" Margin="0,0,0,20"></Label>
+					<StackPanel>
+						<DockPanel Margin="0,0,0,40">
+							<Label DockPanel.Dock="Left" VerticalAlignment="Center" Content="Analysis" FontWeight="DemiBold" ></Label>
+							<StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
+								<Border  Theme="{DynamicResource RadioButtonGroupBorder}">
+									<ListBox Theme="{DynamicResource ButtonRadioGroupListBox}">
+										<ListBoxItem Classes="Small" IsSelected="{Binding FilterAllFiles, Mode=TwoWay}">All files</ListBoxItem>
+										<ListBoxItem Classes="Small" IsSelected="{Binding FilterAllFiles, Mode=TwoWay, Converter={StaticResource InverseBoolConverter}}">Only content files</ListBoxItem>
+									</ListBox>
+								</Border>
+							</StackPanel>
+						</DockPanel>
+
 						<Expander DockPanel.Dock="Top" Margin="0,0,0,20">
 							<Expander.Header>
 								<Label FontWeight="Normal">Size and number of files by month</Label>
@@ -23,7 +39,7 @@
 								Series="{Binding FilesByMonthSeries}"
 								XAxes="{Binding FilesByMonthXAxis}"
 								YAxes="{Binding FilesByMonthYAxes}"
-								Height="500" />
+								Height="500" LegendPosition="Top"  LegendTextPaint="{Binding LegendTextPaint}" />
 						</Expander>
 						<Expander DockPanel.Dock="Top" Margin="0,0,0,20" >
 							<Expander.Header>
@@ -35,6 +51,7 @@
 									Series="{Binding FilesByTypeSeries}"
 									XAxes="{Binding FilesByTypeXAxis}"
 									YAxes="{Binding FilesByTypeYAxes}"
+                                    LegendPosition="Top" LegendTextPaint="{Binding LegendTextPaint}"
 									Height="500" />
 								<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,5,0,10">
 									<TextBlock Text="Number of file types to show:" VerticalAlignment="Center"/>
@@ -52,16 +69,19 @@
 							<Expander.Header>
 								<Label FontWeight="Normal">File list</Label>
 							</Expander.Header>
-							<DataGrid MaxHeight="500" ItemsSource="{Binding Files}" IsScrollInertiaEnabled="True"
+							<DataGrid MaxHeight="500" ItemsSource="{Binding GroupedGridData}" IsScrollInertiaEnabled="True"
 									  AutoGenerateColumns="False" IsReadOnly="True"
 									  GridLinesVisibility="All"
+                                      ScrollViewer.AllowAutoHide="True"
+									  CanUserResizeColumns="True"
 									  Margin="0,0,0,20" >
 
 								<DataGrid.Columns>
-									<DataGridTextColumn Header="Name"  Binding="{Binding Path=Name}"/>
-									<DataGridTextColumn Header="Created Date" Binding="{Binding Path=CreatedDate}" />
-									<DataGridTextColumn Header="FileType" Binding="{Binding Path=FileType}" />
-									<DataGridTextColumn Header="Size" Binding="{Binding Path=Size}" />
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="SubDirectory"  Binding="{Binding DirectoryName}"/>
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Name"  Binding="{Binding Name}"/>
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Created Date" Binding="{Binding CreatedDate}" />
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="FileType" Binding="{Binding FileType}" />
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Size" Binding="{Binding Size}" />
 								</DataGrid.Columns>
 							</DataGrid>
 						</Expander>
@@ -75,6 +95,6 @@
 			</ScrollViewer>
 		</Border>
 
-    </DockPanel>
+	</DockPanel>
 
 </UserControl>

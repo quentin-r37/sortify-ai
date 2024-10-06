@@ -10,4 +10,6 @@ public class FileItem
     public DateTime CreatedDate { get; set; }
     public DateTime ModifiedDate { get; set; }
     public string FileType { get; set; }
+    public string DirectoryName { get; set; }
+
 }

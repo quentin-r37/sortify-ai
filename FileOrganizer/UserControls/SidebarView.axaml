@@ -4,28 +4,30 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
              xmlns:avalonia="https://github.com/projektanker/icons.avalonia"
+             xmlns:local="clr-namespace:FileOrganizer"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FileOrganizer.UserControls.SidebarView" x:DataType="viewModels:MainWindowViewModel">
 
+	<UserControl.Resources>
+        <SKPictureImage x:Key="Folder" Source="{x:Static local:Folder.Picture}" />
+    </UserControl.Resources>
 
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="Auto"></RowDefinition>
-		</Grid.RowDefinitions>
-		<StackPanel>
+	<Grid RowDefinitions="*,Auto">
+        <StackPanel>
 			<!-- Header with Logo -->
-			<StackPanel Orientation="Horizontal" >
-				<Ellipse Width="32" Height="32" Fill="Orange"/>
-				<TextBlock Text="File Organizer" VerticalAlignment="Center" Margin="8,0,0,0"
-						   FontSize="16"/>
+			<StackPanel Orientation="Horizontal">
+				<Border Padding="4" Width="32" Height="32" Margin="0,0,10,0" Background="Orange" CornerRadius="100">
+                    <Image Source="{StaticResource Folder}" />
+				</Border>
+				<TextBlock Text="File Organizer" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,0,0"
+						   FontSize="20"/>
 			</StackPanel>
 
 			<!-- Workspace Section -->
-			<Button Theme="{DynamicResource SolidButton}" Margin="0,20,0,0" Height="50" HorizontalAlignment="Stretch" Command="{Binding CreateNewAnalysisCommand}" >
+			<Button Margin="0,20,0,0" Height="50" HorizontalAlignment="Stretch" Command="{Binding CreateNewAnalysisCommand}" >
 				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-					<avalonia:Icon Value="fa-plus" Margin="0,0,5,0"/>
-					<TextBlock FontWeight="450" Text="New Folder Analysis"/>
+					<avalonia:Icon FontSize="20" Value="fa-folder-plus" Margin="0,0,10,0"/>
+					<TextBlock VerticalAlignment="Center" FontWeight="DemiBold" Text="New Folder Analysis"/>
 				</StackPanel>
 			</Button>
 
