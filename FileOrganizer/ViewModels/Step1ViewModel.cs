@@ -5,12 +5,25 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Database;
 using FileOrganizer.Views;
 
 namespace FileOrganizer.ViewModels;
 
-public partial class Step1ViewModel(AnalysisViewModel parent, MainWindow window) : StepViewModel
+public partial class Step1ViewModel : StepViewModel
 {
+    private readonly AnalysisViewModel _parent;
+    private readonly MainWindow _window;
+
+    public Step1ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
+    {
+        _parent = parent;
+        _window = window;
+        StepNumber = 1;
+        Icon = "fa-folder";
+        Description = "Step 1";
+    }
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(NextCommand))]
     private string _path;
@@ -20,16 +33,14 @@ public partial class Step1ViewModel(AnalysisViewModel parent, MainWindow window)
     [RelayCommand(CanExecute = nameof(CanExecuteNext))]
     private void Next()
     {
-
-
-        parent.Step2.LoadFiles(Path);
-        parent.NextStep();
+        _parent.Step2.LoadFiles(Path);
+        _parent.NextStep();
     }
 
     [RelayCommand]
     private async Task Browse()
     {
-        var topLevel = TopLevel.GetTopLevel(window);
+        var topLevel = TopLevel.GetTopLevel(_window);
         if (topLevel is not null)
         {
             var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
@@ -43,6 +54,6 @@ public partial class Step1ViewModel(AnalysisViewModel parent, MainWindow window)
             }
         }
     }
-    partial void OnPathChanged(string value) => parent.AnalysisPath = value;
+    partial void OnPathChanged(string value) => _parent.AnalysisPath = value;
 
 }

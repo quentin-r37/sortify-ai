@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 
@@ -8,12 +9,13 @@ namespace FileOrganizer.ViewModels;
 public class Step4ViewModel : StepViewModel
 {
     private readonly AnalysisViewModel _parent;
-    public RelayCommand ExecuteCommand { get; }
 
-    public Step4ViewModel(AnalysisViewModel parent, MainWindow? window)
+    public Step4ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
     {
+        StepNumber = 4;
+        Icon = "fa-brain";
+        Description = "Step 4";
         _parent = parent;
-        ExecuteCommand = new RelayCommand(ExecuteOrganization);
     }
 
     public void PreparePreview(OrganizationType organizationType)

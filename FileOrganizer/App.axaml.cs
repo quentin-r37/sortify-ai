@@ -12,6 +12,7 @@ using System.IO;
 using System;
 using FileOrganizer.Database;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace FileOrganizer
 {
@@ -31,19 +32,19 @@ namespace FileOrganizer
                 var services = new ServiceCollection();
                 services.AddSingleton<MainWindow>();
                 services.AddSingleton<MainWindowViewModel>();
-                services.AddTransient<Step1ViewModel>();
-                services.AddTransient<Step2ViewModel>();
-                services.AddTransient<Step3ViewModel>();
-                services.AddTransient<Step4ViewModel>();
-                services.AddTransient<AnalysisViewModel>();
-
                 services.AddDbContext<AppDbContext>(options =>
                 {
                     var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.db");
                     options.UseSqlite($"Data Source={dbPath}");
                 });
+                services.AddSingleton<IViewModelFactory, ViewModelFactory>();
 
                 var serviceProvider = services.BuildServiceProvider();
+                using (var scope = serviceProvider.CreateScope())
+                {
+                    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    dbContext.Database.EnsureCreated(); 
+                }
 
                 var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
                 var viewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();

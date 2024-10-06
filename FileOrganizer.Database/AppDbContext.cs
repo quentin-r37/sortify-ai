@@ -16,7 +16,6 @@ namespace FileOrganizer.Database
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Define relationships if necessary
             modelBuilder.Entity<Analysis>()
                 .HasMany(a => a.Files)
                 .WithOne(f => f.Analysis)

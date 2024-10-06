@@ -47,8 +47,11 @@ public partial class Step2ViewModel : StepViewModel
         CalculateFilesByType();
     }
 
-    public Step2ViewModel(AnalysisViewModel parent, MainWindow? window)
+    public Step2ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
     {
+        StepNumber = 2;
+        Icon = "fa-chart-simple";
+        Description = "Step 2";
         _parent = parent;
         Files = [];
     }

@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 
@@ -16,9 +17,12 @@ public partial class Step3ViewModel : StepViewModel
     }
 
 
-    public Step3ViewModel(AnalysisViewModel parent, MainWindow? window)
+    public Step3ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
     {
         _parent = parent;
+        StepNumber = 3;
+        Icon = "fa-magnifying-glass";
+        Description = "Step 3";
     }
 
     [RelayCommand]

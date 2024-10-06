@@ -67,34 +67,14 @@ public partial class AnalysisViewModel : ObservableObject
         }
     }
 
-    public AnalysisViewModel(Analysis analysis, MainWindow window)
+    public AnalysisViewModel(Analysis analysis, MainWindow window, IViewModelFactory viewModelFactory)
     {
         _model = analysis;
-        Step1 = new Step1ViewModel(this, window)
-        {
-            StepNumber = 1,
-            Icon = "fa-folder",
-            Description = "Step 1",
-            Path = analysis.Path
-        };
-        Step2 = new Step2ViewModel(this, window)
-        {
-            StepNumber = 2,
-            Icon = "fa-chart-simple",
-            Description = "Step 2"
-        };
-        Step3 = new Step3ViewModel(this, window)
-        {
-            StepNumber = 3,
-            Icon = "fa-magnifying-glass",
-            Description = "Step 3"
-        };
-        Step4 = new Step4ViewModel(this, window)
-        {
-            StepNumber = 4,
-            Icon = "fa-brain",
-            Description = "Step 4"
-        };
+        Step1 = viewModelFactory.CreateStep1ViewModel(this, window);
+        Step1.Path = analysis.Path;
+        Step2 = viewModelFactory.CreateStep2ViewModel(this, window);
+        Step3 = viewModelFactory.CreateStep3ViewModel(this, window);
+        Step4 = viewModelFactory.CreateStep4ViewModel(this, window);
 
         Steps = [Step1, Step2, Step3, Step4];
         CurrentStep = 1;
