@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace FileOrganizer.Models;
+﻿namespace FileOrganizer.Shared;
 
 public class AnalysisResult
 {

@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using FileOrganizer.Models;
+using FileOrganizer.Database;
+using FileOrganizer.Shared;
 using FileOrganizer.Views;
 using LiveChartsCore;
 using LiveChartsCore.Drawing;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using Ollama;
 using SkiaSharp;
 
 namespace FileOrganizer.ViewModels;
@@ -50,7 +53,16 @@ public partial class Step2ViewModel : StepViewModel
         Files = [];
     }
 
-    public void LoadFiles(string? path)
+    public async Task ExtractDocFiles()
+    {
+        using var ollama = new OllamaApiClient();
+        var embedding = await ollama.Embeddings.GenerateEmbeddingAsync(
+            model: "all-minilm",
+            prompt: "hello");
+
+    }
+
+    public void LoadFiles(string path)
     {
         _allFiles = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
             .Select(filePath =>
@@ -87,7 +99,7 @@ public partial class Step2ViewModel : StepViewModel
     }
 
     public ISeries[] FilesByMonthSeries { get; set; }
-    public Axis[] FilesByMonthXAxis { get; set; }
+    public ObservableCollection<Axis> FilesByMonthXAxis { get; set; }
     public ObservableCollection<Axis> FilesByMonthYAxes { get; set; }
 
     public ISeries[] FilesByTypeSeries { get; set; }
@@ -126,19 +138,19 @@ public partial class Step2ViewModel : StepViewModel
             }
         };
 
-        FilesByMonthXAxis = new Axis[]
-        {
+        FilesByMonthXAxis =
+        [
             new Axis
             {
                 Labels = groupedByMonth.Select(g => g.Key).ToArray(),
                 LabelsRotation = 45,
-                LabelsPaint =  new SolidColorPaint(new SKColor(255, 255, 255)),
+                LabelsPaint = new SolidColorPaint(new SKColor(255, 255, 255)),
                 SeparatorsPaint = new SolidColorPaint(new SKColor(100, 100, 100)),
                 SeparatorsAtCenter = false,
                 TicksPaint = new SolidColorPaint(new SKColor(200, 200, 200)),
                 TicksAtCenter = true
             }
-        };
+        ];
 
         FilesByMonthYAxes =
         [
@@ -170,9 +182,9 @@ public partial class Step2ViewModel : StepViewModel
         OnPropertyChanged(nameof(FilesByMonthYAxes));
     }
 
-    private static readonly SKColor CountColor = new SKColor(25, 118, 210); // Blue
-    private static readonly SKColor SizeColor = new SKColor(198, 40, 40);   // Red
-    private static readonly SKColor SizeColorFill = new SKColor(198, 40, 40, 0);   // Red
+    private static readonly SKColor CountColor = new SKColor(25, 118, 210);
+    private static readonly SKColor SizeColor = new SKColor(198, 40, 40);
+    private static readonly SKColor SizeColorFill = new SKColor(198, 40, 40, 20);
 
     private void CalculateFilesByType()
     {
@@ -267,5 +279,7 @@ public partial class Step2ViewModel : StepViewModel
     {
         _parent.PreviousStep();
     }
+
+
 
 }

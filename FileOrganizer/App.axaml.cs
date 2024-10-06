@@ -7,6 +7,11 @@ using Avalonia.Markup.Xaml;
 using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System.IO;
+using System;
+using FileOrganizer.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace FileOrganizer
 {
@@ -26,6 +31,18 @@ namespace FileOrganizer
                 var services = new ServiceCollection();
                 services.AddSingleton<MainWindow>();
                 services.AddSingleton<MainWindowViewModel>();
+                services.AddTransient<Step1ViewModel>();
+                services.AddTransient<Step2ViewModel>();
+                services.AddTransient<Step3ViewModel>();
+                services.AddTransient<Step4ViewModel>();
+                services.AddTransient<AnalysisViewModel>();
+
+                services.AddDbContext<AppDbContext>(options =>
+                {
+                    var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.db");
+                    options.UseSqlite($"Data Source={dbPath}");
+                });
+
                 var serviceProvider = services.BuildServiceProvider();
 
                 var mainWindow = serviceProvider.GetRequiredService<MainWindow>();

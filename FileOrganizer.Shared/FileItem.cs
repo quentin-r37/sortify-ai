@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace FileOrganizer.Models;
+﻿namespace FileOrganizer.Shared;
 
 public class FileItem
 {
+    public int FileItemId { get; set; }
+    public int AnalysisId { get; set; }
     public string Path { get; set; }
     public string Name { get; set; }
     public long Size { get; set; }
@@ -11,5 +11,5 @@ public class FileItem
     public DateTime ModifiedDate { get; set; }
     public string FileType { get; set; }
     public string DirectoryName { get; set; }
-
+    public Analysis? Analysis { get; set; }
 }

@@ -20,6 +20,8 @@ public partial class Step1ViewModel(AnalysisViewModel parent, MainWindow window)
     [RelayCommand(CanExecute = nameof(CanExecuteNext))]
     private void Next()
     {
+
+
         parent.Step2.LoadFiles(Path);
         parent.NextStep();
     }

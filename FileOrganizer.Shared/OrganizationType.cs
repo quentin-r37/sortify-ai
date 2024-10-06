@@ -1,4 +1,4 @@
-﻿namespace FileOrganizer.Models;
+﻿namespace FileOrganizer.Shared;
 
 public enum OrganizationType
 {

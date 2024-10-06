@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FileOrganizer.Models;
 using FileOrganizer.Views;
 using System.Collections.ObjectModel;
 using System;
@@ -7,6 +6,7 @@ using Avalonia;
 using CommunityToolkit.Mvvm.Input;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using FileOrganizer.Shared;
 
 namespace FileOrganizer.ViewModels;
 public partial class AnalysisViewModel : ObservableObject

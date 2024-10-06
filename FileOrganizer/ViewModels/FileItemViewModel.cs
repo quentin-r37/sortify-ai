@@ -1,6 +1,6 @@
 ﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
-using FileOrganizer.Models;
+using FileOrganizer.Shared;
 
 namespace FileOrganizer.ViewModels;
 
