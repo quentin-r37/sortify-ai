@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
@@ -10,11 +9,6 @@ public partial class Step3ViewModel : StepViewModel
 {
     private readonly AnalysisViewModel _parent;
     private OrganizationType _selectedOrganizationType;
-    public OrganizationType SelectedOrganizationType
-    {
-        get => _selectedOrganizationType;
-        set => SetProperty(ref _selectedOrganizationType, value);
-    }
 
 
     public Step3ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
@@ -23,6 +17,12 @@ public partial class Step3ViewModel : StepViewModel
         StepNumber = 3;
         Icon = "fa-magnifying-glass";
         Description = "Step 3";
+    }
+
+    public OrganizationType SelectedOrganizationType
+    {
+        get => _selectedOrganizationType;
+        set => SetProperty(ref _selectedOrganizationType, value);
     }
 
     [RelayCommand]

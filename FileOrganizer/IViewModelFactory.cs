@@ -1,7 +1,6 @@
 using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
-using System.Threading.Tasks;
 
 namespace FileOrganizer;
 

@@ -1,73 +1,72 @@
 ﻿using System;
-using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 
-namespace FileOrganizer.ViewModels
+namespace FileOrganizer.ViewModels;
+
+public partial class MainWindowViewModel : ViewModelBase
 {
-    public partial class MainWindowViewModel : ViewModelBase
+    private readonly AppDbContext _appDbContext;
+
+    private readonly MainWindow _mainWindow;
+    private readonly IViewModelFactory _viewModelFactory;
+    private ObservableCollection<AnalysisViewModel> _analyses;
+
+    [ObservableProperty] private AnalysisViewModel _selectedAnalysis;
+
+    public MainWindowViewModel(MainWindow window, IViewModelFactory viewModelFactory, AppDbContext appDbContext)
     {
-        private readonly IViewModelFactory _viewModelFactory;
-        private readonly AppDbContext _appDbContext;
-        private ObservableCollection<AnalysisViewModel> _analyses;
-        public ObservableCollection<AnalysisViewModel> Analyses
+        _mainWindow = window;
+        _viewModelFactory = viewModelFactory;
+        _appDbContext = appDbContext;
+        _analyses = [];
+        _selectedAnalysis = null;
+        Analyses = new ObservableCollection<AnalysisViewModel>(LoadAnalysesFromDatabaseAsync());
+    }
+
+
+    public MainWindowViewModel(IViewModelFactory viewModelFactory)
+    {
+        _viewModelFactory = viewModelFactory;
+    }
+
+    public ObservableCollection<AnalysisViewModel> Analyses
+    {
+        get => _analyses;
+        set => SetProperty(ref _analyses, value);
+    }
+
+    [RelayCommand]
+    private async Task CreateNewAnalysis()
+    {
+        var newAnalysisModel = new Analysis
         {
-            get => _analyses;
-            set => SetProperty(ref _analyses, value);
-        }
+            Name = "New Analysis",
+            CreatedDate = DateTime.Now,
+            Path = "C:\\Users\\quent\\Downloads"
+        };
+        var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel, _mainWindow);
 
-        [ObservableProperty]
-        private AnalysisViewModel _selectedAnalysis;
+        _appDbContext.Analyses.Add(newAnalysisModel);
+        await _appDbContext.SaveChangesAsync();
 
-        private readonly MainWindow _mainWindow;
+        Analyses.Add(newAnalysisViewModel);
+        SelectedAnalysis = newAnalysisViewModel;
+    }
 
-        public MainWindowViewModel(MainWindow window, IViewModelFactory viewModelFactory, AppDbContext appDbContext)
-        {
-            _mainWindow = window;
-            _viewModelFactory = viewModelFactory;
-            _appDbContext = appDbContext;
-            _analyses = [];
-            _selectedAnalysis = null;
-            Analyses = new ObservableCollection<AnalysisViewModel>(LoadAnalysesFromDatabaseAsync());
-        }
+    private IEnumerable<AnalysisViewModel> LoadAnalysesFromDatabaseAsync()
+    {
+        var list = _appDbContext.Analyses
+            .Select(analysis => _viewModelFactory.CreateAnalysisViewModel(analysis, _mainWindow))
+            .ToList();
 
-
-        public MainWindowViewModel(IViewModelFactory viewModelFactory)
-        {
-            _viewModelFactory = viewModelFactory;
-        }
-
-        [RelayCommand]
-        private async Task CreateNewAnalysis()
-        {
-            var newAnalysisModel = new Analysis
-            {
-                Name = "New Analysis",
-                CreatedDate = DateTime.Now,
-                Path = "C:\\Users\\quent\\Downloads"
-            };
-            var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel, _mainWindow);
-
-            _appDbContext.Analyses.Add(newAnalysisModel);
-            await _appDbContext.SaveChangesAsync();
-
-            Analyses.Add(newAnalysisViewModel);
-            SelectedAnalysis = newAnalysisViewModel;
-        }
-
-        private IEnumerable<AnalysisViewModel> LoadAnalysesFromDatabaseAsync()
-        {
-            var list = _appDbContext.Analyses
-                .Select(analysis => _viewModelFactory.CreateAnalysisViewModel(analysis, _mainWindow))
-                .ToList();
-
-            return list;
-        }
+        return list;
     }
 }

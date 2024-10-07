@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -15,6 +14,9 @@ public partial class Step1ViewModel : StepViewModel
     private readonly AnalysisViewModel _parent;
     private readonly MainWindow _window;
 
+    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(NextCommand))]
+    private string _path;
+
     public Step1ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
     {
         _parent = parent;
@@ -24,11 +26,10 @@ public partial class Step1ViewModel : StepViewModel
         Description = "Step 1";
     }
 
-    [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(NextCommand))]
-    private string _path;
-
-    private bool CanExecuteNext() => !string.IsNullOrEmpty(Path) && Directory.Exists(Path);
+    private bool CanExecuteNext()
+    {
+        return !string.IsNullOrEmpty(Path) && Directory.Exists(Path);
+    }
 
     [RelayCommand(CanExecute = nameof(CanExecuteNext))]
     private void Next()
@@ -48,12 +49,12 @@ public partial class Step1ViewModel : StepViewModel
                 Title = "Select Folder"
             });
 
-            if (folders.Count > 0)
-            {
-                Path = folders[0].Path.LocalPath;
-            }
+            if (folders.Count > 0) Path = folders[0].Path.LocalPath;
         }
     }
-    partial void OnPathChanged(string value) => _parent.AnalysisPath = value;
 
+    partial void OnPathChanged(string value)
+    {
+        _parent.AnalysisPath = value;
+    }
 }

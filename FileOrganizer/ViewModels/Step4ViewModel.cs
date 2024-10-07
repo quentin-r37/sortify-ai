@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using FileOrganizer.Database;
+﻿using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 

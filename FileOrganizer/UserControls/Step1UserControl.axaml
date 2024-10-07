@@ -6,14 +6,16 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FileOrganizer.UserControls.Step1UserControl" x:DataType="viewModels:Step1ViewModel">
 
-    <Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20" Padding="20" BorderBrush="{DynamicResource SemiGrey2Color}">
+    <Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20" Padding="20"
+            BorderBrush="{DynamicResource SemiGrey2Color}">
         <StackPanel Orientation="Vertical">
-            <Label Content="Folder selection" FontWeight="DemiBold" Margin="0,0,0,40"></Label>
+            <Label Content="Folder selection" FontWeight="DemiBold" Margin="0,0,0,40" />
             <StackPanel Orientation="Horizontal">
-                <TextBox MinWidth="300" Text="{Binding Path=Path, Mode=TwoWay}" Watermark="Enter the directory path" Margin="0,0,20,0"/>
+                <TextBox MinWidth="300" Text="{Binding Path=Path, Mode=TwoWay}" Watermark="Enter the directory path"
+                         Margin="0,0,20,0" />
                 <Button Content="Browse" Command="{Binding BrowseCommand}" />
-			</StackPanel>
+            </StackPanel>
             <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
         </StackPanel>
-	</Border>
+    </Border>
 </UserControl>

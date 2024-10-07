@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;

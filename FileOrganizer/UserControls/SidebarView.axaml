@@ -8,56 +8,59 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FileOrganizer.UserControls.SidebarView" x:DataType="viewModels:MainWindowViewModel">
 
-	<UserControl.Resources>
+    <UserControl.Resources>
         <SKPictureImage x:Key="Folder" Source="{x:Static local:Folder.Picture}" />
     </UserControl.Resources>
 
-	<Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="*,Auto">
         <StackPanel>
-			<!-- Header with Logo -->
-			<StackPanel Orientation="Horizontal">
-				<Border Padding="4" Width="32" Height="32" Margin="0,0,10,0" Background="Orange" CornerRadius="100">
+            <!-- Header with Logo -->
+            <StackPanel Orientation="Horizontal">
+                <Border Padding="4" Width="32" Height="32" Margin="0,0,10,0" Background="Orange" CornerRadius="100">
                     <Image Source="{StaticResource Folder}" />
-				</Border>
-				<TextBlock Text="File Organizer" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,0,0"
-						   FontSize="20"/>
-			</StackPanel>
+                </Border>
+                <TextBlock Text="File Organizer" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,0,0"
+                           FontSize="20" />
+            </StackPanel>
 
-			<!-- Workspace Section -->
-			<Button Margin="0,20,0,0" Height="50" HorizontalAlignment="Stretch" Command="{Binding CreateNewAnalysisCommand}" >
-				<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-					<avalonia:Icon FontSize="20" Value="fa-folder-plus" Margin="0,0,10,0"/>
-					<TextBlock VerticalAlignment="Center" FontWeight="DemiBold" Text="New Folder Analysis"/>
-				</StackPanel>
-			</Button>
+            <!-- Workspace Section -->
+            <Button Margin="0,20,0,0" Height="50" HorizontalAlignment="Stretch"
+                    Command="{Binding CreateNewAnalysisCommand}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <avalonia:Icon FontSize="20" Value="fa-folder-plus" Margin="0,0,10,0" />
+                    <TextBlock VerticalAlignment="Center" FontWeight="DemiBold" Text="New Folder Analysis" />
+                </StackPanel>
+            </Button>
 
-			<!-- Search Box -->
-			<TextBox Margin="0,20,0,0" Watermark="Search..." />
+            <!-- Search Box -->
+            <TextBox Margin="0,20,0,0" Watermark="Search..." />
 
-			<Border Margin="20,20,20,0" HorizontalAlignment="Stretch" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SemiColorBorder}"></Border>
+            <Border Margin="20,20,20,0" HorizontalAlignment="Stretch" BorderThickness="0,1,0,0"
+                    BorderBrush="{DynamicResource SemiColorBorder}" />
 
-			<Label Margin="0,20,0,0" Content="Recent analysis" FontWeight="DemiBold"></Label>
-			<ListBox Margin="0,10,0,0" ItemsSource="{Binding Analyses, Mode=TwoWay}" SelectedItem="{Binding SelectedAnalysis}">
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<Border BorderThickness="1" CornerRadius="10" Padding="5">
-							<StackPanel>
-								<TextBlock FontWeight="550" Text="{Binding AnalysisName, Mode=TwoWay}"/>
-								<TextBlock Margin="0,10,0,0" Text="{Binding AnalysisPath, Mode=TwoWay}"/>
-							</StackPanel>
-						</Border>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
-		</StackPanel>
-		<Button Theme="{DynamicResource Outline}" Grid.Row="1" Background="{DynamicResource ButtonBackground}" FontWeight="550" HorizontalAlignment="Stretch" Margin="8,4">
-			<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-				<avalonia:Icon Value="fa-cog" Margin="0,0,5,0"/>
-				<TextBlock FontWeight="550" Text="Settings"/>
-			</StackPanel>
-		</Button>
-	</Grid>
-
+            <Label Margin="0,20,0,0" Content="Recent analysis" FontWeight="DemiBold" />
+            <ListBox Margin="0,10,0,0" ItemsSource="{Binding Analyses, Mode=TwoWay}"
+                     SelectedItem="{Binding SelectedAnalysis}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="1" CornerRadius="10" Padding="5">
+                            <StackPanel>
+                                <TextBlock FontWeight="550" Text="{Binding AnalysisName, Mode=TwoWay}" />
+                                <TextBlock Margin="0,10,0,0" Text="{Binding AnalysisPath, Mode=TwoWay}" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+        <Button Theme="{DynamicResource Outline}" Grid.Row="1" Background="{DynamicResource ButtonBackground}"
+                FontWeight="550" HorizontalAlignment="Stretch" Margin="8,4">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <avalonia:Icon Value="fa-cog" Margin="0,0,5,0" />
+                <TextBlock FontWeight="550" Text="Settings" />
+            </StackPanel>
+        </Button>
+    </Grid>
 
 
 </UserControl>

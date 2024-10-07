@@ -12,45 +12,44 @@
         TransparencyLevelHint="AcrylicBlur"
         Background="Transparent"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome"
-        >
+        ExtendClientAreaChromeHints="PreferSystemChrome">
 
 
     <Design.DataContext>
-		<!-- This only sets the DataContext for the previewer in an IDE,
+        <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-		<vm:MainWindowViewModel/>
-	</Design.DataContext>
-	<Panel>
-		<ExperimentalAcrylicBorder IsHitTestVisible="False">
-			<ExperimentalAcrylicBorder.Material>
-				<ExperimentalAcrylicMaterial
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
                     BackgroundSource="Digger"
                     TintColor="Black"
                     TintOpacity="1"
                     MaterialOpacity="0.7" />
-			</ExperimentalAcrylicBorder.Material>
-		</ExperimentalAcrylicBorder>
-		<DockPanel>
-			<Border Margin="20,35,20,20" DockPanel.Dock="Left">
-				<userControls:SidebarView DataContext="{Binding}"  Width="250"/>
-			</Border>
-			<Panel>
-				<ExperimentalAcrylicBorder IsHitTestVisible="False">
-					<ExperimentalAcrylicBorder.Material>
-						<ExperimentalAcrylicMaterial
-							BackgroundSource="Digger"
-							TintColor="Black"
-							TintOpacity="1"
-							MaterialOpacity="0.6" />
-					</ExperimentalAcrylicBorder.Material>
-				</ExperimentalAcrylicBorder>
-				<Border Margin="10,35,20,20" CornerRadius="20" >
-					<ContentControl Padding="40,0" Content="{Binding SelectedAnalysis}"/>
-				</Border>
-			</Panel>
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+        <DockPanel>
+            <Border Margin="20,35,20,20" DockPanel.Dock="Left">
+                <userControls:SidebarView DataContext="{Binding}" Width="250" />
+            </Border>
+            <Panel>
+                <ExperimentalAcrylicBorder IsHitTestVisible="False">
+                    <ExperimentalAcrylicBorder.Material>
+                        <ExperimentalAcrylicMaterial
+                            BackgroundSource="Digger"
+                            TintColor="Black"
+                            TintOpacity="1"
+                            MaterialOpacity="0.6" />
+                    </ExperimentalAcrylicBorder.Material>
+                </ExperimentalAcrylicBorder>
+                <Border Margin="10,35,20,20" CornerRadius="20">
+                    <ContentControl Padding="40,0" Content="{Binding SelectedAnalysis}" />
+                </Border>
+            </Panel>
 
 
-		</DockPanel>
-	</Panel>
+        </DockPanel>
+    </Panel>
 </Window>

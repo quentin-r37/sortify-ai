@@ -1,17 +1,32 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FileOrganizer.Views;
-using System.Collections.ObjectModel;
-using System;
-using Avalonia;
+﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Avalonia.Interactivity;
-using Avalonia.Styling;
 using FileOrganizer.Shared;
+using FileOrganizer.Views;
 
 namespace FileOrganizer.ViewModels;
+
 public partial class AnalysisViewModel : ObservableObject
 {
     private readonly Analysis _model;
+
+    [ObservableProperty] private int _currentStep;
+
+    [ObservableProperty] private bool _isEditing;
+
+    public AnalysisViewModel(Analysis analysis, MainWindow window, IViewModelFactory viewModelFactory)
+    {
+        _model = analysis;
+        Step1 = viewModelFactory.CreateStep1ViewModel(this, window);
+        Step1.Path = analysis.Path;
+        Step2 = viewModelFactory.CreateStep2ViewModel(this, window);
+        Step3 = viewModelFactory.CreateStep3ViewModel(this, window);
+        Step4 = viewModelFactory.CreateStep4ViewModel(this, window);
+
+        Steps = [Step1, Step2, Step3, Step4];
+        CurrentStep = 1;
+        UpdateStepStates();
+    }
 
     public ObservableCollection<StepViewModel> Steps { get; }
 
@@ -52,6 +67,11 @@ public partial class AnalysisViewModel : ObservableObject
         }
     }
 
+    public Step1ViewModel Step1 { get; }
+    public Step2ViewModel Step2 { get; }
+    public Step3ViewModel Step3 { get; }
+    public Step4ViewModel Step4 { get; }
+
     partial void OnCurrentStepChanged(int value)
     {
         UpdateStepStates();
@@ -66,31 +86,6 @@ public partial class AnalysisViewModel : ObservableObject
             step.IsNotLastStep = step.StepNumber != Steps.Count;
         }
     }
-
-    public AnalysisViewModel(Analysis analysis, MainWindow window, IViewModelFactory viewModelFactory)
-    {
-        _model = analysis;
-        Step1 = viewModelFactory.CreateStep1ViewModel(this, window);
-        Step1.Path = analysis.Path;
-        Step2 = viewModelFactory.CreateStep2ViewModel(this, window);
-        Step3 = viewModelFactory.CreateStep3ViewModel(this, window);
-        Step4 = viewModelFactory.CreateStep4ViewModel(this, window);
-
-        Steps = [Step1, Step2, Step3, Step4];
-        CurrentStep = 1;
-        UpdateStepStates();
-    }
-
-    [ObservableProperty]
-    private int _currentStep;
-
-    public Step1ViewModel Step1 { get; }
-    public Step2ViewModel Step2 { get; }
-    public Step3ViewModel Step3 { get; }
-    public Step4ViewModel Step4 { get; }
-
-    [ObservableProperty]
-    private bool _isEditing;
 
     [RelayCommand]
     private void ToggleEditMode()
