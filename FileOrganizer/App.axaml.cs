@@ -5,6 +5,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using FileOrganizer.Database;
+using FileOrganizer.DataExtractor;
 using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,8 @@ public class App : Application
             var services = new ServiceCollection();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
+            services.AddSingleton<ITextExtractorService, TextExtractorService>();
+
             services.AddDbContext<AppDbContext>(options =>
             {
                 var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.db");

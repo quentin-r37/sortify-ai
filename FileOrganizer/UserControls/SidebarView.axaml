@@ -43,12 +43,19 @@
                      SelectedItem="{Binding SelectedAnalysis}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderThickness="1" CornerRadius="10" Padding="5">
-                            <StackPanel>
-                                <TextBlock FontWeight="550" Text="{Binding AnalysisName, Mode=TwoWay}" />
-                                <TextBlock Margin="0,10,0,0" Text="{Binding AnalysisPath, Mode=TwoWay}" />
-                            </StackPanel>
-                        </Border>
+                        <Border HorizontalAlignment="Stretch" BorderThickness="1" CornerRadius="10" Padding="5">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <StackPanel>
+                                    <TextBlock FontWeight="550" Text="{Binding AnalysisName, Mode=TwoWay}" />
+                                    <TextBlock TextTrimming="CharacterEllipsis" Margin="0,10,0,0" Text="{Binding AnalysisPath, Mode=TwoWay}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Theme="{DynamicResource OutlineButton}" Classes="Danger" avalonia:Attached.Icon="fa-trash" Command="{Binding DeleteCommand}"
+                                            Margin="10,0,0,0" />
+                                </StackPanel>
+							</Grid>
+
+						</Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

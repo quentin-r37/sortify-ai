@@ -1,6 +1,7 @@
 ﻿using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
+using System;
 
 namespace FileOrganizer.ViewModels;
 
@@ -8,7 +9,7 @@ public class Step4ViewModel : StepViewModel
 {
     private readonly AnalysisViewModel _parent;
 
-    public Step4ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
+    public Step4ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
     {
         StepNumber = 4;
         Icon = "fa-brain";

@@ -1,22 +1,33 @@
 ﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Avalonia.Controls.Notifications;
+using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
+using Microsoft.Extensions.Logging;
 
 namespace FileOrganizer.ViewModels;
 
 public partial class AnalysisViewModel : ObservableObject
 {
-    private readonly Analysis _model;
+    public Analysis Model { get; set; }
+    private readonly MainWindow _window;
+    private readonly MainWindowViewModel _mainWindowViewModel;
+    private readonly WindowNotificationManager _notificationManager;
 
     [ObservableProperty] private int _currentStep;
-
     [ObservableProperty] private bool _isEditing;
 
-    public AnalysisViewModel(Analysis analysis, MainWindow window, IViewModelFactory viewModelFactory)
+    public AnalysisViewModel(Analysis analysis, 
+        MainWindow window, MainWindowViewModel mainWindowViewModel,WindowNotificationManager notificationManager,
+        IViewModelFactory viewModelFactory)
     {
-        _model = analysis;
+        Model = analysis;
+        _window = window;
+        _mainWindowViewModel = mainWindowViewModel;
+        _notificationManager = notificationManager;
         Step1 = viewModelFactory.CreateStep1ViewModel(this, window);
         Step1.Path = analysis.Path;
         Step2 = viewModelFactory.CreateStep2ViewModel(this, window);
@@ -47,22 +58,22 @@ public partial class AnalysisViewModel : ObservableObject
 
     public string AnalysisName
     {
-        get => _model.Name;
+        get => Model.Name;
         set
         {
-            if (_model.Name == value) return;
-            _model.Name = value;
+            if (Model.Name == value) return;
+            Model.Name = value;
             OnPropertyChanged();
         }
     }
 
     public string AnalysisPath
     {
-        get => _model.Path;
+        get => Model.Path;
         set
         {
-            if (_model.Path == value) return;
-            _model.Path = value;
+            if (Model.Path == value) return;
+            Model.Path = value;
             OnPropertyChanged();
         }
     }
@@ -94,9 +105,24 @@ public partial class AnalysisViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task SaveName()
+    {
+        IsEditing = false;
+        await _mainWindowViewModel.SaveNameAsync(this);
+        _notificationManager.Show("Analysis saved successfully", NotificationType.Success);
+
+    }
+
+    [RelayCommand]
     public void Next()
     {
         NextStep();
+    }
+
+    [RelayCommand]
+    public async Task Delete()
+    {
+        await _mainWindowViewModel.DeleteAnalyseAsync(this);
     }
 
     [RelayCommand]

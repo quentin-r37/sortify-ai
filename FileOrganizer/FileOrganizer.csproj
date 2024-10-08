@@ -41,6 +41,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FileOrganizer.Database\FileOrganizer.Database.csproj" />
+    <ProjectReference Include="..\FileOrganizer.DataExtractor\FileOrganizer.DataExtractor.csproj" />
     <ProjectReference Include="..\FileOrganizer.Shared\FileOrganizer.Shared.csproj" />
   </ItemGroup>
 </Project>

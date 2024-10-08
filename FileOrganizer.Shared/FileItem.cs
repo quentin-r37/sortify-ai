@@ -11,5 +11,7 @@ public class FileItem
     public DateTime ModifiedDate { get; set; }
     public string FileType { get; set; }
     public string DirectoryName { get; set; }
+    public string Content { get; set; } = string.Empty;
+    public bool HasContent { get; set; }
     public Analysis? Analysis { get; set; }
 }

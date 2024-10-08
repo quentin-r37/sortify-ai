@@ -13,4 +13,7 @@ public class FileItemViewModel(FileItem model) : ObservableObject
     public long Size => Model.Size;
     public DateTime CreatedDate => Model.CreatedDate;
     public string FileType => Model.FileType;
+    public string Content => Model.Content;
+    public bool HasContent => Model.HasContent;
+
 }

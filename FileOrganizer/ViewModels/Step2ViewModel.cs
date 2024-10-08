@@ -1,18 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
+using FileOrganizer.DataExtractor;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 using LiveChartsCore;
 using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Ollama;
 using SkiaSharp;
 
@@ -24,27 +31,33 @@ public partial class Step2ViewModel : StepViewModel
     private static readonly SKColor SizeColor = new(198, 40, 40);
     private static readonly SKColor SizeColorFill = new(198, 40, 40, 20);
     private readonly AnalysisViewModel _parent;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly AppDbContext _appDbContext;
 
     [ObservableProperty] private int _fileTypesCount = 10;
 
     [ObservableProperty] private bool _filterAllFiles = true;
+    [ObservableProperty] private bool _showSubDirectories = true;
 
-    public Step2ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
+
+    public Step2ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
     {
         StepNumber = 2;
         Icon = "fa-chart-simple";
         Description = "Step 2";
         _parent = parent;
+        _serviceProvider = serviceProvider;
+        _appDbContext = serviceProvider.GetRequiredService<AppDbContext>();
         Files = [];
     }
 
-    public List<FileItemViewModel> Files { get; set; }
-    private List<FileItemViewModel> _allFiles { get; set; }
+    public ObservableCollection<FileItemViewModel> Files { get; set; }
+    private List<FileItemViewModel> AllFiles { get; set; }
 
-    public DataGridCollectionView GroupedGridData { get; set; }
+    [ObservableProperty] 
+    private DataGridCollectionView _groupedGridData;
 
     public SolidColorPaint LegendTextPaint { get; set; } = new(new SKColor(255, 255, 255));
-
     public int MaxFileTypes => Files.Select(f => f.FileType).Distinct().Count();
 
     public ISeries[] FilesByMonthSeries { get; set; }
@@ -55,7 +68,26 @@ public partial class Step2ViewModel : StepViewModel
     public ObservableCollection<Axis> FilesByTypeXAxis { get; set; }
     public ObservableCollection<Axis> FilesByTypeYAxes { get; set; }
 
+
+    [ObservableProperty]
+    private double _progress;
+
+    [ObservableProperty]
+    private bool _isProcessing;
+
+    [ObservableProperty]
+    private string _statusMessage = "Ready";
+
+    public Step2ViewModel()
+    {
+    }
+
     partial void OnFilterAllFilesChanged(bool value)
+    {
+        RefreshFilesFilter();
+    }
+
+    partial void OnShowSubDirectoriesChanged(bool value)
     {
         RefreshFilesFilter();
     }
@@ -65,17 +97,98 @@ public partial class Step2ViewModel : StepViewModel
         CalculateFilesByType();
     }
 
-    public async Task ExtractDocFiles()
+
+    public async Task ExtractTextFromFilesAsync()
     {
-        using var ollama = new OllamaApiClient();
-        var embedding = await ollama.Embeddings.GenerateEmbeddingAsync(
-            "all-minilm",
-            "hello");
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            IsProcessing = true;
+            Progress = 0;
+            StatusMessage = "Starting text extraction...";
+        });
+
+        try
+        {
+            var pdfFiles = AllFiles.Where(model => model.FileType == ".pdf").ToList();
+            var totalFiles = pdfFiles.Count;
+            var processedFiles = 0;
+
+            var extractorService = _serviceProvider.GetRequiredService<ITextExtractorService>();
+            var semaphore = new SemaphoreSlim(2);
+            var tasks = new List<Task>();
+
+            foreach (var pdfFile in pdfFiles)
+            {
+                await semaphore.WaitAsync();
+
+                tasks.Add(Task.Run(async () =>
+                {
+                    try
+                    {
+                        await using var fileStream = File.OpenRead(pdfFile.Model.Path);
+                        var extractedText = extractorService.ExtractTextFromPdf(
+                            pdfFile.Name, pdfFile.FileType, fileStream);
+
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            pdfFile.Model.HasContent = extractedText.Length > 0;
+                            processedFiles++;
+                            Progress = (double)processedFiles / totalFiles * 100;
+                            StatusMessage = $"Processed {processedFiles} of {totalFiles} files";
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        await Dispatcher.UIThread.InvokeAsync(() =>
+                        {
+                            pdfFile.Model.Content = ex.Message;
+                            processedFiles++;
+                            Progress = (double)processedFiles / totalFiles * 100;
+                            StatusMessage = $"Error processing {pdfFile.Name}: {ex.Message}";
+                        });
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }));
+            }
+
+            await Task.WhenAll(tasks);
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                StatusMessage = "Generating embeddings...";
+            });
+
+            using var ollama = new OllamaApiClient();
+            var embedding = await ollama.Embeddings.GenerateEmbeddingAsync(
+                "all-minilm",
+                "hello");
+
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                StatusMessage = "Processing complete";
+            });
+        }
+        catch (Exception ex)
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                StatusMessage = $"An error occurred: {ex.Message}";
+            });
+        }
+        finally
+        {
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                IsProcessing = false;
+            });
+        }
     }
 
     public void LoadFiles(string path)
     {
-        _allFiles = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
+        AllFiles = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
             .Select(filePath =>
             {
                 var file = new FileInfo(filePath);
@@ -97,12 +210,15 @@ public partial class Step2ViewModel : StepViewModel
 
     private void RefreshFilesFilter()
     {
-        var filtered = _allFiles;
-        if (!FilterAllFiles) filtered = _allFiles.Where(model => model.FileType == ".docx").ToList();
-        Files.Clear();
-        Files.AddRange(filtered);
+        var filtered = AllFiles;
+        if (!FilterAllFiles) filtered = AllFiles.Where(model => model.FileType == ".pdf").ToList();
+        Files = new ObservableCollection<FileItemViewModel>(filtered);
         GroupedGridData = new DataGridCollectionView(Files);
-        GroupedGridData.GroupDescriptions.Add(new DataGridPathGroupDescription("DirectoryName"));
+        if (ShowSubDirectories)
+        {
+            GroupedGridData.GroupDescriptions.Add(new DataGridPathGroupDescription("DirectoryName"));
+        }
+        GroupedGridData.Refresh();
         CalculateChartsData();
     }
 
@@ -128,13 +244,13 @@ public partial class Step2ViewModel : StepViewModel
             {
                 Name = "Number of Files",
                 Values = countValues,
-                ScalesYAt = 0 // Use the first Y-axis (left, for count)
+                ScalesYAt = 0
             },
             new LineSeries<double>
             {
                 Name = "Total Size (MB)",
                 Values = sizeValues,
-                ScalesYAt = 1 // Use the second Y-axis (right, for size)
+                ScalesYAt = 1
             }
         };
 
@@ -154,7 +270,7 @@ public partial class Step2ViewModel : StepViewModel
 
         FilesByMonthYAxes =
         [
-            new Axis // First Y-axis for count
+            new Axis
             {
                 Name = "File Count",
                 LabelsPaint = new SolidColorPaint(new SKColor(255, 255, 255)),
@@ -165,7 +281,7 @@ public partial class Step2ViewModel : StepViewModel
                 MinLimit = 0
             },
 
-            new Axis // Second Y-axis for size
+            new Axis
             {
                 Name = "Size (MB)",
                 LabelsPaint = new SolidColorPaint(new SKColor(255, 255, 255)),
@@ -232,7 +348,7 @@ public partial class Step2ViewModel : StepViewModel
 
         FilesByTypeYAxes =
         [
-            new Axis // First Y-axis for count
+            new Axis
             {
                 Name = "File Count",
                 Position = AxisPosition.Start,
@@ -243,7 +359,7 @@ public partial class Step2ViewModel : StepViewModel
                 MinLimit = 0
             },
 
-            new Axis // Second Y-axis for size
+            new Axis
             {
                 Name = "Size (MB)",
                 Position = AxisPosition.End,

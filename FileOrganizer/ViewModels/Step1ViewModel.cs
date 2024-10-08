@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -14,10 +16,11 @@ public partial class Step1ViewModel : StepViewModel
     private readonly AnalysisViewModel _parent;
     private readonly MainWindow _window;
 
-    [ObservableProperty] [NotifyCanExecuteChangedFor(nameof(NextCommand))]
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(NextCommand))]
     private string _path;
 
-    public Step1ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
+    public Step1ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
     {
         _parent = parent;
         _window = window;
@@ -36,6 +39,12 @@ public partial class Step1ViewModel : StepViewModel
     {
         _parent.Step2.LoadFiles(Path);
         _parent.NextStep();
+        Task.Factory.StartNew(
+            async () => await _parent.Step2.ExtractTextFromFilesAsync().ConfigureAwait(false),
+            CancellationToken.None,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
+
     }
 
     [RelayCommand]

@@ -2,6 +2,7 @@
 using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
+using System;
 
 namespace FileOrganizer.ViewModels;
 
@@ -11,7 +12,7 @@ public partial class Step3ViewModel : StepViewModel
     private OrganizationType _selectedOrganizationType;
 
 
-    public Step3ViewModel(AnalysisViewModel parent, MainWindow window, AppDbContext appDbContext)
+    public Step3ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
     {
         _parent = parent;
         StepNumber = 3;

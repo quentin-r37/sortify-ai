@@ -5,107 +5,120 @@
              xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
              xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:converters="clr-namespace:FileOrganizer.Converters"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" Name="Root"
              x:Class="FileOrganizer.UserControls.Step2UserControl" x:DataType="viewModels:Step2ViewModel">
 
-    <UserControl.Resources>
-        <converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
-    </UserControl.Resources>
+	<UserControl.Resources>
+		<converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+	</UserControl.Resources>
 
-    <DockPanel>
-        <Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20"
+	<DockPanel>
+		<Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20"
                 BorderBrush="{DynamicResource SemiGrey2Color}">
-            <ScrollViewer>
-                <Border Padding="20">
-                    <StackPanel>
-                        <DockPanel Margin="0,0,0,40">
-                            <Label DockPanel.Dock="Left" VerticalAlignment="Center" Content="Analysis"
+			<ScrollViewer>
+				<Border Padding="20">
+					<StackPanel>
+						<DockPanel Margin="0,0,0,40">
+							<Label DockPanel.Dock="Left" VerticalAlignment="Center" Content="Analysis"
                                    FontWeight="DemiBold" />
-                            <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
-                                <Border Theme="{DynamicResource RadioButtonGroupBorder}">
-                                    <ListBox Theme="{DynamicResource ButtonRadioGroupListBox}">
-                                        <ListBoxItem Classes="Small" IsSelected="{Binding FilterAllFiles, Mode=TwoWay}">All files</ListBoxItem>
-                                        <ListBoxItem Classes="Small"
+							<StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
+								<Border Theme="{DynamicResource RadioButtonGroupBorder}">
+									<ListBox Theme="{DynamicResource ButtonRadioGroupListBox}">
+										<ListBoxItem Classes="Small" IsSelected="{Binding FilterAllFiles, Mode=TwoWay}">All files</ListBoxItem>
+										<ListBoxItem Classes="Small"
                                                      IsSelected="{Binding FilterAllFiles, Mode=TwoWay, Converter={StaticResource InverseBoolConverter}}">
-                                            Only content files
-                                        </ListBoxItem>
-                                    </ListBox>
-                                </Border>
-                            </StackPanel>
-                        </DockPanel>
+											Only content files
+										</ListBoxItem>
+									</ListBox>
+								</Border>
+							</StackPanel>
+						</DockPanel>
 
-                        <Expander DockPanel.Dock="Top" Margin="0,0,0,20">
-                            <Expander.Header>
-                                <Label FontWeight="Normal">Size and number of files by month</Label>
+						<Expander DockPanel.Dock="Top" Margin="0,0,0,20">
+							<Expander.Header>
+								<Label FontWeight="Normal">Size and number of files by month</Label>
 
-                            </Expander.Header>
-                            <avalonia:CartesianChart
+							</Expander.Header>
+							<avalonia:CartesianChart
                                 Series="{Binding FilesByMonthSeries}"
                                 XAxes="{Binding FilesByMonthXAxis}"
                                 YAxes="{Binding FilesByMonthYAxes}"
                                 Height="500" LegendPosition="Top" LegendTextPaint="{Binding LegendTextPaint}" />
-                        </Expander>
-                        <Expander DockPanel.Dock="Top" Margin="0,0,0,20">
-                            <Expander.Header>
-                                <Label FontWeight="Normal">Size and number of files by file type</Label>
+						</Expander>
+						<Expander DockPanel.Dock="Top" Margin="0,0,0,20">
+							<Expander.Header>
+								<Label FontWeight="Normal">Size and number of files by file type</Label>
 
-                            </Expander.Header>
-                            <DockPanel>
-                                <avalonia:CartesianChart DockPanel.Dock="Top"
+							</Expander.Header>
+							<DockPanel>
+								<avalonia:CartesianChart DockPanel.Dock="Top"
                                                          Series="{Binding FilesByTypeSeries}"
                                                          XAxes="{Binding FilesByTypeXAxis}"
                                                          YAxes="{Binding FilesByTypeYAxes}"
                                                          LegendPosition="Top"
                                                          LegendTextPaint="{Binding LegendTextPaint}"
                                                          Height="500" />
-                                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,5,0,10">
-                                    <TextBlock Text="Number of file types to show:" VerticalAlignment="Center" />
-                                    <Slider
+								<StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,5,0,10">
+									<TextBlock Text="Number of file types to show:" VerticalAlignment="Center" />
+									<Slider
                                         Minimum="1"
                                         Maximum="{Binding MaxFileTypes}"
                                         Value="{Binding FileTypesCount}"
                                         Width="200"
                                         Margin="10,0" />
-                                    <TextBlock Text="{Binding FileTypesCount}" VerticalAlignment="Center" />
-                                </StackPanel>
-                            </DockPanel>
-                        </Expander>
-                        <Expander DockPanel.Dock="Top" Margin="0,0,0,20">
-                            <Expander.Header>
-                                <Label FontWeight="Normal">File list</Label>
-                            </Expander.Header>
-                            <DataGrid MaxHeight="500" ItemsSource="{Binding GroupedGridData}"
+									<TextBlock Text="{Binding FileTypesCount}" VerticalAlignment="Center" />
+								</StackPanel>
+							</DockPanel>
+						</Expander>
+						<Expander DockPanel.Dock="Top" Margin="0,0,0,20">
+							<Expander.Header>
+								<DockPanel>
+									<Label DockPanel.Dock="Left" FontWeight="Normal">File list</Label>
+									<ToggleSwitch IsChecked="{Binding ShowSubDirectories}" VerticalAlignment="Center" DockPanel.Dock="Right" HorizontalAlignment="Right" OnContent="Show sub folder" OffContent="Show sub folder"></ToggleSwitch>
+								</DockPanel>
+							</Expander.Header>
+							<DataGrid MaxHeight="500" ItemsSource="{Binding GroupedGridData}"
                                       IsScrollInertiaEnabled="True"
                                       AutoGenerateColumns="False" IsReadOnly="True"
                                       GridLinesVisibility="All"
                                       ScrollViewer.AllowAutoHide="True"
                                       CanUserResizeColumns="True"
                                       Margin="0,0,0,20">
+								<DataGrid.Styles>
+									<Style Selector="TextBlock">
+										<Setter Property="TextWrapping" Value="WrapWithOverflow" />
+									</Style>
+								</DataGrid.Styles>
 
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="SubDirectory"
+								<DataGrid.Columns>
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel"
+                                                        IsVisible="{Binding ((viewModels:Step2ViewModel)DataContext).ShowSubDirectories, 
+                                                        ElementName=Root, FallbackValue=true}" 
+                                                        Header="SubDirectory" Width="*"
                                                         Binding="{Binding DirectoryName}" />
-                                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Name"
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Name" Width="*"
                                                         Binding="{Binding Name}" />
-                                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Created Date"
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Created Date" Width="*"
                                                         Binding="{Binding CreatedDate}" />
-                                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="FileType"
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="FileType" Width="*"
                                                         Binding="{Binding FileType}" />
-                                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Size"
+									<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Size" Width="*"
                                                         Binding="{Binding Size}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </Expander>
-                        <UniformGrid>
-                            <Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
-                            <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
-                        </UniformGrid>
-                    </StackPanel>
-                </Border>
+									<DataGridCheckBoxColumn x:DataType="viewModels:FileItemViewModel" Header="HasContent" Width="*"
+                                                        Binding="{Binding HasContent}" />
+								</DataGrid.Columns>
+							</DataGrid>
+						</Expander>
+						<UniformGrid>
+							<Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+							<Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
+						</UniformGrid>
+					</StackPanel>
+				</Border>
 
-            </ScrollViewer>
-        </Border>
+			</ScrollViewer>
+		</Border>
 
-    </DockPanel>
+	</DockPanel>
 
 </UserControl>
