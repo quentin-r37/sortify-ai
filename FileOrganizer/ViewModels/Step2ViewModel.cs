@@ -35,10 +35,11 @@ public partial class Step2ViewModel : StepViewModel
     private readonly AppDbContext _appDbContext;
 
     [ObservableProperty] private int _fileTypesCount = 10;
-
     [ObservableProperty] private bool _filterAllFiles = true;
     [ObservableProperty] private bool _showSubDirectories = true;
-
+    [ObservableProperty] private ZoomAndPanMode _zoomModeByDate = ZoomAndPanMode.None;
+    [ObservableProperty] private ZoomAndPanMode _zoomModeByType = ZoomAndPanMode.None;
+    public List<ZoomAndPanMode> ZoomAndPanModes { get; set; } = [ZoomAndPanMode.None, ZoomAndPanMode.X];
 
     public Step2ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
     {
@@ -54,7 +55,7 @@ public partial class Step2ViewModel : StepViewModel
     public ObservableCollection<FileItemViewModel> Files { get; set; }
     private List<FileItemViewModel> AllFiles { get; set; }
 
-    [ObservableProperty] 
+    [ObservableProperty]
     private DataGridCollectionView _groupedGridData;
 
     public SolidColorPaint LegendTextPaint { get; set; } = new(new SKColor(255, 255, 255));
