@@ -40,7 +40,7 @@ public partial class Step1ViewModel : StepViewModel
         _parent.Step2.LoadFiles(Path);
         _parent.NextStep();
         Task.Factory.StartNew(
-            async () => await _parent.Step2.ExtractTextFromFilesAsync().ConfigureAwait(false),
+            async () => await _parent.Step2.ExtractTextAndGenerateEmbeddingsAsync().ConfigureAwait(false),
             CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default);

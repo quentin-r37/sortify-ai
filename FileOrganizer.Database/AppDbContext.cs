@@ -7,9 +7,11 @@ namespace FileOrganizer.Database
     {
         public DbSet<Analysis> Analyses { get; set; }
         public DbSet<FileItem> FileItems { get; set; }
+        public DbSet<Configuration> Configurations { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (optionsBuilder.IsConfigured) return;
             var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.db");
             optionsBuilder.UseSqlite($"Data Source={dbPath}");
         }
@@ -22,6 +24,8 @@ namespace FileOrganizer.Database
                 .HasForeignKey(f => f.AnalysisId);
 
             modelBuilder.Entity<FileItem>();
+
+            modelBuilder.Entity<Configuration>();
 
         }
     }

@@ -7,6 +7,18 @@ using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel.Memory;
+using Microsoft.SemanticKernel.Connectors.Ollama;
+using System;
+using FileOrganizer.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
+using OpenAI.Embeddings;
+#pragma warning disable SKEXP0010
+#pragma warning disable SKEXP0050
+#pragma warning disable SKEXP0001
+#pragma warning disable SKEXP0070
 
 namespace FileOrganizer.ViewModels;
 
@@ -16,18 +28,23 @@ public partial class AnalysisViewModel : ObservableObject
     private readonly MainWindow _window;
     private readonly MainWindowViewModel _mainWindowViewModel;
     private readonly WindowNotificationManager _notificationManager;
+    private readonly IServiceProvider _serviceProvider;
+
+    public SemanticTextMemory Memory { get; set; }
 
     [ObservableProperty] private int _currentStep;
     [ObservableProperty] private bool _isEditing;
 
-    public AnalysisViewModel(Analysis analysis, 
-        MainWindow window, MainWindowViewModel mainWindowViewModel,WindowNotificationManager notificationManager,
-        IViewModelFactory viewModelFactory)
+    public AnalysisViewModel(Analysis analysis,
+        MainWindow window, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager,
+        IViewModelFactory viewModelFactory, IServiceProvider serviceProvider)
     {
+
         Model = analysis;
         _window = window;
         _mainWindowViewModel = mainWindowViewModel;
         _notificationManager = notificationManager;
+        _serviceProvider = serviceProvider;
         Step1 = viewModelFactory.CreateStep1ViewModel(this, window);
         Step1.Path = analysis.Path;
         Step2 = viewModelFactory.CreateStep2ViewModel(this, window);
@@ -36,7 +53,20 @@ public partial class AnalysisViewModel : ObservableObject
 
         Steps = [Step1, Step2, Step3, Step4];
         CurrentStep = 1;
+        _ = InitMemoryAsync();
         UpdateStepStates();
+    }
+
+    public async Task InitMemoryAsync()
+    {
+        var configuration = _serviceProvider.GetRequiredService<IAIConfigurationService>();
+        var config = await configuration.LoadConfiguration();
+        if (config.EmbeddingService.SelectedProvider == "Ollama")
+        {
+            var textEmbeddingService = new OllamaTextEmbeddingGenerationService("all-minilm", new Uri("http://localhost:11434"));
+            Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
+        }
+     
     }
 
     public ObservableCollection<StepViewModel> Steps { get; }

@@ -8,11 +8,14 @@
         x:Class="FileOrganizer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="FileOrganizer" SystemDecorations="Full"
+        Title="FileOrganizer" 
+        SystemDecorations="Full"
+        SizeToContent="Manual" Width="1280" Height="720" 
         TransparencyLevelHint="AcrylicBlur"
         Background="Transparent"
         ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaChromeHints="PreferSystemChrome">
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        >
 
 
     <Design.DataContext>

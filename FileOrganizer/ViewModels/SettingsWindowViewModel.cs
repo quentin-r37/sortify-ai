@@ -1,0 +1,168 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Services;
+using FileOrganizer.Views;
+
+namespace FileOrganizer.ViewModels;
+
+public partial class SettingsWindowViewModel : ViewModelBase
+{
+    private readonly IAIConfigurationService _configurationService;
+    public SettingsWindow RefWindow { get; set; }
+
+    [ObservableProperty]
+    private string _selectedEmbeddingProvider = "Ollama";
+    [ObservableProperty]
+    private string _selectedCompletionProvider = "Ollama";
+    [ObservableProperty]
+    private string _embeddingModelId;
+    [ObservableProperty]
+    private string _embeddingApiKey;
+    [ObservableProperty]
+    private string _embeddingDeploymentName;
+    [ObservableProperty]
+    private string _embeddingEndpoint;
+
+    [ObservableProperty]
+    private string _completionModelId;
+    [ObservableProperty]
+    private string _completionApiKey;
+    [ObservableProperty]
+    private string _completionDeploymentName;
+    [ObservableProperty]
+    private string _completionEndpoint;
+    public ObservableCollection<string> Providers { get; set; } = ["Ollama", "Azure OpenAI", "OpenAI"];
+
+    public SettingsWindowViewModel(IAIConfigurationService configurationService)
+    {
+        _configurationService = configurationService;
+        _ = InitConfigAsync();
+    }
+
+    public async Task InitConfigAsync()
+    {
+        var conf = await _configurationService.LoadConfiguration();
+        SelectedEmbeddingProvider = conf.EmbeddingService.SelectedProvider;
+        SelectedCompletionProvider = conf.CompletionService.SelectedProvider;
+
+        switch (conf.EmbeddingService.SelectedProvider)
+        {
+            case "Ollama":
+                EmbeddingEndpoint = conf.EmbeddingService.OllamaFields.OllamaUrl.ToString();
+                EmbeddingModelId = conf.EmbeddingService.OllamaFields.ModelId;
+                break;
+            case "Azure OpenAI":
+                EmbeddingEndpoint = conf.EmbeddingService.AzureOpenAiFields.Endpoint.ToString();
+                EmbeddingModelId = conf.EmbeddingService.AzureOpenAiFields.ModelId;
+                EmbeddingApiKey = conf.EmbeddingService.AzureOpenAiFields.ApiKey;
+                EmbeddingDeploymentName = conf.EmbeddingService.AzureOpenAiFields.DeploymentName;
+                break;
+            case "OpenAI":
+                EmbeddingModelId = conf.EmbeddingService.OpenAiFields.ModelId;
+                EmbeddingApiKey = conf.EmbeddingService.OpenAiFields.ApiKey;
+                break;
+        }
+
+        switch (conf.CompletionService.SelectedProvider)
+        {
+            case "Ollama":
+                CompletionEndpoint = conf.CompletionService.OllamaFields.OllamaUrl.ToString();
+                CompletionModelId = conf.CompletionService.OllamaFields.ModelId;
+                break;
+            case "Azure OpenAI":
+                CompletionEndpoint = conf.CompletionService.AzureOpenAiFields.Endpoint.ToString();
+                CompletionModelId = conf.CompletionService.AzureOpenAiFields.ModelId;
+                CompletionApiKey = conf.CompletionService.AzureOpenAiFields.ApiKey;
+                CompletionDeploymentName = conf.CompletionService.AzureOpenAiFields.DeploymentName;
+                break;
+            case "OpenAI":
+                CompletionModelId = conf.CompletionService.OpenAiFields.ModelId;
+                CompletionApiKey = conf.CompletionService.OpenAiFields.ApiKey;
+                break;
+        }
+
+    }
+
+    [RelayCommand]
+    public async Task SaveConfig()
+    {
+        var confToSave = new AiServiceConfiguration
+        {
+            CompletionService = new Service()
+            {
+                SelectedProvider = SelectedCompletionProvider,
+                OllamaFields = new OllamaFields()
+                {
+                    OllamaUrl = new Uri(CompletionEndpoint),
+                    ModelId = CompletionModelId
+                },
+                AzureOpenAiFields = new AzureOpenAiFields()
+                {
+                    ModelId = CompletionModelId,
+                    Endpoint = new Uri(CompletionEndpoint),
+                    ApiKey = CompletionApiKey,
+                    DeploymentName = CompletionDeploymentName
+                },
+                OpenAiFields = new OpenAiFields()
+                {
+                    ModelId = CompletionModelId,
+                    ApiKey = CompletionApiKey
+                }
+            },
+            EmbeddingService = new Service()
+            {
+                SelectedProvider = SelectedEmbeddingProvider,
+                OllamaFields = new OllamaFields()
+                {
+                    OllamaUrl = new Uri(EmbeddingEndpoint),
+                    ModelId = EmbeddingModelId
+                },
+                AzureOpenAiFields = new AzureOpenAiFields()
+                {
+                    ModelId = EmbeddingModelId,
+                    Endpoint = new Uri(EmbeddingEndpoint),
+                    ApiKey = EmbeddingApiKey,
+                    DeploymentName = EmbeddingDeploymentName
+                },
+                OpenAiFields = new OpenAiFields()
+                {
+                    ModelId = EmbeddingModelId,
+                    ApiKey = EmbeddingApiKey
+                }
+            }
+        };
+        await _configurationService.SaveConfiguration(confToSave);
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            RefWindow.Close();
+        });
+    }
+
+
+    partial void OnSelectedEmbeddingProviderChanged(string value)
+    {
+        OnPropertyChanged(nameof(ShowEmbeddedOllamaFields));
+        OnPropertyChanged(nameof(ShowEmbeddedAzureFields));
+        OnPropertyChanged(nameof(ShowEmbeddedOpenAIFields));
+    }
+
+    partial void OnSelectedCompletionProviderChanged(string value)
+    {
+        OnPropertyChanged(nameof(ShowCompletionOllamaFields));
+        OnPropertyChanged(nameof(ShowCompletionAzureFields));
+        OnPropertyChanged(nameof(ShowCompletionOpenAIFields));
+    }
+
+    public bool ShowEmbeddedOllamaFields => SelectedEmbeddingProvider == "Ollama";
+    public bool ShowEmbeddedAzureFields => SelectedEmbeddingProvider == "Azure OpenAI";
+    public bool ShowEmbeddedOpenAIFields => SelectedEmbeddingProvider == "OpenAI";
+
+    public bool ShowCompletionOllamaFields => SelectedCompletionProvider == "Ollama";
+    public bool ShowCompletionAzureFields => SelectedCompletionProvider == "Azure OpenAI";
+    public bool ShowCompletionOpenAIFields => SelectedCompletionProvider == "OpenAI";
+
+}

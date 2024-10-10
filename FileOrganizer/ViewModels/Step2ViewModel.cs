@@ -12,6 +12,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
 using FileOrganizer.DataExtractor;
+using FileOrganizer.Services;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 using LiveChartsCore;
@@ -20,8 +21,16 @@ using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Ollama;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.Ollama;
+using Microsoft.SemanticKernel.Embeddings;
+using Microsoft.SemanticKernel.Memory;
+using OllamaSharp;
 using SkiaSharp;
+#pragma warning disable SKEXP0050
+#pragma warning disable SKEXP0001
+#pragma warning disable SKEXP0070
 
 namespace FileOrganizer.ViewModels;
 
@@ -98,78 +107,26 @@ public partial class Step2ViewModel : StepViewModel
         CalculateFilesByType();
     }
 
-
-    public async Task ExtractTextFromFilesAsync()
+    public async Task ExtractTextAndGenerateEmbeddingsAsync()
     {
+        var textExtractionService = _serviceProvider.GetRequiredService<ITextExtractionService>();
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             IsProcessing = true;
             Progress = 0;
             StatusMessage = "Starting text extraction...";
         });
-
         try
         {
-            var pdfFiles = AllFiles.Where(model => model.FileType == ".pdf").ToList();
-            var totalFiles = pdfFiles.Count;
-            var processedFiles = 0;
-
-            var extractorService = _serviceProvider.GetRequiredService<ITextExtractorService>();
-            var semaphore = new SemaphoreSlim(2);
-            var tasks = new List<Task>();
-
-            foreach (var pdfFile in pdfFiles)
+            var progress = new Progress<(int Processed, int Total, string Message)>(report =>
             {
-                await semaphore.WaitAsync();
-
-                tasks.Add(Task.Run(async () =>
-                {
-                    try
-                    {
-                        await using var fileStream = File.OpenRead(pdfFile.Model.Path);
-                        var extractedText = extractorService.ExtractTextFromPdf(
-                            pdfFile.Name, pdfFile.FileType, fileStream);
-
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            pdfFile.Model.HasContent = extractedText.Length > 0;
-                            processedFiles++;
-                            Progress = (double)processedFiles / totalFiles * 100;
-                            StatusMessage = $"Processed {processedFiles} of {totalFiles} files";
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                        {
-                            pdfFile.Model.Content = ex.Message;
-                            processedFiles++;
-                            Progress = (double)processedFiles / totalFiles * 100;
-                            StatusMessage = $"Error processing {pdfFile.Name}: {ex.Message}";
-                        });
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                }));
-            }
-
-            await Task.WhenAll(tasks);
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                StatusMessage = "Generating embeddings...";
+                Progress = (double)report.Processed / report.Total * 100;
+                StatusMessage = report.Message;
             });
-
-            using var ollama = new OllamaApiClient();
-            var embedding = await ollama.Embeddings.GenerateEmbeddingAsync(
-                "all-minilm",
-                "hello");
-
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                StatusMessage = "Processing complete";
-            });
+            await textExtractionService.ExtractAndEmbedAsync(
+                AllFiles,
+                _parent.Memory,
+                progress);
         }
         catch (Exception ex)
         {
@@ -186,7 +143,6 @@ public partial class Step2ViewModel : StepViewModel
             });
         }
     }
-
     public void LoadFiles(string path)
     {
         AllFiles = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
@@ -381,6 +337,7 @@ public partial class Step2ViewModel : StepViewModel
     [RelayCommand]
     private void Next()
     {
+        _parent.Step3.LoadFileList(AllFiles.Where(model => model.FileType == ".pdf").ToList());
         _parent.NextStep();
     }
 

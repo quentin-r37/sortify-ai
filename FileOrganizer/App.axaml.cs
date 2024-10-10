@@ -6,6 +6,7 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using FileOrganizer.Database;
 using FileOrganizer.DataExtractor;
+using FileOrganizer.Services;
 using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,11 @@ public class App : Application
             var services = new ServiceCollection();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
+            services.AddTransient<SettingsWindow>();
+            services.AddSingleton<SettingsWindowViewModel>();
+            services.AddSingleton<IAIConfigurationService, AIConfigurationService>();
             services.AddSingleton<ITextExtractorService, TextExtractorService>();
+            services.AddSingleton<ITextExtractionService, TextExtractionService>();
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -47,7 +52,6 @@ public class App : Application
 
             var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
             var viewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
-
             mainWindow.DataContext = viewModel;
             desktop.MainWindow = mainWindow;
         }

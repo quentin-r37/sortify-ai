@@ -5,13 +5,13 @@ using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
 
-namespace FileOrganizer;
+namespace FileOrganizer.Services;
 
 public class ViewModelFactory(IServiceProvider serviceProvider) : IViewModelFactory
 {
     public AnalysisViewModel CreateAnalysisViewModel(Analysis analysis, MainWindow window, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager)
     {
-        return new AnalysisViewModel(analysis, window, mainWindowViewModel, notificationManager, this);
+        return new AnalysisViewModel(analysis, window, mainWindowViewModel, notificationManager, this, serviceProvider);
     }
 
     public Step1ViewModel CreateStep1ViewModel(AnalysisViewModel analysisViewModel, MainWindow window)

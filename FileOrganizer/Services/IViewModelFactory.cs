@@ -3,7 +3,7 @@ using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
 
-namespace FileOrganizer;
+namespace FileOrganizer.Services;
 
 public interface IViewModelFactory
 {

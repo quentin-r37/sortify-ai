@@ -7,12 +7,40 @@
              x:Class="FileOrganizer.UserControls.Step3UserControl" x:DataType="viewModels:Step3ViewModel">
     <Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20" Padding="20"
             BorderBrush="{DynamicResource SemiGrey2Color}">
-        <StackPanel Orientation="Vertical">
-            <Label Content="Folder selection" FontWeight="DemiBold" Margin="0,0,0,40" />
-            <UniformGrid>
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <Label Content="Search files" FontWeight="DemiBold" Margin="0,0,0,40" />
+            <TextBox Grid.Row="1" Margin="0,10,0,0" Watermark="Search..." Text="{Binding SearchQuery}"  />
+
+            <DataGrid Grid.Row="2"  ItemsSource="{Binding FilteredFiles}"
+                      IsScrollInertiaEnabled="True"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      GridLinesVisibility="All"
+                      ScrollViewer.AllowAutoHide="True"
+                      CanUserResizeColumns="True"
+                      Margin="0,20,0,20">
+                <DataGrid.Styles>
+                    <Style Selector="TextBlock">
+                        <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+                    </Style>
+                </DataGrid.Styles>
+                <DataGrid.Columns>
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Name" Width="*"
+                                        Binding="{Binding Name}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Created Date" Width="*"
+                                        Binding="{Binding CreatedDate}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="FileType" Width="*"
+                                        Binding="{Binding FileType}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Size" Width="*"
+                                        Binding="{Binding Size}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Relevance" Width="*"
+                                        Binding="{Binding Relevance}"></DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+			<UniformGrid Grid.Row="3" >
                 <Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
                 <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
             </UniformGrid>
-        </StackPanel>
+        </Grid>
     </Border>
 </UserControl>
