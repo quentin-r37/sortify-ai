@@ -76,6 +76,7 @@ public partial class MainWindowViewModel : ViewModelBase
         var v = _serviceProvider.GetRequiredService<SettingsWindow>();
         var model= _serviceProvider.GetRequiredService<SettingsWindowViewModel>();
         model.RefWindow = v;
+        v.Activate();
         v.DataContext = model;
         await v.ShowDialog(_mainWindow);
     }

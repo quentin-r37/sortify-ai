@@ -4,7 +4,7 @@
              xmlns:local="using:FileOrganizer"
              xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
              xmlns:userControls="clr-namespace:FileOrganizer.UserControls"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
     <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>

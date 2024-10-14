@@ -143,28 +143,72 @@ public partial class Step2ViewModel : StepViewModel
             });
         }
     }
-    public void LoadFiles(string path)
+   public void LoadFiles(string path)
+{
+    var fileList = new List<FileItemViewModel>();
+    
+    try
     {
-        AllFiles = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories)
-            .Select(filePath =>
-            {
-                var file = new FileInfo(filePath);
-                var relativePath = Path.GetRelativePath(path, file.DirectoryName);
-                return new FileItemViewModel(new FileItem
-                {
-                    Path = filePath,
-                    Name = Path.GetFileName(filePath),
-                    Size = file.Length,
-                    CreatedDate = file.CreationTime,
-                    ModifiedDate = file.LastWriteTime,
-                    FileType = Path.GetExtension(filePath),
-                    DirectoryName = relativePath == "." ? "" : relativePath
-                });
-            }).ToList();
+        var directories = new List<string> { path };
+        try
+        {
+            directories.AddRange(Directory.GetDirectories(path, "*", SearchOption.AllDirectories));
+        }
+        catch (UnauthorizedAccessException)
+        {
+        }
 
-        RefreshFilesFilter();
+        foreach (var directory in directories)
+        {
+            try
+            {
+                var files = Directory.GetFiles(directory);
+                foreach (var filePath in files)
+                {
+                    try
+                    {
+                        var file = new FileInfo(filePath);
+                        var relativePath = Path.GetRelativePath(path, file.DirectoryName);
+                        
+                        fileList.Add(new FileItemViewModel(new FileItem
+                        {
+                            Path = filePath,
+                            Name = Path.GetFileName(filePath),
+                            Size = file.Length,
+                            CreatedDate = file.CreationTime,
+                            ModifiedDate = file.LastWriteTime,
+                            FileType = Path.GetExtension(filePath),
+                            DirectoryName = relativePath == "." ? "" : relativePath
+                        }));
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Error processing file {filePath}: {ex.Message}");
+                    }
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                continue;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error accessing directory {directory}: {ex.Message}");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Debug.WriteLine($"Error during file loading: {ex.Message}");
     }
 
+    AllFiles = fileList;
+    RefreshFilesFilter();
+}
     private void RefreshFilesFilter()
     {
         var filtered = AllFiles;

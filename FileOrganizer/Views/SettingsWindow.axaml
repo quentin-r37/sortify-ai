@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
         xmlns:avalonia="https://github.com/projektanker/icons.avalonia"
+        xmlns:converters="clr-namespace:FileOrganizer.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="FileOrganizer.Views.SettingsWindow"
         Title="SettingsWindow"
@@ -15,6 +16,11 @@
         ExtendClientAreaToDecorationsHint="True" x:DataType="viewModels:SettingsWindowViewModel"
         ExtendClientAreaChromeHints="PreferSystemChrome"
         >
+	
+	<Window.Resources>
+		<converters:NullableBooleanConverter x:Key="NullableBooleanConverter"/>
+		
+	</Window.Resources>
 
 	<Design.DataContext>
 		<viewModels:SettingsWindowViewModel />
@@ -25,8 +31,8 @@
 				<ExperimentalAcrylicMaterial
 					BackgroundSource="Digger"
 					TintColor="Black"
-					TintOpacity="0.5"
-					MaterialOpacity="0.1" />
+					TintOpacity="1"
+					MaterialOpacity="0.7" />
 			</ExperimentalAcrylicBorder.Material>
 		</ExperimentalAcrylicBorder>
 		<Grid RowDefinitions="*, Auto" Margin="0,0,20,20">
@@ -37,12 +43,21 @@
 					<Border CornerRadius="10" BorderBrush="{DynamicResource SemiGrey2Color}" BorderThickness="1" Padding="10" Margin="0,0,0,20">
 						<StackPanel>
 							<TextBlock Text="Embedding Service"  FontWeight="DemiBold" Margin="0,0,0,10"/>
-							<ComboBox ItemsSource="{Binding Providers}"
-									  SelectedItem="{Binding SelectedEmbeddingProvider}"
-									  Width="200"
-									  HorizontalAlignment="Left"
-									  Margin="0,0,0,10"/>
-
+							<Grid ColumnDefinitions="*,*,*" Margin="0,0,0,10">
+								<ComboBox ItemsSource="{Binding Providers}"
+								          SelectedItem="{Binding SelectedEmbeddingProvider}"
+								          Width="200"
+								          />
+								<Button Theme="{DynamicResource Outline}" Grid.Column="1" Background="{DynamicResource ButtonBackground}" Command="{Binding TestEmbeddingCommand}"
+								        FontWeight="550" HorizontalAlignment="Stretch" >
+									<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+										<avalonia:Icon Value="fa-check" Margin="0,0,5,0" />
+										<TextBlock FontWeight="550" Text="Test Service" />
+									</StackPanel>
+								</Button>
+							</Grid>
+							<TextBlock Foreground="LightGreen" IsEnabled="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+							<TextBlock Foreground="Red" IsEnabled="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}, ConverterParameter=true}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
 							<Expander Padding="10" IsExpanded="True">
 								<Expander.Header>
                                     <StackPanel Orientation="Horizontal">
@@ -80,12 +95,24 @@
 					<!-- Completion Configuration -->
 					<Border CornerRadius="10" BorderBrush="{DynamicResource SemiGrey2Color}" BorderThickness="1" Padding="10" Margin="0,0,0,20">
 						<StackPanel>
-							<TextBlock Text="Completion Service" FontWeight="DemiBold" Margin="0,0,0,10"/>
-							<ComboBox ItemsSource="{Binding Providers}"
-									  SelectedItem="{Binding SelectedCompletionProvider}"
-									  Width="200"
-									  HorizontalAlignment="Left"
-									  Margin="0,0,0,10"/>
+							
+							<Grid ColumnDefinitions="*,*,*" Margin="0,0,0,10">
+								<ComboBox ItemsSource="{Binding Providers}"
+								          SelectedItem="{Binding SelectedCompletionProvider}"
+								          Width="200"
+								          HorizontalAlignment="Left"
+								          />
+								
+								<Button Theme="{DynamicResource Outline}" Grid.Column="1" Background="{DynamicResource ButtonBackground}"
+								        FontWeight="550" HorizontalAlignment="Stretch" >
+									<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+										<avalonia:Icon Value="fa-check" Margin="0,0,5,0" />
+										<TextBlock FontWeight="550" Text="Test Service" />
+									</StackPanel>
+								</Button>
+							</Grid>
+							
+							<TextBlock Foreground="LightGreen" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
 
                             <Expander Padding="10" IsExpanded="True" BorderThickness="0">
                                 <Expander.Header>
@@ -121,8 +148,6 @@
 					</Border>
 
 					<!-- Provider-specific configuration -->
-
-
 
 				</StackPanel>
 			</ScrollViewer>

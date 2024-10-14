@@ -6,6 +6,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Services;
 using FileOrganizer.Views;
+using Microsoft.SemanticKernel.Connectors.Ollama;
+using Microsoft.SemanticKernel.Memory;
+#pragma warning disable SKEXP0070
+#pragma warning disable SKEXP0050
+#pragma warning disable SKEXP0001
 
 namespace FileOrganizer.ViewModels;
 
@@ -26,6 +31,8 @@ public partial class SettingsWindowViewModel : ViewModelBase
     private string _embeddingDeploymentName;
     [ObservableProperty]
     private string _embeddingEndpoint;
+    [ObservableProperty]
+    private bool? _embeddingTestPassed;
 
     [ObservableProperty]
     private string _completionModelId;
@@ -35,6 +42,9 @@ public partial class SettingsWindowViewModel : ViewModelBase
     private string _completionDeploymentName;
     [ObservableProperty]
     private string _completionEndpoint;
+    [ObservableProperty]
+    private bool? _completionTestPassed;
+
     public ObservableCollection<string> Providers { get; set; } = ["Ollama", "Azure OpenAI", "OpenAI"];
 
     public SettingsWindowViewModel(IAIConfigurationService configurationService)
@@ -43,7 +53,12 @@ public partial class SettingsWindowViewModel : ViewModelBase
         _ = InitConfigAsync();
     }
 
-    public async Task InitConfigAsync()
+    public SettingsWindowViewModel()
+    {
+        
+    }
+
+    private async Task InitConfigAsync()
     {
         var conf = await _configurationService.LoadConfiguration();
         SelectedEmbeddingProvider = conf.EmbeddingService.SelectedProvider;
@@ -85,6 +100,25 @@ public partial class SettingsWindowViewModel : ViewModelBase
                 break;
         }
 
+    }
+
+    [RelayCommand]
+    public async Task TestEmbedding()
+    {
+        if (SelectedEmbeddingProvider == "Ollama")
+        {
+            var textEmbeddingService = new OllamaTextEmbeddingGenerationService("all-minilm", new Uri("http://localhost:11434"));
+            var memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
+            try
+            {
+                await memory.SaveInformationAsync("test", "test", "test", "test");
+                EmbeddingTestPassed = true;
+            }
+            catch (Exception e)
+            {
+                EmbeddingTestPassed = false;
+            }
+        }
     }
 
     [RelayCommand]
