@@ -6,12 +6,5 @@
              xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"  x:DataType="viewModels:Step4ViewModel"
              x:Class="FileOrganizer.UserControls.Step4UserControl">
-    <avalonia:CartesianChart
-        DockPanel.Dock="Top"
-        Series="{Binding DataSeries}"
-        XAxes="{Binding XAxes}"
-        YAxes="{Binding YAxes}"
-        LegendPosition="Top"
-        LegendTextPaint="{Binding LegendTextPaint}"
-        Height="500" />
+ 
 </UserControl>

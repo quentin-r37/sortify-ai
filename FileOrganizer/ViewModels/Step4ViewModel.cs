@@ -24,24 +24,15 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.Ollama;
+using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 namespace FileOrganizer.ViewModels;
 
 public partial class Step4ViewModel : StepViewModel
 {
+    public ObservableCollection<FileItemViewModel> AllFiles { get; set; }
     private readonly AnalysisViewModel _parent;
-
-    [ObservableProperty]
-    private ISeries[] _dataSeries;
-
-    [ObservableProperty]
-    private Axis[] _xAxes;
-
-    [ObservableProperty]
-    private Axis[] _yAxes;
-
-    [ObservableProperty]
-    private SolidColorPaint _legendTextPaint;
 
     public Step4ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
     {
@@ -51,265 +42,172 @@ public partial class Step4ViewModel : StepViewModel
         _parent = parent;
     }
 
+    public void LoadFileList(List<FileItemViewModel> files)
+    {
+        AllFiles = new ObservableCollection<FileItemViewModel>(files);
+        OnPropertyChanged(nameof(AllFiles));
+    }
+
     public async Task PreparePreviewAsync(OrganizationType organizationType)
     {
-        try
+        // Retrieve the list of text files to process
+
+        var textFiles = AllFiles;
+
+        foreach (var file in textFiles)
         {
-            var vectorAsyncEnumerable = _parent.VectorCollection.GetBatchAsync(_parent.Keys);
-            var data = new List<DocumentEmbedding>();
-            await foreach (var vectorFile in vectorAsyncEnumerable)
-            {
-                data.Add(new DocumentEmbedding()
-                {
-                    Embedding = vectorFile.Embedding.ToArray(),
-                    Id = vectorFile.Id,
-                    Paragraph = vectorFile.Text
-                });
-            }
-            var mlContext = new MLContext();
-            var dataView = mlContext.Data.LoadFromEnumerable(data);
-
-            var pipeline = mlContext.Transforms
-                .NormalizeMeanVariance(
-                    inputColumnName: nameof(DocumentEmbedding.Embedding),
-                    outputColumnName: "NormalizedFeatures")
-                .Append(mlContext.Transforms.ProjectToPrincipalComponents(
-                    outputColumnName: "PCAFeatures",
-                    inputColumnName: "NormalizedFeatures",
-                    rank: 2));
-
-            var pcaTransformer = pipeline.Fit(dataView);
-            var pcaDataView = pcaTransformer.Transform(dataView);
-
-            var clusteringPipeline = mlContext.Clustering.Trainers.KMeans(
-                featureColumnName: "PCAFeatures",
-                numberOfClusters: 6
-            );
-
-            var model = clusteringPipeline.Fit(pcaDataView);
-            var predictions = model.Transform(pcaDataView);
-
-            var embeddingWithPredictions = mlContext.Data.CreateEnumerable<DocumentEmbeddingWithPredictionPca>(
-                predictions,
-                reuseRowObject: false
-            ).ToList();
-
-            var clusterCategories = await AssignCategoriesToClustersAsync(embeddingWithPredictions, data);
-            OrganizeFilesByCategories(embeddingWithPredictions, clusterCategories);
-
-            await CreateClusterVisualizationAsync(embeddingWithPredictions);
-            InitializeChartConfiguration();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error in PreparePreview: {ex}");
+            var textContent = file.Content; // Assuming you have a way to get the text content
+            var processedData = await ProcessSingleTextFileAsync(file.Model.Path, textContent);
+            var test = processedData.Description;
+            // Use processedData to organize files
+            // For example, move or rename files based on processedData.FileName and processedData.FolderName
         }
     }
-    private void InitializeChartConfiguration()
+
+    public async Task<ProcessedFileData> ProcessSingleTextFileAsync(string filePath, string textContent)
     {
-        XAxes =
-        [
-            new Axis
-            {
-                Name = "Principal Component 1",
-                NamePaint = new SolidColorPaint(SKColors.Gray),
-                TextSize = 12,
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
-                SeparatorsPaint = new SolidColorPaint(SKColors.LightGray) { StrokeThickness = 0.5f }
-            }
-        ];
+        // Define the prompts
+        var summarizePrompt = $@"Provide a concise and accurate summary of the following text, focusing on the main ideas and key details.
+Limit your summary to a maximum of 150 words.
 
-        YAxes =
-        [
-            new Axis()
-            {
-                Name = "Principal Component 2",
-                NamePaint = new SolidColorPaint(SKColors.Gray),
-                TextSize = 12,
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
-                SeparatorsPaint = new SolidColorPaint(SKColors.LightGray) { StrokeThickness = 0.5f }
-            }
-        ];
+Text: {textContent}
 
-        LegendTextPaint = new SolidColorPaint
+Summary:";
+
+        var filenamePromptTemplate = @"Based on the summary below, generate a specific and descriptive filename that captures the essence of the document.
+Limit the filename to a maximum of 3 words. Use nouns and avoid starting with verbs like 'depicts', 'shows', 'presents', etc.
+Do not include any data type words like 'text', 'document', 'pdf', etc. Use only letters and connect words with underscores.
+
+Summary: {0}
+
+Examples:
+1. Summary: A research paper on the fundamentals of string theory.
+   Filename: fundamentals_of_string_theory
+
+2. Summary: An article discussing the effects of climate change on polar bears.
+   Filename: climate_change_polar_bears
+
+Now generate the filename.
+
+Output only the filename, without any additional text.
+
+Filename:";
+
+        var foldernamePromptTemplate = @"Based on the summary below, generate a general category or theme that best represents the main subject of this document.
+This will be used as the folder name. Limit the category to a maximum of 2 words. Use nouns and avoid verbs.
+Do not include specific details, words from the filename, or any generic terms like 'untitled' or 'unknown'.
+
+Summary: {0}
+
+Examples:
+1. Summary: A research paper on the fundamentals of string theory.
+   Category: physics
+
+2. Summary: An article discussing the effects of climate change on polar bears.
+   Category: environment
+
+Now generate the category.
+
+Output only the category, without any additional text.
+
+Category:";
+
+        // Generate the summary
+        var summary = await GetCompletionAsync(summarizePrompt);
+
+        // Generate the filename
+        var filenamePrompt = string.Format(filenamePromptTemplate, summary);
+        var filename = await GetCompletionAsync(filenamePrompt);
+
+        // Generate the folder name
+        var foldernamePrompt = string.Format(foldernamePromptTemplate, summary);
+        var folderName = await GetCompletionAsync(foldernamePrompt);
+
+        // Clean and process the outputs
+        filename = CleanAIOutput(filename, maxWords: 3);
+        if (string.IsNullOrEmpty(filename) || filename.ToLower() == "untitled")
         {
-            Color = SKColors.Gray,
-            SKTypeface = SKTypeface.FromFamilyName("Arial")
+            filename = CleanAIOutput(summary, maxWords: 3);
+        }
+        if (string.IsNullOrEmpty(filename))
+        {
+            filename = "document_" + Path.GetFileNameWithoutExtension(filePath);
+        }
+
+        folderName = CleanAIOutput(folderName, maxWords: 2);
+        if (string.IsNullOrEmpty(folderName) || folderName.ToLower() == "untitled")
+        {
+            folderName = "documents";
+        }
+
+        return new ProcessedFileData
+        {
+            FilePath = filePath,
+            Description = summary,
+            FileName = filename,
+            FolderName = folderName
         };
     }
 
-    private async Task CreateClusterVisualizationAsync(List<DocumentEmbeddingWithPredictionPca> predictions)
+    private async Task<string> GetCompletionAsync(string prompt)
     {
-        await Task.Run(() =>
-        {
-            // Group data by cluster and create a dictionary with both points and document IDs
-            var clusterData = predictions
-                .GroupBy(p => p.PredictedLabel)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(item => (
-                        Point: new ObservablePoint(item.PcaFeatures[0], item.PcaFeatures[1]),
-                        Id: item.Id))
-                        .ToList()
-                );
-
-            var colors = new[]
-            {
-            SKColors.DodgerBlue,
-            SKColors.Crimson,
-            SKColors.ForestGreen,
-            SKColors.DarkOrange,
-            SKColors.MediumPurple,
-            SKColors.Chocolate
-        };
-
-            var series = clusterData
-                .Select((cluster, index) =>
-                {
-                    var points = cluster.Value.Select(x => x.Point).ToList();
-                    var ids = cluster.Value.Select(x => x.Id).ToList();
-
-                    return new ScatterSeries<ObservablePoint>
-                    {
-                        Name = $"Cluster {cluster.Key + 1}",
-                        Values = points,
-                        Fill = new SolidColorPaint(colors[index % colors.Length]),
-                        GeometrySize = 10,
-                        XToolTipLabelFormatter = (chartPoint) =>
-                        {
-                            var pointIndex = points.IndexOf((ObservablePoint)chartPoint.Model);
-                            var documentId = ids[pointIndex];
-
-                            var sb = new StringBuilder();
-                            sb.AppendLine($"Cluster {cluster.Key + 1}");
-                            sb.AppendLine($"Document ID: {documentId}");
-                            sb.AppendLine($"PC1: {chartPoint.Coordinate.PrimaryValue:F2}");
-                            sb.AppendLine($"PC2: {chartPoint.Coordinate.SecondaryValue:F2}");
-                            return sb.ToString();
-                        }
-                    };
-                })
-                .ToArray<ISeries>();
-
-            DataSeries = series;
-        });
+        var chatHistory = new ChatHistory();
+        chatHistory.AddUserMessage(prompt);
+        var messages = await _parent.ChatCompletionService.GetChatMessageContentsAsync(chatHistory);
+        var completion = messages.FirstOrDefault()?.Content.Trim();
+        return completion ?? string.Empty;
     }
 
-    private async Task<Dictionary<uint, string>> AssignCategoriesToClustersAsync(
-        List<DocumentEmbeddingWithPredictionPca> predictions,
-        List<DocumentEmbedding> data)
+    private string CleanAIOutput(string text, int maxWords)
     {
-        var clusterParagraphs = new Dictionary<uint, List<string>>();
+        text = Regex.Replace(text, @"[^\w\s]", " ");
+        text = Regex.Replace(text, @"\d+", "");
+        text = text.Trim();
 
-        foreach (var item in predictions)
+        text = Regex.Replace(text, @"([a-z])([A-Z])", "$1 $2");
+
+        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(word => word.ToLower())
+                        .Where(word => Regex.IsMatch(word, @"^[a-z]+$"));  // Keep only words with letters
+
+        var unwantedWords = new HashSet<string> {
+                "the", "and", "based", "generated", "this", "is", "filename", "file", "document", "text", "output", "only", "below", "category",
+                "summary", "key", "details", "information", "note", "notes", "main", "ideas", "concepts", "in", "on", "of", "with", "by", "for",
+                "to", "from", "a", "an", "as", "at", "i", "we", "you", "they", "he", "she", "it", "that", "which", "are", "were", "was", "be",
+                "have", "has", "had", "do", "does", "did", "but", "if", "or", "because", "about", "into", "through", "during", "before", "after",
+                "above", "below", "any", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "own", "same", "so",
+                "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now", "new", "depicts", "show", "shows", "display",
+                "illustrates", "presents", "features", "provides", "covers", "includes", "discusses", "demonstrates", "describes", "depict",
+                "show", "present", "feature", "provide", "cover", "include", "discuss", "demonstrate", "describe"
+            };
+
+        var stopWords = new HashSet<string> {
+                "the", "is", "at", "which", "on", "and", "a"
+            };
+
+        var allUnwantedWords = unwantedWords.Union(stopWords).ToList();
+
+        var filteredWords = new List<string>();
+        var seenWords = new HashSet<string>();
+
+        foreach (var word in words)
         {
-            if (!clusterParagraphs.ContainsKey(item.PredictedLabel))
-                clusterParagraphs[item.PredictedLabel] = [];
-
-            var paragraph = data.FirstOrDefault(d => d.Id == item.Id)?.Paragraph;
-
-            if (!string.IsNullOrEmpty(paragraph))
+            if (!allUnwantedWords.Contains(word) && !seenWords.Contains(word))
             {
-                clusterParagraphs[item.PredictedLabel].Add(paragraph);
+                filteredWords.Add(word);
+                seenWords.Add(word);
             }
         }
-
-        var clusterCategories = new Dictionary<uint, string>();
-
-        foreach (var cluster in clusterParagraphs)
-        {
-            var sampleParagraphs = cluster.Value.Take(10).ToList();
-            var category = await GetClusterCategoryAsync(sampleParagraphs);
-            clusterCategories[cluster.Key] = category;
-        }
-
-        return clusterCategories;
+        filteredWords = filteredWords.Take(maxWords).ToList();
+        return string.Join("_", filteredWords);
     }
+}
 
-    private async Task<string> GetClusterCategoryAsync(List<string> paragraphs)
-    {
-        var prompt = $"""
-                          À partir des exemples suivants, pouvez-vous identifier la catégorie ou le thème principal de ce groupe (deux ou trois mots maximum)?
-                          Pensez à des catégories de fichiers, comme : factures, courrier, scripts, pièce d'identité, etc.
-                          Exemples:
-                          {paragraphs.Aggregate((current, paragraph) => current + $"- {paragraph}\n")}
-                      """;
 
-        var test = await _parent.ChatCompletionService.GetChatMessageContentsAsync([
-            new ChatMessageContent(AuthorRole.System,
-                "Tu es un assistant qui aide à identifier la catégorie la plus pertinente pour classer des fichiers en fonction de leur contenu. Les catégories doivent être concises et représenter le type de documents, comme 'factures', 'courrier', 'pièce d'identité', etc."),
-            new ChatMessageContent(AuthorRole.User, prompt)
-        ]);
-
-        var sb = new StringBuilder();
-        foreach (var chatMessageContent in test)
-        {
-            sb.Append(chatMessageContent.Content);
-        }
-        var response = sb.ToString();
-        return response;
-    }
-
-    private void OrganizeFilesByCategories(
-        List<DocumentEmbeddingWithPredictionPca> predictions,
-        Dictionary<uint, string> clusterCategories)
-    {
-        var fileCategories = new Dictionary<string, List<string>>();
-        foreach (var item in predictions)
-        {
-            var category = clusterCategories[item.PredictedLabel];
-
-            if (!fileCategories.ContainsKey(item.Id))
-                fileCategories[item.Id] = [];
-
-            if (!fileCategories[item.Id].Contains(category))
-                fileCategories[item.Id].Add(category);
-        }
-
-        //foreach (var fileEntry in fileCategories)
-        //{
-        //    var fileId = fileEntry.Key;
-        //    var categories = fileEntry.Value;
-        //    var filePath = GetFilePathById(fileId);
-        //    foreach (var category in categories)
-        //    {
-        //        var destinationFolder = Path.Combine("VotreCheminDeBase", category);
-        //        if (!Directory.Exists(destinationFolder))
-        //            Directory.CreateDirectory(destinationFolder);
-
-        //        var destinationPath = Path.Combine(destinationFolder, Path.GetFileName(filePath));
-        //        if (!File.Exists(destinationPath))
-        //        {
-        //            File.Copy(filePath, destinationPath);
-        //        }
-        //    }
-        //}
-    }
-
-    public class DocumentEmbedding
-    {
-        [VectorType(384)]
-        public float[] Embedding { get; set; }
-
-        public string Id { get; set; }
-        public string Paragraph { get; set; }
-    }
-
-    public class DocumentEmbeddingWithPredictionPca
-    {
-        [ColumnName("PredictedLabel")]
-        public uint PredictedLabel { get; set; }
-
-        public string Id { get; set; }
-
-        [VectorType(2)]
-        [ColumnName("PCAFeatures")]
-        public float[] PcaFeatures { get; set; }
-    }
-
-    private void ExecuteOrganization()
-    {
-        // Perform the file organization
-        // Save the analysis to the database
-    }
+public class ProcessedFileData
+{
+    public string FilePath { get; set; }
+    public string FolderName { get; set; }
+    public string FileName { get; set; }
+    public string Description { get; set; }
 }

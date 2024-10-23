@@ -135,7 +135,7 @@ public partial class Step2ViewModel : StepViewModel
 
             await textExtractionService.ExtractAndEmbedAsync(
                 AllFiles,
-                _parent.VectorCollection,_parent.TextEmbeddingGenerationService,
+                _parent.VectorCollection, _parent.TextEmbeddingGenerationService,
                 _parent.Keys,
                 progress);
         }
@@ -154,72 +154,73 @@ public partial class Step2ViewModel : StepViewModel
             });
         }
     }
-   public void LoadFiles(string path)
-{
-    var fileList = new List<FileItemViewModel>();
-    
-    try
+    public void LoadFiles(string path)
     {
-        var directories = new List<string> { path };
+        var fileList = new List<FileItemViewModel>();
+
         try
         {
-            directories.AddRange(Directory.GetDirectories(path, "*", SearchOption.AllDirectories));
-        }
-        catch (UnauthorizedAccessException)
-        {
-        }
-
-        foreach (var directory in directories)
-        {
+            var directories = new List<string> { path };
             try
             {
-                var files = Directory.GetFiles(directory);
-                foreach (var filePath in files)
-                {
-                    try
-                    {
-                        var file = new FileInfo(filePath);
-                        var relativePath = Path.GetRelativePath(path, file.DirectoryName);
-                        
-                        fileList.Add(new FileItemViewModel(new FileItem
-                        {
-                            Path = filePath,
-                            Name = Path.GetFileName(filePath),
-                            Size = file.Length,
-                            CreatedDate = file.CreationTime,
-                            ModifiedDate = file.LastWriteTime,
-                            FileType = Path.GetExtension(filePath),
-                            DirectoryName = relativePath == "." ? "" : relativePath
-                        }));
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        continue;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Error processing file {filePath}: {ex.Message}");
-                    }
-                }
+                directories.AddRange(Directory.GetDirectories(path, "*", SearchOption.AllDirectories));
             }
             catch (UnauthorizedAccessException)
             {
-                continue;
             }
-            catch (Exception ex)
+
+            foreach (var directory in directories)
             {
-                Debug.WriteLine($"Error accessing directory {directory}: {ex.Message}");
+                try
+                {
+                    var files = Directory.GetFiles(directory);
+                    foreach (var filePath in files)
+                    {
+                        try
+                        {
+                            var file = new FileInfo(filePath);
+                            var relativePath = Path.GetRelativePath(path, file.DirectoryName);
+
+                            fileList.Add(new FileItemViewModel(new FileItem
+                            {
+                                Path = filePath,
+                                Name = Path.GetFileName(filePath),
+                                Size = file.Length,
+                                CreatedDate = file.CreationTime,
+                                ModifiedDate = file.LastWriteTime,
+                                FileType = Path.GetExtension(filePath),
+                                DirectoryName = relativePath == "." ? "" : relativePath
+                            }));
+                        }
+                        catch (UnauthorizedAccessException)
+                        {
+                            continue;
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error processing file {filePath}: {ex.Message}");
+                        }
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error accessing directory {directory}: {ex.Message}");
+                }
             }
         }
-    }
-    catch (Exception ex)
-    {
-        Debug.WriteLine($"Error during file loading: {ex.Message}");
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error during file loading: {ex.Message}");
+        }
+
+        AllFiles = fileList;
+        RefreshFilesFilter();
     }
 
-    AllFiles = fileList;
-    RefreshFilesFilter();
-}
     private void RefreshFilesFilter()
     {
         var filtered = AllFiles;

@@ -88,7 +88,7 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
 
         var titleEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(pdfFile.Name);
-
+        pdfFile.Model.Content = extractedText;
         pdfFile.Model.HasContent = !string.IsNullOrEmpty(extractedText);
         if (pdfFile.Model.HasContent)
         {

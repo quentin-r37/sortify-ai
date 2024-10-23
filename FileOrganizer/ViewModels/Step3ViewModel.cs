@@ -101,6 +101,7 @@ public partial class Step3ViewModel : StepViewModel
     [RelayCommand]
     private async Task Next()
     {
+        _parent.Step4.LoadFileList(AllFiles.Where(model => model.FileType == ".pdf").ToList());
         await _parent.Step4.PreparePreviewAsync(SelectedOrganizationType);
         _parent.NextStep();
     }
