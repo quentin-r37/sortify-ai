@@ -14,7 +14,7 @@ namespace FileOrganizer.Services;
 
 public class TextExtractionService(ITextExtractorService extractorService) : ITextExtractionService
 {
-    private const int MaxConcurrentOperations = 2;
+    private const int MaxConcurrentOperations = 10;
 
     public async Task ExtractAndEmbedAsync(
         IEnumerable<FileItemViewModel> files,
@@ -96,4 +96,6 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
             }
         }
     }
+
+   
 }

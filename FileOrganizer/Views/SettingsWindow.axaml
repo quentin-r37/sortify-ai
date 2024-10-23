@@ -19,7 +19,6 @@
 	
 	<Window.Resources>
 		<converters:NullableBooleanConverter x:Key="NullableBooleanConverter"/>
-		
 	</Window.Resources>
 
 	<Design.DataContext>
@@ -49,15 +48,15 @@
 								          Width="200"
 								          />
 								<Button Theme="{DynamicResource Outline}" Grid.Column="1" Background="{DynamicResource ButtonBackground}" Command="{Binding TestEmbeddingCommand}"
-								        FontWeight="550" HorizontalAlignment="Stretch" >
+								        FontWeight="550"  Width="200" >
 									<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 										<avalonia:Icon Value="fa-check" Margin="0,0,5,0" />
 										<TextBlock FontWeight="550" Text="Test Service" />
 									</StackPanel>
 								</Button>
 							</Grid>
-							<TextBlock Foreground="LightGreen" IsEnabled="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
-							<TextBlock Foreground="Red" IsEnabled="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}, ConverterParameter=true}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+							<TextBlock Foreground="LightGreen" IsVisible="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+							<TextBlock Foreground="Red" IsVisible="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}, ConverterParameter=true}" Text="The service connection test failed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
 							<Expander Padding="10" IsExpanded="True">
 								<Expander.Header>
                                     <StackPanel Orientation="Horizontal">
@@ -103,16 +102,17 @@
 								          HorizontalAlignment="Left"
 								          />
 								
-								<Button Theme="{DynamicResource Outline}" Grid.Column="1" Background="{DynamicResource ButtonBackground}"
-								        FontWeight="550" HorizontalAlignment="Stretch" >
+								<Button Theme="{DynamicResource Outline}" Grid.Column="1" Background="{DynamicResource ButtonBackground}" Command="{Binding TestCompletionCommand}"
+								        FontWeight="550" Width="200" >
 									<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 										<avalonia:Icon Value="fa-check" Margin="0,0,5,0" />
 										<TextBlock FontWeight="550" Text="Test Service" />
 									</StackPanel>
 								</Button>
 							</Grid>
-							
-							<TextBlock Foreground="LightGreen" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+
+                            <TextBlock Foreground="LightGreen" IsVisible="{Binding CompletionTestPassed, Converter={StaticResource NullableBooleanConverter}}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+                            <TextBlock Foreground="Red" IsVisible="{Binding CompletionTestPassed, Converter={StaticResource NullableBooleanConverter}, ConverterParameter=true}" Text="The service connection test failed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
 
                             <Expander Padding="10" IsExpanded="True" BorderThickness="0">
                                 <Expander.Header>

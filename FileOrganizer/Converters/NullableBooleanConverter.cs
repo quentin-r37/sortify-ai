@@ -8,36 +8,34 @@ namespace FileOrganizer.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue)
+            switch (value)
             {
-                // Check if the parameter is set to invert the value.
-                bool invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
-                
-                return invert ? !boolValue : boolValue;
+                case bool boolValue:
+                {
+                    var invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
+                    return invert ? !boolValue : boolValue;
+                }
+                case null:
+                    return false;
+                default:
+                    return false;
             }
-            else if (value == null)
-            {
-                // Handle null case. You can return false or a different value based on the parameter.
-                return false;
-            }
-            return false;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool boolValue)
+            switch (value)
             {
-                // Check if the parameter is set to invert the value.
-                bool invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
-                
-                return invert ? !boolValue : boolValue;
+                case bool boolValue:
+                {
+                    var invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
+                    return invert ? !boolValue : boolValue;
+                }
+                case null:
+                    return null;
+                default:
+                    return false;
             }
-            else if (value == null)
-            {
-                // Handle null case.
-                return null;
-            }
-            return false;
         }
     }
 }

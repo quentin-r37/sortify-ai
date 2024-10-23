@@ -8,9 +8,9 @@
         x:Class="FileOrganizer.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="FileOrganizer" 
+        Title="FileOrganizer"
         SystemDecorations="Full"
-        SizeToContent="Manual" Width="1280" Height="720" 
+        SizeToContent="Manual" Width="1280" Height="720"
         TransparencyLevelHint="AcrylicBlur"
         Background="Transparent"
         ExtendClientAreaToDecorationsHint="True"
@@ -18,39 +18,48 @@
         >
 
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel />
-    </Design.DataContext>
-    <Panel>
-        <ExperimentalAcrylicBorder IsHitTestVisible="False">
-            <ExperimentalAcrylicBorder.Material>
-                <ExperimentalAcrylicMaterial
+		<vm:MainWindowViewModel />
+	</Design.DataContext>
+	<Panel>
+		<ExperimentalAcrylicBorder IsHitTestVisible="False">
+			<ExperimentalAcrylicBorder.Material>
+				<ExperimentalAcrylicMaterial
                     BackgroundSource="Digger"
                     TintColor="Black"
                     TintOpacity="1"
                     MaterialOpacity="0.7" />
-            </ExperimentalAcrylicBorder.Material>
-        </ExperimentalAcrylicBorder>
-        <DockPanel>
-            <Border Margin="20,35,20,20" DockPanel.Dock="Left">
-                <userControls:SidebarView DataContext="{Binding}" Width="250" />
-            </Border>
-            <Panel>
-                <ExperimentalAcrylicBorder IsHitTestVisible="False">
-                    <ExperimentalAcrylicBorder.Material>
-                        <ExperimentalAcrylicMaterial
+			</ExperimentalAcrylicBorder.Material>
+		</ExperimentalAcrylicBorder>
+		<DockPanel>
+			<Border Margin="20,35,20,20" DockPanel.Dock="Left">
+				<userControls:SidebarView DataContext="{Binding}" Width="250" />
+			</Border>
+			<Panel>
+				<ExperimentalAcrylicBorder IsHitTestVisible="False">
+					<ExperimentalAcrylicBorder.Material>
+						<ExperimentalAcrylicMaterial
                             BackgroundSource="Digger"
                             TintColor="Black"
                             TintOpacity="1"
                             MaterialOpacity="0.6" />
-                    </ExperimentalAcrylicBorder.Material>
-                </ExperimentalAcrylicBorder>
-                <Border Margin="10,35,10,20" CornerRadius="20">
-                    <ContentControl Padding="20,0" Content="{Binding SelectedAnalysis}" />
-                </Border>
-            </Panel>
-        </DockPanel>
-    </Panel>
+					</ExperimentalAcrylicBorder.Material>
+				</ExperimentalAcrylicBorder>
+
+				<Grid RowDefinitions="*,Auto">
+					<Border Margin="10,35,10,20" CornerRadius="20">
+						<ContentControl Padding="20,0" Content="{Binding SelectedAnalysis}" />
+					</Border>
+					<DockPanel Background="#20000000" IsVisible="True" HorizontalAlignment="Stretch" Grid.Row="1" >
+						<Grid ColumnDefinitions="*,Auto,Auto" Margin="10,5" >
+							<Label Grid.Column="1" Margin="0,0,5,0" Classes="Ghost Teal" Theme="{StaticResource TagLabel}" Content="{Binding EmbeddingModelName}"></Label>
+							<Label Grid.Column="2" Classes="Ghost Blue" Theme="{StaticResource TagLabel}" Content="{Binding CompletionModelName}"></Label>
+						</Grid>
+					</DockPanel>
+				</Grid>
+			</Panel>
+		</DockPanel>
+	</Panel>
 </Window>

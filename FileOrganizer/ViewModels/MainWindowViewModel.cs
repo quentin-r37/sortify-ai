@@ -9,11 +9,13 @@ using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
+using FileOrganizer.Models;
 using FileOrganizer.Services;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using static FileOrganizer.ViewModels.SettingsWindowViewModel;
 
 namespace FileOrganizer.ViewModels;
 
@@ -26,6 +28,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly WindowNotificationManager _notificationManager;
 
     [ObservableProperty] private AnalysisViewModel _selectedAnalysis;
+    [ObservableProperty] private string _embeddingModelProvider;
+    [ObservableProperty] private string _embeddingModelName;
+    [ObservableProperty] private string _completionModelProvider;
+    [ObservableProperty] private string _completionModelName;
+
+
     public ObservableCollection<AnalysisViewModel> Analyses
     {
         get => _analyses;
@@ -33,6 +41,29 @@ public partial class MainWindowViewModel : ViewModelBase
     }
     public MainWindowViewModel()
     {
+    }
+
+    private async Task InitConfiguration()
+    {
+        var configurationService = _serviceProvider.GetRequiredService<IAIConfigurationService>();
+        var aiServiceConfiguration = await configurationService.LoadConfiguration();
+        EmbeddingModelProvider = aiServiceConfiguration.EmbeddingService.SelectedProvider;
+        EmbeddingModelName = EmbeddingModelProvider switch
+        {
+            ServiceProviders.AzureOpenAI => aiServiceConfiguration.EmbeddingService.AzureOpenAiFields.ModelId,
+            ServiceProviders.OpenAI => aiServiceConfiguration.EmbeddingService.OpenAiFields.ModelId,
+            ServiceProviders.Ollama => aiServiceConfiguration.EmbeddingService.OllamaFields.ModelId,
+            _ => EmbeddingModelName
+        };
+
+        CompletionModelProvider = aiServiceConfiguration.CompletionService.SelectedProvider;
+        CompletionModelName = EmbeddingModelProvider switch
+        {
+            ServiceProviders.AzureOpenAI => aiServiceConfiguration.CompletionService.AzureOpenAiFields.ModelId,
+            ServiceProviders.OpenAI => aiServiceConfiguration.CompletionService.OpenAiFields.ModelId,
+            ServiceProviders.Ollama => aiServiceConfiguration.CompletionService.OllamaFields.ModelId,
+            _ => CompletionModelName
+        };
     }
 
     public MainWindowViewModel(MainWindow window, IViewModelFactory viewModelFactory, IServiceProvider serviceProvider)
@@ -48,6 +79,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _analyses = [];
         _selectedAnalysis = null;
         Analyses = new ObservableCollection<AnalysisViewModel>(LoadAnalysesFromDatabaseAsync());
+        _ = InitConfiguration();
     }
 
     [RelayCommand]
@@ -74,7 +106,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task OpenSettings()
     {
         var v = _serviceProvider.GetRequiredService<SettingsWindow>();
-        var model= _serviceProvider.GetRequiredService<SettingsWindowViewModel>();
+        var model = _serviceProvider.GetRequiredService<SettingsWindowViewModel>();
         model.RefWindow = v;
         v.Activate();
         v.DataContext = model;

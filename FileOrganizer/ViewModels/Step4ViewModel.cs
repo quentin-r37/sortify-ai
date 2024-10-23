@@ -2,6 +2,8 @@
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 namespace FileOrganizer.ViewModels;
 
@@ -17,8 +19,10 @@ public class Step4ViewModel : StepViewModel
         _parent = parent;
     }
 
-    public void PreparePreview(OrganizationType organizationType)
+    public async Task PreparePreview(OrganizationType organizationType)
     {
+        var test = _parent.Memory.GetCollectionsAsync();
+
         // Prepare the preview based on the selected organization type
     }
 

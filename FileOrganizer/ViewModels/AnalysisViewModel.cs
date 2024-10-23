@@ -10,12 +10,19 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 using System;
+using FileOrganizer.Models;
 using FileOrganizer.Services;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.SemanticKernel.Connectors.Sqlite;
 using OpenAI.Embeddings;
+using Microsoft.Extensions.VectorData;
+using Microsoft.SemanticKernel;
+using OpenAI.VectorStores;
 #pragma warning disable SKEXP0010
+#pragma warning disable SKEXP0020
 #pragma warning disable SKEXP0050
 #pragma warning disable SKEXP0001
 #pragma warning disable SKEXP0070
@@ -31,9 +38,11 @@ public partial class AnalysisViewModel : ObservableObject
     private readonly IServiceProvider _serviceProvider;
 
     public SemanticTextMemory Memory { get; set; }
+    public string EmbeddingModelName {get; set; }
 
     [ObservableProperty] private int _currentStep;
     [ObservableProperty] private bool _isEditing;
+    private AiServiceConfiguration _aiServiceConfiguration;
 
     public AnalysisViewModel(Analysis analysis,
         MainWindow window, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager,
@@ -59,14 +68,42 @@ public partial class AnalysisViewModel : ObservableObject
 
     public async Task InitMemoryAsync()
     {
+        var vectorStore = new SqliteVectorStore(new SqliteConnection("Data Source=vectors.db"));
+        var collection = vectorStore.GetCollection<ulong, FileVectorStoreRecord>($"embeddings_{Model.Id}");
+        await collection.CreateCollectionIfNotExistsAsync();
+
+        //collection.UpsertAsync();
+
         var configuration = _serviceProvider.GetRequiredService<IAIConfigurationService>();
-        var config = await configuration.LoadConfiguration();
-        if (config.EmbeddingService.SelectedProvider == "Ollama")
+        _aiServiceConfiguration = await configuration.LoadConfiguration();
+        switch (_aiServiceConfiguration.EmbeddingService.SelectedProvider)
         {
-            var textEmbeddingService = new OllamaTextEmbeddingGenerationService("all-minilm", new Uri("http://localhost:11434"));
-            Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
+            case ServiceProviders.Ollama:
+                {
+                    var ollamaAiFields = _aiServiceConfiguration.EmbeddingService.OllamaFields;
+                    var textEmbeddingService = new OllamaTextEmbeddingGenerationService(ollamaAiFields.ModelId, ollamaAiFields.OllamaUrl);
+                    Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
+                    EmbeddingModelName = ServiceProviders.Ollama;
+                    break;
+                }
+            case ServiceProviders.AzureOpenAI:
+                {
+                    var azOpenAiFields = _aiServiceConfiguration.EmbeddingService.AzureOpenAiFields;
+                    var textEmbeddingService = new AzureOpenAITextEmbeddingGenerationService(azOpenAiFields.DeploymentName, azOpenAiFields.Endpoint.AbsoluteUri, azOpenAiFields.ApiKey);
+                    Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
+                    EmbeddingModelName = ServiceProviders.AzureOpenAI;
+                    break;
+                }
+            case ServiceProviders.OpenAI:
+                {
+                    var openAiFields = _aiServiceConfiguration.EmbeddingService.OpenAiFields;
+                    var textEmbeddingService = new OpenAITextEmbeddingGenerationService(openAiFields.ModelId, openAiFields.ApiKey);
+                    Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
+                    EmbeddingModelName = ServiceProviders.OpenAI;
+                    break;
+                }
         }
-     
+
     }
 
     public ObservableCollection<StepViewModel> Steps { get; }

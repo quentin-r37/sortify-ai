@@ -26,7 +26,7 @@ public class AIConfigurationService(AppDbContext context) : IAIConfigurationServ
                     SelectedProvider = "Ollama",
                     OllamaFields = new OllamaFields()
                     {
-                        ModelId = "llama3.2",
+                        ModelId = "llama3.2:1b",
                         OllamaUrl = new Uri("http://localhost:11434")
                     }
                 },

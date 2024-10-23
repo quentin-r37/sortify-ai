@@ -48,6 +48,10 @@ public partial class Step2ViewModel : StepViewModel
     [ObservableProperty] private bool _showSubDirectories = true;
     [ObservableProperty] private ZoomAndPanMode _zoomModeByDate = ZoomAndPanMode.None;
     [ObservableProperty] private ZoomAndPanMode _zoomModeByType = ZoomAndPanMode.None;
+
+    public List<string> SortTypes { get; set; } = ["By count", "By size"];
+    [ObservableProperty] private string _sortTypeSelected = "By count";
+
     public List<ZoomAndPanMode> ZoomAndPanModes { get; set; } = [ZoomAndPanMode.None, ZoomAndPanMode.X];
 
     public Step2ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
@@ -103,6 +107,11 @@ public partial class Step2ViewModel : StepViewModel
     }
 
     partial void OnFileTypesCountChanged(int value)
+    {
+        CalculateFilesByType();
+    }
+
+    partial void OnSortTypeSelectedChanged(string value)
     {
         CalculateFilesByType();
     }
@@ -301,10 +310,12 @@ public partial class Step2ViewModel : StepViewModel
 
     private void CalculateFilesByType()
     {
-        var groupedByType = Files
-            .GroupBy(f => string.IsNullOrEmpty(f.FileType) ? "No extension" : f.FileType.ToLower())
-            .OrderByDescending(g => g.Count())
-            .Take(FileTypesCount) //
+        var query = Files
+            .GroupBy(f => string.IsNullOrEmpty(f.FileType) ? "No extension" : f.FileType.ToLower());
+
+        query = SortTypeSelected == "By count" ? query.OrderByDescending(g => g.Count()) : query.OrderByDescending(g => g.Sum(model => model.Size));
+
+        var groupedByType = query.Take(FileTypesCount) //
             .ToList();
 
         var countValues = groupedByType.Select(g => (double)g.Count()).ToArray();

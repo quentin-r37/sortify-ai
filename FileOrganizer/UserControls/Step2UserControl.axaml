@@ -83,7 +83,7 @@
 									<StackPanel HorizontalAlignment="Stretch">
 										<Label HorizontalAlignment="Left" FontWeight="Normal">Zoom mode</Label>
 										<ComboBox Margin="0,20,0,0" SelectedItem="{Binding ZoomModeByType}" ItemsSource="{Binding ZoomAndPanModes}"  VerticalAlignment="Center" DockPanel.Dock="Right" HorizontalAlignment="Left" ></ComboBox>
-										<Label  Margin="0,20,0,0" HorizontalAlignment="Left" FontWeight="Normal">Limit types</Label>
+										<Label Margin="0,20,0,0" HorizontalAlignment="Left" FontWeight="Normal">Limit types</Label>
 										<StackPanel Orientation="Horizontal"  Margin="0,20,0,0">
 											<Slider
 												Minimum="1"
@@ -93,6 +93,10 @@
                                                     />
 											<TextBlock Text="{Binding FileTypesCount}"  Margin="10,0,0,0" VerticalAlignment="Center" />
 										</StackPanel>
+
+                                        <Label HorizontalAlignment="Left" Margin="0,20,0,0"  FontWeight="Normal">Sort by</Label>
+                                        <ComboBox Margin="0,20,0,0" SelectedItem="{Binding SortTypeSelected}" ItemsSource="{Binding SortTypes}"  VerticalAlignment="Center" DockPanel.Dock="Right" HorizontalAlignment="Left" ></ComboBox>
+
 
 									</StackPanel>
 								</Expander>

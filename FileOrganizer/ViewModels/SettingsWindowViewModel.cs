@@ -4,10 +4,16 @@ using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Models;
 using FileOrganizer.Services;
 using FileOrganizer.Views;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.Ollama;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Memory;
+#pragma warning disable SKEXP0010
 #pragma warning disable SKEXP0070
 #pragma warning disable SKEXP0050
 #pragma warning disable SKEXP0001
@@ -55,8 +61,10 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     public SettingsWindowViewModel()
     {
-        
+
     }
+
+ 
 
     private async Task InitConfigAsync()
     {
@@ -66,17 +74,17 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
         switch (conf.EmbeddingService.SelectedProvider)
         {
-            case "Ollama":
+            case ServiceProviders.Ollama:
                 EmbeddingEndpoint = conf.EmbeddingService.OllamaFields.OllamaUrl.ToString();
                 EmbeddingModelId = conf.EmbeddingService.OllamaFields.ModelId;
                 break;
-            case "Azure OpenAI":
+            case ServiceProviders.AzureOpenAI:
                 EmbeddingEndpoint = conf.EmbeddingService.AzureOpenAiFields.Endpoint.ToString();
                 EmbeddingModelId = conf.EmbeddingService.AzureOpenAiFields.ModelId;
                 EmbeddingApiKey = conf.EmbeddingService.AzureOpenAiFields.ApiKey;
                 EmbeddingDeploymentName = conf.EmbeddingService.AzureOpenAiFields.DeploymentName;
                 break;
-            case "OpenAI":
+            case ServiceProviders.OpenAI:
                 EmbeddingModelId = conf.EmbeddingService.OpenAiFields.ModelId;
                 EmbeddingApiKey = conf.EmbeddingService.OpenAiFields.ApiKey;
                 break;
@@ -84,17 +92,17 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
         switch (conf.CompletionService.SelectedProvider)
         {
-            case "Ollama":
+            case ServiceProviders.Ollama:
                 CompletionEndpoint = conf.CompletionService.OllamaFields.OllamaUrl.ToString();
                 CompletionModelId = conf.CompletionService.OllamaFields.ModelId;
                 break;
-            case "Azure OpenAI":
+            case ServiceProviders.AzureOpenAI:
                 CompletionEndpoint = conf.CompletionService.AzureOpenAiFields.Endpoint.ToString();
                 CompletionModelId = conf.CompletionService.AzureOpenAiFields.ModelId;
                 CompletionApiKey = conf.CompletionService.AzureOpenAiFields.ApiKey;
                 CompletionDeploymentName = conf.CompletionService.AzureOpenAiFields.DeploymentName;
                 break;
-            case "OpenAI":
+            case ServiceProviders.OpenAI:
                 CompletionModelId = conf.CompletionService.OpenAiFields.ModelId;
                 CompletionApiKey = conf.CompletionService.OpenAiFields.ApiKey;
                 break;
@@ -105,20 +113,68 @@ public partial class SettingsWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task TestEmbedding()
     {
-        if (SelectedEmbeddingProvider == "Ollama")
+        var textEmbeddingService = CreateTextEmbeddingService();
+        if (textEmbeddingService == null)
         {
-            var textEmbeddingService = new OllamaTextEmbeddingGenerationService("all-minilm", new Uri("http://localhost:11434"));
-            var memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
-            try
-            {
-                await memory.SaveInformationAsync("test", "test", "test", "test");
-                EmbeddingTestPassed = true;
-            }
-            catch (Exception e)
-            {
-                EmbeddingTestPassed = false;
-            }
+            EmbeddingTestPassed = false;
+            return;
         }
+        var memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
+        try
+        {
+            await memory.SaveInformationAsync("test", "test", "test", "test");
+            EmbeddingTestPassed = true;
+        }
+        catch (Exception)
+        {
+            EmbeddingTestPassed = false;
+        }
+    }
+    private ITextEmbeddingGenerationService CreateTextEmbeddingService()
+    {
+        return SelectedEmbeddingProvider switch
+        {
+            ServiceProviders.Ollama => new OllamaTextEmbeddingGenerationService(EmbeddingModelId,
+                new Uri(EmbeddingEndpoint)),
+            ServiceProviders.AzureOpenAI => new AzureOpenAITextEmbeddingGenerationService(EmbeddingDeploymentName,
+                EmbeddingEndpoint, EmbeddingApiKey, EmbeddingModelId),
+            ServiceProviders.OpenAI => new OpenAITextEmbeddingGenerationService(EmbeddingModelId,
+                EmbeddingEndpoint),
+            _ => null
+        };
+    }
+
+    [RelayCommand]
+    public async Task TestCompletion()
+    {
+        var textCompletionService = CreateTextCompletionService();
+        if (textCompletionService == null)
+        {
+            CompletionTestPassed = false;
+            return;
+        }
+
+        try
+        {
+            await textCompletionService.GetChatMessageContentsAsync(new ChatHistory("test"));
+            CompletionTestPassed = true;
+        }
+        catch (Exception)
+        {
+            CompletionTestPassed = false;
+        }
+    }
+
+    private IChatCompletionService CreateTextCompletionService()
+    {
+        return SelectedCompletionProvider switch
+        {
+            ServiceProviders.Ollama => new OllamaChatCompletionService(CompletionModelId, new Uri(CompletionEndpoint)),
+            ServiceProviders.AzureOpenAI => new AzureOpenAIChatCompletionService(CompletionDeploymentName,
+                CompletionEndpoint, CompletionApiKey, CompletionModelId),
+            ServiceProviders.OpenAI => new OpenAIChatCompletionService(CompletionEndpoint, CompletionApiKey),
+            _ => null
+        };
     }
 
     [RelayCommand]

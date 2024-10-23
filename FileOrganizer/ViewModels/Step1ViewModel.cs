@@ -7,7 +7,10 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
+using FileOrganizer.Services;
 using FileOrganizer.Views;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FileOrganizer.ViewModels;
 
@@ -15,6 +18,7 @@ public partial class Step1ViewModel : StepViewModel
 {
     private readonly AnalysisViewModel _parent;
     private readonly MainWindow _window;
+    private readonly IServiceProvider _serviceProvider;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(NextCommand))]
@@ -22,8 +26,10 @@ public partial class Step1ViewModel : StepViewModel
 
     public Step1ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
     {
+
         _parent = parent;
         _window = window;
+        _serviceProvider = serviceProvider;
         StepNumber = 1;
         Icon = "fa-folder";
         Description = "Step 1";

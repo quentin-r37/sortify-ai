@@ -89,9 +89,9 @@ public partial class Step3ViewModel : StepViewModel
     }
 
     [RelayCommand]
-    private void Next()
+    private async Task Next()
     {
-        _parent.Step4.PreparePreview(SelectedOrganizationType);
+        await _parent.Step4.PreparePreview(SelectedOrganizationType);
         _parent.NextStep();
     }
 
