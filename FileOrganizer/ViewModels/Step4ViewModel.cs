@@ -21,7 +21,8 @@ public class Step4ViewModel : StepViewModel
 
     public async Task PreparePreview(OrganizationType organizationType)
     {
-        var test = _parent.Memory.GetCollectionsAsync();
+       // var test = _parent.Memory.GetCollectionsAsync();
+
 
         // Prepare the preview based on the selected organization type
     }

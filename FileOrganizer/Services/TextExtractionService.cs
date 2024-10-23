@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
 using FileOrganizer.DataExtractor;
 using FileOrganizer.ViewModels;
-using Microsoft.SemanticKernel.Memory;
+using Microsoft.Extensions.VectorData;
+using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Text;
 #pragma warning disable SKEXP0050
 #pragma warning disable SKEXP0001
@@ -18,7 +20,8 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
 
     public async Task ExtractAndEmbedAsync(
         IEnumerable<FileItemViewModel> files,
-        SemanticTextMemory memory,
+        IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
+        ITextEmbeddingGenerationService textEmbeddingGenerationService,
         IProgress<(int Processed, int Total, string Message)> progress,
         CancellationToken cancellationToken = default)
     {
@@ -46,7 +49,7 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await ProcessFileAsync(pdfFile, memory);
+                    await ProcessFileAsync(pdfFile, vectorStoreCollection, textEmbeddingGenerationService);
 
                     Interlocked.Increment(ref processedFiles);
                     progress.Report((processedFiles, totalFiles,
@@ -73,29 +76,34 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         await Task.WhenAll(tasks);
     }
 
-    private async Task ProcessFileAsync(FileItemViewModel pdfFile, SemanticTextMemory memory)
+    private async Task ProcessFileAsync(FileItemViewModel pdfFile,
+        IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
+        ITextEmbeddingGenerationService textEmbeddingGenerationService)
     {
         await using var fileStream = File.OpenRead(pdfFile.Model.Path);
         var extractedText = extractorService.ExtractTextFromPdf(
             pdfFile.Name, pdfFile.FileType, fileStream).Text;
         var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 256);
         var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
-
         pdfFile.Model.HasContent = !string.IsNullOrEmpty(extractedText);
         if (pdfFile.Model.HasContent)
         {
             for (var index = 0; index < paragraphs.Count; index++)
             {
                 var paragraph = paragraphs[index];
-                await memory.SaveInformationAsync(
-                    collection: "pdf_documents",
-                    id: $"{pdfFile.Model.Path}-${index}",
-                    additionalMetadata: pdfFile.Model.Path,
-                    text: paragraph,
-                    description: pdfFile.Name);
+
+                var embedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(paragraph);
+                await vectorStoreCollection.UpsertAsync(new FileVectorStoreRecord()
+                {
+                    Description = pdfFile.Name,
+                    Embedding = embedding,
+                    AdditionalMetadata = pdfFile.Model.Path,
+                    Text = paragraph,
+                    Id = $"{pdfFile.Model.Path}-${index}"
+                });
             }
         }
     }
 
-   
+
 }

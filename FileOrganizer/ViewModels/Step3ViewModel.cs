@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using LiveChartsCore.SkiaSharpView.Painting;
 using Avalonia.Threading;
+using Microsoft.Extensions.VectorData;
+using Microsoft.SemanticKernel.Data;
+using Microsoft.SemanticKernel.Embeddings;
+#pragma warning disable SKEXP0001
 
 namespace FileOrganizer.ViewModels;
 
@@ -32,17 +36,22 @@ public partial class Step3ViewModel : StepViewModel
         {
             var relevanceByPath = new Dictionary<string, double>();
             var itemsByPath = new Dictionary<string, FileItemViewModel>();
-
-            await foreach (var r in _parent.Memory.SearchAsync("pdf_documents", value, 20, 0D, withEmbeddings: true))
+            var searchVector = await _parent.TextEmbeddingGenerationService.GenerateEmbeddingAsync(value);
+            var searchResult = await _parent.VectorCollection.VectorizedSearchAsync(searchVector, new VectorSearchOptions()
             {
-                var path = r.Metadata.AdditionalMetadata;
+                Top = 20
+            });
+
+            await foreach (var r in searchResult.Results)
+            {
+                var path = r.Record.AdditionalMetadata;
                 var item = AllFiles.FirstOrDefault(model => model.Model.Path == path);
                 if (item == null) continue;
                 if (relevanceByPath.ContainsKey(path))
-                    relevanceByPath[path] += r.Relevance;
+                    relevanceByPath[path] += r.Score ?? 0;
                 else
                 {
-                    relevanceByPath[path] = r.Relevance;
+                    relevanceByPath[path] = r.Score ?? 0;
                     itemsByPath[path] = item;
                 }
             }

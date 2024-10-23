@@ -134,7 +134,7 @@ public partial class Step2ViewModel : StepViewModel
             });
             await textExtractionService.ExtractAndEmbedAsync(
                 AllFiles,
-                _parent.Memory,
+                _parent.VectorCollection,_parent.TextEmbeddingGenerationService,
                 progress);
         }
         catch (Exception ex)

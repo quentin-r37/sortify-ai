@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FileOrganizer.Database;
+using FileOrganizer.Models;
 using FileOrganizer.Shared;
 using Microsoft.EntityFrameworkCore;
 

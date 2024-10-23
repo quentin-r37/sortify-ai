@@ -20,7 +20,9 @@ using Microsoft.SemanticKernel.Connectors.Sqlite;
 using OpenAI.Embeddings;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Embeddings;
 using OpenAI.VectorStores;
+using Microsoft.SemanticKernel.Connectors.InMemory;
 #pragma warning disable SKEXP0010
 #pragma warning disable SKEXP0020
 #pragma warning disable SKEXP0050
@@ -37,7 +39,7 @@ public partial class AnalysisViewModel : ObservableObject
     private readonly WindowNotificationManager _notificationManager;
     private readonly IServiceProvider _serviceProvider;
 
-    public SemanticTextMemory Memory { get; set; }
+    public ITextEmbeddingGenerationService TextEmbeddingGenerationService{ get; set; }
     public string EmbeddingModelName {get; set; }
 
     [ObservableProperty] private int _currentStep;
@@ -62,17 +64,17 @@ public partial class AnalysisViewModel : ObservableObject
 
         Steps = [Step1, Step2, Step3, Step4];
         CurrentStep = 1;
-        _ = InitMemoryAsync();
+        _ = InitVectorCollectionAsync();
         UpdateStepStates();
     }
 
-    public async Task InitMemoryAsync()
+    public async Task InitVectorCollectionAsync()
     {
-        var vectorStore = new SqliteVectorStore(new SqliteConnection("Data Source=vectors.db"));
-        var collection = vectorStore.GetCollection<ulong, FileVectorStoreRecord>($"embeddings_{Model.Id}");
-        await collection.CreateCollectionIfNotExistsAsync();
-
-        //collection.UpsertAsync();
+        //var connection = new SqliteConnection("Data Source=vectors.db");
+        //connection.Open();
+        var vectorStore = new InMemoryVectorStore();
+        VectorCollection = vectorStore.GetCollection<string, FileVectorStoreRecord>($"embeddings_{Model.Id}");
+        await VectorCollection.CreateCollectionIfNotExistsAsync();
 
         var configuration = _serviceProvider.GetRequiredService<IAIConfigurationService>();
         _aiServiceConfiguration = await configuration.LoadConfiguration();
@@ -81,30 +83,26 @@ public partial class AnalysisViewModel : ObservableObject
             case ServiceProviders.Ollama:
                 {
                     var ollamaAiFields = _aiServiceConfiguration.EmbeddingService.OllamaFields;
-                    var textEmbeddingService = new OllamaTextEmbeddingGenerationService(ollamaAiFields.ModelId, ollamaAiFields.OllamaUrl);
-                    Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
-                    EmbeddingModelName = ServiceProviders.Ollama;
+                    TextEmbeddingGenerationService = new OllamaTextEmbeddingGenerationService(ollamaAiFields.ModelId, ollamaAiFields.OllamaUrl);
                     break;
                 }
             case ServiceProviders.AzureOpenAI:
                 {
                     var azOpenAiFields = _aiServiceConfiguration.EmbeddingService.AzureOpenAiFields;
-                    var textEmbeddingService = new AzureOpenAITextEmbeddingGenerationService(azOpenAiFields.DeploymentName, azOpenAiFields.Endpoint.AbsoluteUri, azOpenAiFields.ApiKey);
-                    Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
-                    EmbeddingModelName = ServiceProviders.AzureOpenAI;
+                    TextEmbeddingGenerationService = new AzureOpenAITextEmbeddingGenerationService(azOpenAiFields.DeploymentName, azOpenAiFields.Endpoint.AbsoluteUri, azOpenAiFields.ApiKey);
                     break;
                 }
             case ServiceProviders.OpenAI:
                 {
                     var openAiFields = _aiServiceConfiguration.EmbeddingService.OpenAiFields;
-                    var textEmbeddingService = new OpenAITextEmbeddingGenerationService(openAiFields.ModelId, openAiFields.ApiKey);
-                    Memory = new SemanticTextMemory(new VolatileMemoryStore(), textEmbeddingService);
-                    EmbeddingModelName = ServiceProviders.OpenAI;
+                    TextEmbeddingGenerationService = new OpenAITextEmbeddingGenerationService(openAiFields.ModelId, openAiFields.ApiKey);
                     break;
                 }
         }
 
     }
+
+    public IVectorStoreRecordCollection<string, FileVectorStoreRecord> VectorCollection { get; set; }
 
     public ObservableCollection<StepViewModel> Steps { get; }
 
