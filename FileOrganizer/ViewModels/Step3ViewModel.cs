@@ -39,7 +39,7 @@ public partial class Step3ViewModel : StepViewModel
             var searchVector = await _parent.TextEmbeddingGenerationService.GenerateEmbeddingAsync(value);
             var searchResult = await _parent.VectorCollection.VectorizedSearchAsync(searchVector, new VectorSearchOptions()
             {
-                Top = 20
+                Top = 50
             });
 
 

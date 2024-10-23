@@ -195,7 +195,6 @@ public partial class Step4ViewModel : StepViewModel
         });
     }
 
-
     private async Task<Dictionary<uint, string>> AssignCategoriesToClustersAsync(
         List<DocumentEmbeddingWithPredictionPca> predictions,
         List<DocumentEmbedding> data)

@@ -84,20 +84,23 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         await using var fileStream = File.OpenRead(pdfFile.Model.Path);
         var extractedText = extractorService.ExtractTextFromPdf(
             pdfFile.Name, pdfFile.FileType, fileStream).Text;
-        var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 1024);
-        var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 2048, 128);
+        var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 256);
+        var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
+
+        var titleEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(pdfFile.Name);
+
         pdfFile.Model.HasContent = !string.IsNullOrEmpty(extractedText);
         if (pdfFile.Model.HasContent)
         {
             for (var index = 0; index < paragraphs.Count; index++)
             {
                 var paragraph = paragraphs[index];
-
-                var embedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(paragraph);
+                var paragraphEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(paragraph);
+                var combinedEmbedding = CombineEmbeddings(titleEmbedding, paragraphEmbedding, 0.5f, 0.5f);
                 await vectorStoreCollection.UpsertAsync(new FileVectorStoreRecord()
                 {
                     Description = pdfFile.Name,
-                    Embedding = embedding,
+                    Embedding = combinedEmbedding,
                     AdditionalMetadata = pdfFile.Model.Path,
                     Text = paragraph,
                     Id = $"{pdfFile.Model.Path}-${index}"
@@ -105,6 +108,23 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
                 keys.Add($"{pdfFile.Model.Path}-${index}");
             }
         }
+    }
+
+    private float[] CombineEmbeddings(ReadOnlyMemory<float> embedding1, ReadOnlyMemory<float> embedding2, float weight1, float weight2)
+    {
+        if (embedding1.Length != embedding2.Length)
+        {
+            throw new ArgumentException("Embeddings must have the same length");
+        }
+        var combinedEmbedding = new float[embedding1.Length];
+        var span1 = embedding1.Span; 
+        var span2 = embedding2.Span;
+        for (var i = 0; i < span1.Length; i++)
+        {
+            combinedEmbedding[i] = (span1[i] * weight1) + (span2[i] * weight2);
+        }
+
+        return combinedEmbedding;
     }
 
 
