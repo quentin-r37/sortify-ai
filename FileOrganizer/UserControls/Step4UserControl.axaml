@@ -2,7 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"  x:DataType="viewModels:Step4ViewModel"
              x:Class="FileOrganizer.UserControls.Step4UserControl">
-    Welcome to Step4
+    <avalonia:CartesianChart
+        DockPanel.Dock="Top"
+        Series="{Binding DataSeries}"
+        XAxes="{Binding XAxes}"
+        YAxes="{Binding YAxes}"
+        LegendPosition="Top"
+        LegendTextPaint="{Binding LegendTextPaint}"
+        Height="500" />
 </UserControl>

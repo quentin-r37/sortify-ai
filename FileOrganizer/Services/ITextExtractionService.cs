@@ -16,6 +16,7 @@ public interface ITextExtractionService
         IEnumerable<FileItemViewModel> files,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         ITextEmbeddingGenerationService textEmbeddingGenerationService,
+        List<string> keys,
         IProgress<(int Processed, int Total, string Message)> progress,
         CancellationToken cancellationToken = default);
 }

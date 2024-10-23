@@ -42,6 +42,7 @@ public partial class Step3ViewModel : StepViewModel
                 Top = 20
             });
 
+
             await foreach (var r in searchResult.Results)
             {
                 var path = r.Record.AdditionalMetadata;
@@ -100,7 +101,7 @@ public partial class Step3ViewModel : StepViewModel
     [RelayCommand]
     private async Task Next()
     {
-        await _parent.Step4.PreparePreview(SelectedOrganizationType);
+        await _parent.Step4.PreparePreviewAsync(SelectedOrganizationType);
         _parent.NextStep();
     }
 

@@ -132,9 +132,11 @@ public partial class Step2ViewModel : StepViewModel
                 Progress = (double)report.Processed / report.Total * 100;
                 StatusMessage = report.Message;
             });
+
             await textExtractionService.ExtractAndEmbedAsync(
                 AllFiles,
                 _parent.VectorCollection,_parent.TextEmbeddingGenerationService,
+                _parent.Keys,
                 progress);
         }
         catch (Exception ex)

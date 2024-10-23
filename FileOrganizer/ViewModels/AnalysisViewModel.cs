@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 using System;
+using System.Collections.Generic;
 using FileOrganizer.Models;
 using FileOrganizer.Services;
 using Microsoft.Data.Sqlite;
@@ -20,6 +21,7 @@ using Microsoft.SemanticKernel.Connectors.Sqlite;
 using OpenAI.Embeddings;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Embeddings;
 using OpenAI.VectorStores;
 using Microsoft.SemanticKernel.Connectors.InMemory;
@@ -40,6 +42,8 @@ public partial class AnalysisViewModel : ObservableObject
     private readonly IServiceProvider _serviceProvider;
 
     public ITextEmbeddingGenerationService TextEmbeddingGenerationService{ get; set; }
+    public IChatCompletionService ChatCompletionService { get; set; }
+
     public string EmbeddingModelName {get; set; }
 
     [ObservableProperty] private int _currentStep;
@@ -100,9 +104,33 @@ public partial class AnalysisViewModel : ObservableObject
                 }
         }
 
+        switch (_aiServiceConfiguration.CompletionService.SelectedProvider)
+        {
+            case ServiceProviders.Ollama:
+            {
+                var ollamaAiFields = _aiServiceConfiguration.CompletionService.OllamaFields;
+                ChatCompletionService = new OllamaChatCompletionService(ollamaAiFields.ModelId, ollamaAiFields.OllamaUrl);
+                break;
+            }
+            case ServiceProviders.AzureOpenAI:
+            {
+                var azOpenAiFields = _aiServiceConfiguration.CompletionService.AzureOpenAiFields;
+                ChatCompletionService = new AzureOpenAIChatCompletionService(azOpenAiFields.DeploymentName, azOpenAiFields.Endpoint.AbsoluteUri, azOpenAiFields.ApiKey);
+                break;
+            }
+            case ServiceProviders.OpenAI:
+            {
+                var openAiFields = _aiServiceConfiguration.CompletionService.OpenAiFields;
+                ChatCompletionService = new OpenAIChatCompletionService(openAiFields.ModelId, openAiFields.ApiKey);
+                break;
+            }
+        }
+
     }
 
     public IVectorStoreRecordCollection<string, FileVectorStoreRecord> VectorCollection { get; set; }
+
+    public List<string> Keys { get; set; } = [];
 
     public ObservableCollection<StepViewModel> Steps { get; }
 
@@ -175,7 +203,6 @@ public partial class AnalysisViewModel : ObservableObject
         IsEditing = false;
         await _mainWindowViewModel.SaveNameAsync(this);
         _notificationManager.Show("Analysis saved successfully", NotificationType.Success);
-
     }
 
     [RelayCommand]

@@ -22,6 +22,7 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         IEnumerable<FileItemViewModel> files,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         ITextEmbeddingGenerationService textEmbeddingGenerationService,
+        List<string> keys,
         IProgress<(int Processed, int Total, string Message)> progress,
         CancellationToken cancellationToken = default)
     {
@@ -49,7 +50,7 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await ProcessFileAsync(pdfFile, vectorStoreCollection, textEmbeddingGenerationService);
+                    await ProcessFileAsync(keys,pdfFile, vectorStoreCollection, textEmbeddingGenerationService);
 
                     Interlocked.Increment(ref processedFiles);
                     progress.Report((processedFiles, totalFiles,
@@ -76,15 +77,15 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         await Task.WhenAll(tasks);
     }
 
-    private async Task ProcessFileAsync(FileItemViewModel pdfFile,
+    private async Task ProcessFileAsync(List<string> keys,FileItemViewModel pdfFile,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         ITextEmbeddingGenerationService textEmbeddingGenerationService)
     {
         await using var fileStream = File.OpenRead(pdfFile.Model.Path);
         var extractedText = extractorService.ExtractTextFromPdf(
             pdfFile.Name, pdfFile.FileType, fileStream).Text;
-        var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 256);
-        var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
+        var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 1024);
+        var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 2048, 128);
         pdfFile.Model.HasContent = !string.IsNullOrEmpty(extractedText);
         if (pdfFile.Model.HasContent)
         {
@@ -101,6 +102,7 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
                     Text = paragraph,
                     Id = $"{pdfFile.Model.Path}-${index}"
                 });
+                keys.Add($"{pdfFile.Model.Path}-${index}");
             }
         }
     }

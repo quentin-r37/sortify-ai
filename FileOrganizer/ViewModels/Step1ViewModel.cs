@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -71,5 +72,17 @@ public partial class Step1ViewModel : StepViewModel
     partial void OnPathChanged(string value)
     {
         _parent.AnalysisPath = value;
+        _ = SavePathAsync(_parent);
+
     }
+
+    public async Task SavePathAsync(AnalysisViewModel analysis)
+    {
+        var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
+        var entry = dbContext.Analyses.Entry(analysis.Model);
+        entry.Entity.Path = analysis.AnalysisPath;
+        await dbContext.SaveChangesAsync();
+    }
+
+  
 }
