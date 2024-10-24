@@ -7,6 +7,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
+using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -180,6 +182,7 @@ public partial class Step2ViewModel : StepViewModel
                         {
                             var file = new FileInfo(filePath);
                             var relativePath = Path.GetRelativePath(path, file.DirectoryName);
+                            var dir = relativePath.Split(Path.DirectorySeparatorChar).Where(d => !string.IsNullOrWhiteSpace(d)).ToList();
 
                             fileList.Add(new FileItemViewModel(new FileItem
                             {
@@ -189,7 +192,8 @@ public partial class Step2ViewModel : StepViewModel
                                 CreatedDate = file.CreationTime,
                                 ModifiedDate = file.LastWriteTime,
                                 FileType = Path.GetExtension(filePath),
-                                DirectoryName = relativePath == "." ? "" : relativePath
+                                DirectoryName = relativePath == "." ? "" : relativePath,
+                                DirectoryLevels = dir
                             }));
                         }
                         catch (UnauthorizedAccessException)

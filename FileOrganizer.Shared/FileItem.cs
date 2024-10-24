@@ -14,4 +14,5 @@ public class FileItem
     public string Content { get; set; } = string.Empty;
     public bool HasContent { get; set; }
     public Analysis? Analysis { get; set; }
+    public List<string> DirectoryLevels { get; set; } = [];
 }

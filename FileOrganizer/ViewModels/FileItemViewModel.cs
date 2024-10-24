@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using FileOrganizer.Shared;
 
@@ -16,5 +17,6 @@ public class FileItemViewModel(FileItem model) : ObservableObject
     public string Content => Model.Content;
     public bool HasContent => Model.HasContent;
     public double Relevance { get; set; }
+    public List<string> DirectoryLevels { get; set; } = [];
 
 }
