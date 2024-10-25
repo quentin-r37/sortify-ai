@@ -1,29 +1,21 @@
 ﻿using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Avalonia.Controls.Notifications;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
-using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 using System;
 using System.Collections.Generic;
 using FileOrganizer.Models;
 using FileOrganizer.Services;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
-using Microsoft.SemanticKernel.Connectors.Sqlite;
-using OpenAI.Embeddings;
 using Microsoft.Extensions.VectorData;
-using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Embeddings;
-using OpenAI.VectorStores;
 using Microsoft.SemanticKernel.Connectors.InMemory;
 #pragma warning disable SKEXP0010
 #pragma warning disable SKEXP0020

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
 using System;
@@ -8,10 +7,8 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using LiveChartsCore.SkiaSharpView.Painting;
 using Avalonia.Threading;
 using Microsoft.Extensions.VectorData;
-using Microsoft.SemanticKernel.Data;
 using Microsoft.SemanticKernel.Embeddings;
 #pragma warning disable SKEXP0001
 
@@ -102,8 +99,9 @@ public partial class Step3ViewModel : StepViewModel
     private async Task Next()
     {
         _parent.Step4.LoadFileList(AllFiles.Where(model => model.FileType == ".pdf").ToList());
-        await _parent.Step4.PreparePreviewAsync(SelectedOrganizationType);
         _parent.NextStep();
+        await _parent.Step4.PrepareOrganizeAsync(SelectedOrganizationType);
+
     }
 
     [RelayCommand]

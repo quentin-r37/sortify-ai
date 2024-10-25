@@ -4,16 +4,12 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Data;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
-using FileOrganizer.DataExtractor;
 using FileOrganizer.Services;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
@@ -21,14 +17,7 @@ using LiveChartsCore;
 using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.Ollama;
-using Microsoft.SemanticKernel.Embeddings;
-using Microsoft.SemanticKernel.Memory;
-using OllamaSharp;
 using SkiaSharp;
 #pragma warning disable SKEXP0050
 #pragma warning disable SKEXP0001
@@ -135,11 +124,11 @@ public partial class Step2ViewModel : StepViewModel
                 StatusMessage = report.Message;
             });
 
-            await textExtractionService.ExtractAndEmbedAsync(
-                AllFiles,
-                _parent.VectorCollection, _parent.TextEmbeddingGenerationService,
-                _parent.Keys,
-                progress);
+            //await textExtractionService.ExtractAndEmbedAsync(
+            //    AllFiles,
+            //    _parent.VectorCollection, _parent.TextEmbeddingGenerationService,
+            //    _parent.Keys,
+            //    progress);
         }
         catch (Exception ex)
         {

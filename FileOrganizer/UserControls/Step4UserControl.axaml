@@ -6,5 +6,54 @@
              xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"  x:DataType="viewModels:Step4ViewModel"
              x:Class="FileOrganizer.UserControls.Step4UserControl">
- 
+
+
+	<Grid RowDefinitions="*,Auto" >
+		<Border BorderThickness="1" VerticalAlignment="Stretch" CornerRadius="20"
+							BorderBrush="{DynamicResource SemiGrey2Color}">
+
+			<Grid RowDefinitions="Auto,*,Auto" >
+				<Panel Margin="0" Grid.Row="1" >
+					<TabControl>
+						<TabItem Header="By Date">
+
+							<Grid ColumnDefinitions="*,*">
+								<TreeView ItemsSource="{Binding CurrentStructure}">
+									<TreeView.ItemTemplate>
+										<TreeDataTemplate ItemsSource="{Binding SubNodes}">
+											<TextBlock Text="{Binding Title}"/>
+										</TreeDataTemplate>
+									</TreeView.ItemTemplate>
+								</TreeView>
+								<TreeView Grid.Column="1" ItemsSource="{Binding ProposedStructure}">
+									<TreeView.ItemTemplate>
+										<TreeDataTemplate ItemsSource="{Binding SubNodes}">
+											<TextBlock Text="{Binding Title}"/>
+										</TreeDataTemplate>
+									</TreeView.ItemTemplate>
+								</TreeView>
+							</Grid>
+
+
+
+
+						</TabItem>
+						<TabItem Header="By Type">
+						</TabItem>
+						<TabItem Header="Files List">
+						</TabItem>
+					</TabControl>
+				</Panel>
+
+				<UniformGrid Margin="20,0" Grid.Row="2">
+					<Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+				</UniformGrid>
+			</Grid>
+		</Border>
+		<StackPanel Margin="0,5" IsVisible="True" MaxWidth="250"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">
+			<Label FontSize="12" Foreground="LightGray" Content="{Binding StatusMessage}"></Label>
+			<!--<ProgressBar Value="{Binding Progress}"></ProgressBar>-->
+		</StackPanel>
+	</Grid>
+
 </UserControl>

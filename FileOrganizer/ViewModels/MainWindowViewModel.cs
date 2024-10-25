@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
-using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
@@ -13,9 +12,7 @@ using FileOrganizer.Models;
 using FileOrganizer.Services;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using static FileOrganizer.ViewModels.SettingsWindowViewModel;
 
 namespace FileOrganizer.ViewModels;
 

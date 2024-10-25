@@ -106,7 +106,7 @@
 						<TabItem Header="Files List">
 
 							<Grid Margin="20" ColumnDefinitions="*,Auto">
-								<DataGrid  MaxHeight="500" ItemsSource="{Binding GroupedGridData}"
+								<DataGrid ItemsSource="{Binding GroupedGridData}"
                                           IsScrollInertiaEnabled="True"
                                           AutoGenerateColumns="False" IsReadOnly="True"
                                           GridLinesVisibility="All"
@@ -120,11 +120,6 @@
 									</DataGrid.Styles>
 
 									<DataGrid.Columns>
-										<DataGridTextColumn x:DataType="viewModels:FileItemViewModel"
-															IsVisible="{Binding ((viewModels:Step2ViewModel)DataContext).ShowSubDirectories, 
-                                                        ElementName=Root, FallbackValue=true}"
-															Header="SubDirectory" Width="*"
-															Binding="{Binding DirectoryName}" />
 										<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Name" Width="*"
 															Binding="{Binding Name}" />
 										<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Created Date" Width="*"
