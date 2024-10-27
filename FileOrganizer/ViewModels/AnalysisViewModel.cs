@@ -40,7 +40,7 @@ public partial class AnalysisViewModel : ObservableObject
 
     [ObservableProperty] private int _currentStep;
     [ObservableProperty] private bool _isEditing;
-    private AiServiceConfiguration _aiServiceConfiguration;
+    private AIServiceConfiguration _aiServiceConfiguration;
 
     public AnalysisViewModel(Analysis analysis,
         MainWindow window, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager,

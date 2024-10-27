@@ -37,10 +37,10 @@
                 </DataGrid.Columns>
             </DataGrid>
 
-			<UniformGrid Grid.Row="3" >
+            <Grid Grid.Row="3">
                 <Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
                 <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
-            </UniformGrid>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

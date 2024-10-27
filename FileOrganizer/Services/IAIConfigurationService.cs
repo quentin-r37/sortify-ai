@@ -5,6 +5,6 @@ namespace FileOrganizer.Services;
 
 public interface IAIConfigurationService
 {
-    Task<AiServiceConfiguration> LoadConfiguration();
-    Task SaveConfiguration(AiServiceConfiguration aiServiceConfiguration);
+    Task<AIServiceConfiguration> LoadConfiguration();
+    Task SaveConfiguration(AIServiceConfiguration aiServiceConfiguration);
 }

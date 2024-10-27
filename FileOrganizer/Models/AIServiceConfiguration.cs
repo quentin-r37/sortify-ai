@@ -2,7 +2,7 @@
 
 namespace FileOrganizer.Models;
 
-public class AiServiceConfiguration
+public class AIServiceConfiguration
 {
     [JsonPropertyName("EmbeddingService")]
     public Service EmbeddingService { get; set; }

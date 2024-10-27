@@ -180,7 +180,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task SaveConfig()
     {
-        var confToSave = new AiServiceConfiguration
+        var confToSave = new AIServiceConfiguration
         {
             CompletionService = new Service()
             {

@@ -18,7 +18,7 @@
 						BorderBrush="{DynamicResource SemiGrey2Color}">
 
 			<Grid RowDefinitions="Auto,*,Auto" >
-				<DockPanel Margin="10,20,20,20">
+				<DockPanel Margin="20,20,20,20">
 					<Label DockPanel.Dock="Left" VerticalAlignment="Center" Content="Analysis" FontSize="16"
 						   FontWeight="DemiBold" />
 					<StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
@@ -33,7 +33,7 @@
 						</Border>
 					</StackPanel>
 				</DockPanel>
-				<Panel Margin="0" Grid.Row="1" >
+				<Panel Grid.Row="1" >
 					<TabControl>
 						<TabItem Header="By Date">
 							<Grid Margin="20" ColumnDefinitions="*,Auto">
@@ -104,7 +104,6 @@
 
 						</TabItem>
 						<TabItem Header="Files List">
-
 							<Grid Margin="20" ColumnDefinitions="*,Auto">
 								<DataGrid ItemsSource="{Binding GroupedGridData}"
                                           IsScrollInertiaEnabled="True"
@@ -150,10 +149,10 @@
 					</TabControl>
 				</Panel>
 
-				<UniformGrid Margin="20,0" Grid.Row="2">
-					<Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+				<Grid Margin="20,0,20,20" Grid.Row="2">
+					<Button Content="Previous" VerticalAlignment="Bottom" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
 					<Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
-				</UniformGrid>
+				</Grid>
 			</Grid>
 		</Border>
 		<StackPanel Margin="0,5" IsVisible="True" MaxWidth="250"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">

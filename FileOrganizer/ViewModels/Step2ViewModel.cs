@@ -124,11 +124,11 @@ public partial class Step2ViewModel : StepViewModel
                 StatusMessage = report.Message;
             });
 
-            //await textExtractionService.ExtractAndEmbedAsync(
-            //    AllFiles,
-            //    _parent.VectorCollection, _parent.TextEmbeddingGenerationService,
-            //    _parent.Keys,
-            //    progress);
+            await textExtractionService.ExtractAndEmbedAsync(
+               AllFiles,
+                _parent.VectorCollection, _parent.TextEmbeddingGenerationService,
+                _parent.Keys,
+               progress);
         }
         catch (Exception ex)
         {

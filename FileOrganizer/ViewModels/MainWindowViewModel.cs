@@ -32,11 +32,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _embeddingModelProvider;
     [ObservableProperty] private string _embeddingModelName;
     [ObservableProperty] private string _completionModelProvider;
+    [ObservableProperty] private string _completionModelName;
+
 
     [ObservableProperty] private SolidColorBrush _primaryBrush = new SolidColorBrush(new Color(255,40,40,40),1) ;
     [ObservableProperty] private SolidColorBrush _secondaryBrush = new SolidColorBrush(new Color(255,20,20,20),1) ;
 
-    [ObservableProperty] private AnalysisViewModel _selectedAnalysis;
 
 
     public ObservableCollection<AnalysisViewModel> Analyses

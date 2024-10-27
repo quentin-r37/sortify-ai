@@ -11,16 +11,16 @@ namespace FileOrganizer.Services;
 
 public class AIConfigurationService(AppDbContext context) : IAIConfigurationService
 {
-    public async Task<AiServiceConfiguration> LoadConfiguration()
+    public async Task<AIServiceConfiguration> LoadConfiguration()
     {
         var conf = await context.Configurations.OrderByDescending(c => c.CreatedDate).FirstOrDefaultAsync();
         if (conf != null)
         {
-            var objConf = JsonSerializer.Deserialize<AiServiceConfiguration>(conf.Value);
+            var objConf = JsonSerializer.Deserialize<AIServiceConfiguration>(conf.Value);
             return objConf;
         }
         else
-            return new AiServiceConfiguration()
+            return new AIServiceConfiguration()
             {
                 CompletionService = new Service()
                 {
@@ -43,7 +43,7 @@ public class AIConfigurationService(AppDbContext context) : IAIConfigurationServ
             };
     }
 
-    public async Task SaveConfiguration(AiServiceConfiguration aiServiceConfiguration)
+    public async Task SaveConfiguration(AIServiceConfiguration aiServiceConfiguration)
     {
         var configurations = context.Configurations.ToList(); // Get all entities
         context.Configurations.RemoveRange(configurations);   // Remove all entities

@@ -69,10 +69,12 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
             if (processedData != null)
             {
                 results.Add(processedData);
+                LogToDebug($"Successfully categorized: {file.Model.Path} -> {processedData.FolderName} (using heuristics)");
             }
             else
             {
                 unknownFiles.Add(file);
+                LogToDebug($"Heuristics failed for: {file.Model.Path}");
             }
 
             processed++;
@@ -95,6 +97,15 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
                 {
                     results.AddRange(group.Select(file => new ProcessedFileData { FilePath = file.Model.Path, FolderName = aiProcessed.FolderName, FileName = GenerateUniqueFileName(file, aiProcessed.FolderName), Description = aiProcessed.Description }));
                 }
+                else
+                {
+                    LogToDebug($"AI categorization failed for group represented by: {representative.Model.Path}");
+                    foreach (var file in group)
+                    {
+                        LogToDebug($"  - Uncategorized file: {file.Model.Path}");
+                    }
+                }
+                
             }
         }
         return results;
@@ -161,6 +172,12 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
 
         return $"{extension}_{pattern}_{lengthCategory}";
     }
+    
+    private static void LogToDebug(string message)
+    {
+        var logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";
+        Console.WriteLine(logEntry);
+    }
 
     private string GenerateUniqueFileName(FileItemViewModel file, string category)
     {
@@ -176,7 +193,7 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         return cleaned;
     }
 
-    private string CleanFileName(string fileName)
+    private static string CleanFileName(string fileName)
     {
         var cleaned = Regex.Replace(fileName, @"[^\w\s-]", "");
         cleaned = Regex.Replace(cleaned, @"[-\s]+", "_");
@@ -222,7 +239,7 @@ Reply with just the category name, nothing else.");
         return null;
     }
 
-    private async Task<string> GetFileSampleAsync(string filePath)
+    private static async Task<string> GetFileSampleAsync(string filePath)
     {
         const int maxSampleSize = 1024; 
         try

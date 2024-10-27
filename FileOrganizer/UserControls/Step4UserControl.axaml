@@ -13,6 +13,10 @@
 							BorderBrush="{DynamicResource SemiGrey2Color}">
 
 			<Grid RowDefinitions="Auto,*,Auto" >
+				<DockPanel Margin="20,20,20,20">
+					<Label DockPanel.Dock="Left" VerticalAlignment="Center" Content="Organizer" FontSize="16"
+					       FontWeight="DemiBold" />
+				</DockPanel>
 				<Panel Margin="0" Grid.Row="1" >
 					<TabControl>
 						<TabItem Header="By Date">
@@ -45,9 +49,10 @@
 					</TabControl>
 				</Panel>
 
-				<UniformGrid Margin="20,0" Grid.Row="2">
+				<Grid Margin="20,20" Grid.Row="2">
 					<Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
-				</UniformGrid>
+					<Button Content="Organize" HorizontalAlignment="Right" Classes="Danger" Theme="{DynamicResource SolidButton}" Command="{Binding PreviousCommand}" />
+				</Grid>
 			</Grid>
 		</Border>
 		<StackPanel Margin="0,5" IsVisible="True" MaxWidth="250"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">
