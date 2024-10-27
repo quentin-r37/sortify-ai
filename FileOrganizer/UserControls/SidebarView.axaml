@@ -15,13 +15,13 @@
     <Grid RowDefinitions="*,Auto">
         <StackPanel>
             <!-- Header with Logo -->
-            <StackPanel Orientation="Horizontal">
-                <Border Padding="4" Width="32" Height="32" Margin="0,0,10,0" Background="Orange" CornerRadius="100">
+            <Grid ColumnDefinitions="Auto,*">
+                <Border Padding="5" Width="32" Height="32" Margin="0,0,16,0" Background="Orange" CornerRadius="100">
                     <Image Source="{StaticResource Folder}" />
                 </Border>
-                <TextBlock Text="File Organizer" FontWeight="Bold" VerticalAlignment="Center" Margin="8,0,0,0"
-                           FontSize="20" />
-            </StackPanel>
+                <TextBlock Grid.Column="1" Text="File Organizer" FontWeight="400" VerticalAlignment="Center" 
+                           FontSize="18" />
+            </Grid>
 
             <!-- Workspace Section -->
             <Button Margin="0,20,0,0" Height="50" HorizontalAlignment="Stretch"

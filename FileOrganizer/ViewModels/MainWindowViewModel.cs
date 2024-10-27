@@ -48,8 +48,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void UpdateWindowState(bool isActive)
     {
-        PrimaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.5) :  new SolidColorBrush(new Color(255,40,40,40),1) ;
-        SecondaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.3) :  new SolidColorBrush(new Color(255,20,20,20),1) ;
+        PrimaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.7) :  new SolidColorBrush(new Color(255,40,40,40),1) ;
+        SecondaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.4) :  new SolidColorBrush(new Color(255,20,20,20),1) ;
 
     }
 

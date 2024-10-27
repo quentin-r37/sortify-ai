@@ -65,7 +65,11 @@ public partial class Step4ViewModel : StepViewModel
             StatusMessage = "Analyzing files...";
 
             var progress = new Progress<double>(p =>
-                StatusMessage = $"Analyzing files... {p:F1}%");
+            {
+                Progress = p;
+                StatusMessage = $"Analyzing files... {p:F1}%";
+            }
+            );
 
             _fileOrganizer = new Services.FileOrganizer(_parent.ChatCompletionService, _targetBasePath);
 

@@ -19,8 +19,10 @@
 				</DockPanel>
 				<Panel Margin="0" Grid.Row="1" >
 					<TabControl>
-						<TabItem Header="By Date">
-
+						<TabItem >
+							<TabItem.Header>
+								<Label Margin="20,0">Organisation preview</Label>
+							</TabItem.Header>
 							<Grid ColumnDefinitions="*,*">
 								<TreeView ItemsSource="{Binding CurrentStructure}">
 									<TreeView.ItemTemplate>
@@ -57,7 +59,7 @@
 		</Border>
 		<StackPanel Margin="0,5" IsVisible="True" MaxWidth="250"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">
 			<Label FontSize="12" Foreground="LightGray" Content="{Binding StatusMessage}"></Label>
-			<!--<ProgressBar Value="{Binding Progress}"></ProgressBar>-->
+			<ProgressBar Value="{Binding Progress}"></ProgressBar>
 		</StackPanel>
 	</Grid>
 

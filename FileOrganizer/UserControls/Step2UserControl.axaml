@@ -35,7 +35,11 @@
 				</DockPanel>
 				<Panel Grid.Row="1" >
 					<TabControl>
-						<TabItem Header="By Date">
+						<TabItem >
+							<TabItem.Header>
+								<Label Margin="20,0">By date</Label>
+							</TabItem.Header>
+							
 							<Grid Margin="20" ColumnDefinitions="*,Auto">
 								<avalonia:CartesianChart ZoomMode="{Binding ZoomModeByDate}"
 														 PointerWheelChanged="InputElement_OnPointerWheelChanged"
@@ -60,7 +64,12 @@
 							</Grid>
 
 						</TabItem>
-						<TabItem Header="By Type">
+						<TabItem>
+							
+							<TabItem.Header>
+								<Label Margin="20,0">By type</Label>
+							</TabItem.Header>
+							
 							<Grid Margin="20" ColumnDefinitions="*,Auto">
 								<avalonia:CartesianChart DockPanel.Dock="Top"
 														 Series="{Binding FilesByTypeSeries}"
@@ -103,7 +112,10 @@
 							</Grid>
 
 						</TabItem>
-						<TabItem Header="Files List">
+						<TabItem >
+							<TabItem.Header>
+								<Label Margin="20,0">File list</Label>
+							</TabItem.Header>
 							<Grid Margin="20" ColumnDefinitions="*,Auto">
 								<DataGrid ItemsSource="{Binding GroupedGridData}"
                                           IsScrollInertiaEnabled="True"
