@@ -15,6 +15,7 @@
         Background="Transparent"
         ExtendClientAreaToDecorationsHint="True"
         ExtendClientAreaChromeHints="PreferSystemChrome"
+		FontFamily="{DynamicResource MontserratFont}"
         >
 
 

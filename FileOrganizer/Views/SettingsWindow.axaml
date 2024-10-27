@@ -15,6 +15,7 @@
         Background="Transparent"
         ExtendClientAreaToDecorationsHint="True" x:DataType="viewModels:SettingsWindowViewModel"
         ExtendClientAreaChromeHints="PreferSystemChrome"
+        FontFamily="{DynamicResource MontserratFont}"
         >
 	
 	<Window.Resources>
@@ -25,15 +26,7 @@
 		<viewModels:SettingsWindowViewModel />
 	</Design.DataContext>
 	<Panel >
-		<ExperimentalAcrylicBorder  IsHitTestVisible="False">
-			<ExperimentalAcrylicBorder.Material>
-				<ExperimentalAcrylicMaterial
-					BackgroundSource="Digger"
-					TintColor="Black"
-					TintOpacity="1"
-					MaterialOpacity="0.7" />
-			</ExperimentalAcrylicBorder.Material>
-		</ExperimentalAcrylicBorder>
+        <Border IsHitTestVisible="False" Background="#80000000"></Border>
 		<Grid RowDefinitions="*, Auto" Margin="0,0,20,20">
 			<ScrollViewer Margin="5,30,5,10">
 				<StackPanel Margin="20,0" >

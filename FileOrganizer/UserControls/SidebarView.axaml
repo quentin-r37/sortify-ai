@@ -60,7 +60,7 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
-        <Button Theme="{DynamicResource Outline}" Grid.Row="1" Background="{DynamicResource ButtonBackground}" Command="{Binding OpenSettingsCommand}"
+        <Button Theme="{DynamicResource OutlineButton}" Grid.Row="1" Command="{Binding OpenSettingsCommand}"
                 FontWeight="550" HorizontalAlignment="Stretch" Margin="8,4">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <avalonia:Icon Value="fa-cog" Margin="0,0,5,0" />

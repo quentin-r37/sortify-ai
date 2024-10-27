@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <None Remove="Assets\folder_icon.svg" />
+    <None Remove="Assets\Montserrat-Regular.ttf" />
     <None Remove="Assets\SourceHanSansCN-Regular.otf" />
   </ItemGroup>
 

@@ -162,7 +162,7 @@
 				</Panel>
 
 				<Grid Margin="20,0,20,20" Grid.Row="2">
-					<Button Content="Previous" VerticalAlignment="Bottom" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+					<Button Content="Previous" Theme="{DynamicResource OutlineButton}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
 					<Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
 				</Grid>
 			</Grid>

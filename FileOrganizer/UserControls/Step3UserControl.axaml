@@ -38,7 +38,7 @@
             </DataGrid>
 
             <Grid Grid.Row="3">
-                <Button Content="Previous" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+                <Button Content="Previous" Theme="{DynamicResource OutlineButton}" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
                 <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
             </Grid>
         </Grid>

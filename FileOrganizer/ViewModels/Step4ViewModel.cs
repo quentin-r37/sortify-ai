@@ -20,9 +20,6 @@ public partial class Step4ViewModel : StepViewModel
     public ObservableCollection<Node> ProposedStructure { get; set; }
     public List<FileMove> FileMoves { get; private set; }
 
-    public ObservableCollection<Node> TreeNodes { get; set; }
-
-
     [ObservableProperty]
     private double _progress;
 
@@ -52,9 +49,9 @@ public partial class Step4ViewModel : StepViewModel
     public void LoadFileList(List<FileItemViewModel> files)
     {
         AllFiles = new ObservableCollection<FileItemViewModel>(files);
-        TreeNodes = TreeViewHelper.BuildTree(AllFiles);
+        CurrentStructure = TreeViewHelper.BuildTree(AllFiles);
         OnPropertyChanged(nameof(AllFiles));
-        OnPropertyChanged(nameof(TreeNodes));
+        OnPropertyChanged(nameof(CurrentStructure));
     }
 
     public async Task PrepareOrganizeAsync(OrganizationType organizationType)

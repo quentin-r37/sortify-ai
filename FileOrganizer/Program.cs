@@ -26,21 +26,6 @@ internal sealed class Program
 
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .WithInterFont()
             .LogToTrace();
-    }
-}
-
-public static class AvaloniaAppBuilderExtensions
-{
-    private static string DefaultFontFamily => "avares://FileOrganizer/Assets#Source Han Sans CN";
-
-    public static AppBuilder WithSourceHanSansCNFont(this AppBuilder builder)
-    {
-        return builder.With(new FontManagerOptions
-        {
-            DefaultFamilyName = DefaultFontFamily,
-            FontFallbacks = new[] { new FontFallback { FontFamily = new FontFamily(DefaultFontFamily) } }
-        });
     }
 }
