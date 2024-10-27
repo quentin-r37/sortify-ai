@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
+using Avalonia.Controls.Templates;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
@@ -12,7 +14,9 @@ using FileOrganizer.Models;
 using FileOrganizer.Services;
 using FileOrganizer.Shared;
 using FileOrganizer.Views;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using static FileOrganizer.ViewModels.SettingsWindowViewModel;
 
 namespace FileOrganizer.ViewModels;
 
@@ -28,7 +32,11 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _embeddingModelProvider;
     [ObservableProperty] private string _embeddingModelName;
     [ObservableProperty] private string _completionModelProvider;
-    [ObservableProperty] private string _completionModelName;
+
+    [ObservableProperty] private SolidColorBrush _primaryBrush = new SolidColorBrush(new Color(255,40,40,40),1) ;
+    [ObservableProperty] private SolidColorBrush _secondaryBrush = new SolidColorBrush(new Color(255,20,20,20),1) ;
+
+    [ObservableProperty] private AnalysisViewModel _selectedAnalysis;
 
 
     public ObservableCollection<AnalysisViewModel> Analyses
@@ -36,8 +44,12 @@ public partial class MainWindowViewModel : ViewModelBase
         get => _analyses;
         set => SetProperty(ref _analyses, value);
     }
-    public MainWindowViewModel()
+
+    public void UpdateWindowState(bool isActive)
     {
+        PrimaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.5) :  new SolidColorBrush(new Color(255,40,40,40),1) ;
+        SecondaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.3) :  new SolidColorBrush(new Color(255,20,20,20),1) ;
+
     }
 
     private async Task InitConfiguration()

@@ -24,30 +24,14 @@
 		<vm:MainWindowViewModel />
 	</Design.DataContext>
 	<Panel>
-		<ExperimentalAcrylicBorder IsHitTestVisible="False">
-			<ExperimentalAcrylicBorder.Material>
-				<ExperimentalAcrylicMaterial
-                    BackgroundSource="Digger"
-                    TintColor="Black"
-                    TintOpacity="1"
-                    MaterialOpacity="0.7" />
-			</ExperimentalAcrylicBorder.Material>
-		</ExperimentalAcrylicBorder>
+		
+		<Border IsHitTestVisible="False" Background="{Binding PrimaryBrush}"></Border>
 		<DockPanel>
 			<Border Margin="20,35,20,20" DockPanel.Dock="Left">
 				<userControls:SidebarView DataContext="{Binding}" Width="250" />
 			</Border>
 			<Panel>
-				<ExperimentalAcrylicBorder IsHitTestVisible="False">
-					<ExperimentalAcrylicBorder.Material>
-						<ExperimentalAcrylicMaterial
-                            BackgroundSource="Digger"
-                            TintColor="Black"
-                            TintOpacity="1"
-                            MaterialOpacity="0.6" />
-					</ExperimentalAcrylicBorder.Material>
-				</ExperimentalAcrylicBorder>
-
+				<Border Background="{Binding SecondaryBrush}" IsHitTestVisible="False"></Border>
 				<Grid RowDefinitions="*,Auto">
 					<Border Margin="10,35,10,20" CornerRadius="20">
 						<ContentControl Padding="20,0" Content="{Binding SelectedAnalysis}" />

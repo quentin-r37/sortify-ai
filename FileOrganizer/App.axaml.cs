@@ -54,6 +54,9 @@ public class App : Application
             var viewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
             mainWindow.DataContext = viewModel;
             desktop.MainWindow = mainWindow;
+            
+            mainWindow.Activated += (s, e) => viewModel.UpdateWindowState(true);
+            mainWindow.Deactivated += (s, e) => viewModel.UpdateWindowState(false);
         }
 
         base.OnFrameworkInitializationCompleted();
