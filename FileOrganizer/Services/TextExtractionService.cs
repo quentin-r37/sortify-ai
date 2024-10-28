@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
+using FileOrganizer.Database;
 using FileOrganizer.DataExtractor;
+using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Text;
@@ -14,26 +19,35 @@ using Microsoft.SemanticKernel.Text;
 
 namespace FileOrganizer.Services;
 
-public class TextExtractionService(IDocumentTextExtractor documentTextExtractor) : ITextExtractionService
+public class TextExtractionService(IDocumentTextExtractor documentTextExtractor, AppDbContext dbContext) : ITextExtractionService
 {
     private const int MaxConcurrentOperations = 10;
 
     public async Task ExtractAndEmbedAsync(
-        IEnumerable<FileItemViewModel> files,
+        int analysisId,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         ITextEmbeddingGenerationService textEmbeddingGenerationService,
         List<string> keys,
         IProgress<(int Processed, int Total, string Message)> progress,
+        IEnumerable<FileItemViewModel> files,
         CancellationToken cancellationToken = default)
     {
         var documentFiles = files.WhereFileTypeIsDocument();
-
         var totalFiles = documentFiles.Count;
         var processedFiles = 0;
+
+        var processedFilePaths = await RestoreExistingVectorsAsync(analysisId, vectorStoreCollection, keys, progress, totalFiles);
+        if (processedFilePaths.Any())
+            processedFiles = documentFiles.Count(f => processedFilePaths.Contains(f.Model.Path));
+
+        var remainingFiles = documentFiles.Where(f => !processedFilePaths.Contains(f.Model.Path)).ToList();
+        if (!remainingFiles.Any())
+            return;
+
         var semaphore = new SemaphoreSlim(MaxConcurrentOperations);
         var tasks = new List<Task>();
 
-        foreach (var document in documentFiles)
+        foreach (var document in remainingFiles)
         {
             await semaphore.WaitAsync(cancellationToken);
 
@@ -43,7 +57,7 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await ProcessFileAsync(keys, document, vectorStoreCollection, textEmbeddingGenerationService);
+                    await ProcessFileAsync(analysisId, keys, document, vectorStoreCollection, textEmbeddingGenerationService);
 
                     Interlocked.Increment(ref processedFiles);
                     progress.Report((processedFiles, totalFiles,
@@ -70,38 +84,84 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor)
         await Task.WhenAll(tasks);
     }
 
-    private async Task ProcessFileAsync(List<string> keys, FileItemViewModel pdfFile,
+    private async Task ProcessFileAsync(int analysisId, List<string> keys, FileItemViewModel file,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         ITextEmbeddingGenerationService textEmbeddingGenerationService)
     {
-        await using var fileStream = File.OpenRead(pdfFile.Model.Path);
+        await using var dbContext = new AppDbContext(new DbContextOptions<AppDbContext>());
+        var analysis = await dbContext.Analyses.FindAsync(analysisId);
+        await using var fileStream = File.OpenRead(file.Model.Path);
         var extractedText = documentTextExtractor.ExtractTextAsync(
-            pdfFile.Name, pdfFile.FileType, fileStream).Text;
+            file.Name, file.FileType, fileStream).Text;
         var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 256);
         var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
 
-        var titleEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(pdfFile.Name);
-        pdfFile.Model.Content = extractedText;
-        pdfFile.Model.HasContent = !string.IsNullOrEmpty(extractedText);
-        if (pdfFile.Model.HasContent)
+        var titleEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(file.Name);
+        file.Model.Content = extractedText;
+        file.Model.HasContent = !string.IsNullOrEmpty(extractedText);
+        if (file.Model.HasContent)
         {
             for (var index = 0; index < paragraphs.Count; index++)
             {
                 var paragraph = paragraphs[index];
                 var paragraphEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(paragraph);
-                var combinedEmbedding = CombineEmbeddings(titleEmbedding, paragraphEmbedding, 0.5f, 0.5f);
-                await vectorStoreCollection.UpsertAsync(new FileVectorStoreRecord()
+                var combinedEmbedding = CombineEmbeddings(titleEmbedding, paragraphEmbedding, 0.4f, 0.6f);
+
+                var fileVector = new FileVectorStoreRecord()
                 {
-                    Description = pdfFile.Name,
+                    Description = file.Name,
                     Embedding = combinedEmbedding,
-                    AdditionalMetadata = pdfFile.Model.Path,
+                    AdditionalMetadata = file.Model.Path,
                     Text = paragraph,
-                    Id = $"{pdfFile.Model.Path}-${index}"
-                });
-                keys.Add($"{pdfFile.Model.Path}-${index}");
+                    Id = $"{file.Model.Path}-${index}",
+                    EmbeddingAsString = JsonSerializer.Serialize(combinedEmbedding),
+                    ExternalSourceName = string.Empty,
+                };
+                await vectorStoreCollection.UpsertAsync(fileVector);
+                if (analysis != null)
+                {
+                    analysis.Vectors ??= [];
+                    analysis.Vectors.Add(fileVector);
+                }
+
+                keys.Add($"{file.Model.Path}-${index}");
             }
+
+            await dbContext.SaveChangesAsync();
         }
     }
+
+    private async Task<HashSet<string>> RestoreExistingVectorsAsync(
+        int analysisId,
+        IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
+        List<string> keys,
+        IProgress<(int Processed, int Total, string Message)> progress,
+        int totalFiles)
+    {
+        var processedFilePaths = new HashSet<string>();
+
+        await using var dbContext = new AppDbContext(new DbContextOptions<AppDbContext>());
+        var analysis = await dbContext.Analyses
+            .Include(a => a.Vectors)
+            .FirstOrDefaultAsync(a => a.Id == analysisId);
+
+        if (analysis?.Vectors != null && analysis.Vectors.Any())
+        {
+            foreach (var vector in analysis.Vectors.Where(vector => !string.IsNullOrEmpty(vector.EmbeddingAsString)))
+            {
+                vector.Embedding = JsonSerializer.Deserialize<float[]>(vector.EmbeddingAsString);
+                await vectorStoreCollection.UpsertAsync(vector);
+                keys.Add(vector.Id);
+                processedFilePaths.Add(vector.AdditionalMetadata);
+            }
+            var alreadyProcessedCount = processedFilePaths.Count;
+            progress.Report((alreadyProcessedCount, totalFiles,
+                $"Restored {alreadyProcessedCount} previously processed files"));
+        }
+
+        return processedFilePaths;
+    }
+
 
     private static float[] CombineEmbeddings(ReadOnlyMemory<float> embedding1, ReadOnlyMemory<float> embedding2, float weight1, float weight2)
     {

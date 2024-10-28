@@ -1,7 +1,7 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.VectorData;
 
-namespace FileOrganizer.Services;
+namespace FileOrganizer.Shared;
 
 public class FileVectorStoreRecord
 {
@@ -23,6 +23,12 @@ public class FileVectorStoreRecord
     [VectorStoreRecordData]
     public string AdditionalMetadata { get; set; }
 
+    [NotMapped]
     [VectorStoreRecordVector(384)]
     public ReadOnlyMemory<float> Embedding { get; set; }
+
+    public int? AnalysisId { get; set; }
+    public Analysis? Analysis { get; set; }
+    public string? EmbeddingAsString { get; set; }
+
 }

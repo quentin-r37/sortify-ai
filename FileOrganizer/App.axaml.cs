@@ -39,7 +39,7 @@ public class App : Application
             {
                 var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.db");
                 options.UseSqlite($"Data Source={dbPath}");
-            });
+            }, ServiceLifetime.Scoped);
             services.AddSingleton<IViewModelFactory, ViewModelFactory>();
             services.AddTextExtraction();
 

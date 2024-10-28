@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FileOrganizer.Database;
+using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Embeddings;
@@ -13,10 +15,11 @@ namespace FileOrganizer.Services;
 public interface ITextExtractionService
 {
     Task ExtractAndEmbedAsync(
-        IEnumerable<FileItemViewModel> files,
+        int analysisId,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         ITextEmbeddingGenerationService textEmbeddingGenerationService,
         List<string> keys,
         IProgress<(int Processed, int Total, string Message)> progress,
+        IEnumerable<FileItemViewModel> files,
         CancellationToken cancellationToken = default);
 }

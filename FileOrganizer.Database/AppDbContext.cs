@@ -23,6 +23,11 @@ namespace FileOrganizer.Database
                 .WithOne(f => f.Analysis)
                 .HasForeignKey(f => f.AnalysisId);
 
+            modelBuilder.Entity<Analysis>()
+                .HasMany(a => a.Vectors)
+                .WithOne(f => f.Analysis)
+                .HasForeignKey(f => f.AnalysisId);
+
             modelBuilder.Entity<FileItem>();
 
             modelBuilder.Entity<Configuration>();

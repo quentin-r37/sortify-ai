@@ -34,6 +34,17 @@
                                         Binding="{Binding Size}" />
                     <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Relevance" Width="*"
                                         Binding="{Binding Relevance}"></DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Actions" Width="auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="viewModels:FileItemViewModel">
+                                <Button Content="Show" Margin="5"
+                                        Command="{Binding OpenFileCommand}"
+                                        Theme="{DynamicResource BorderlessButton}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
 
