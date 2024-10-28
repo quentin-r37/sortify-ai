@@ -217,7 +217,7 @@ public partial class Step2ViewModel : StepViewModel
     private void RefreshFilesFilter()
     {
         var filtered = AllFiles;
-        if (!FilterAllFiles) filtered = AllFiles.Where(model => model.FileType == ".pdf").ToList();
+        if (!FilterAllFiles) filtered = AllFiles.WhereFileTypeIsDocument();
         Files = new ObservableCollection<FileItemViewModel>(filtered);
         GroupedGridData = new DataGridCollectionView(Files);
         if (ShowSubDirectories)
@@ -388,7 +388,7 @@ public partial class Step2ViewModel : StepViewModel
     [RelayCommand]
     private void Next()
     {
-        _parent.Step3.LoadFileList(AllFiles.Where(model => model.FileType == ".pdf").ToList());
+        _parent.Step3.LoadFileList(AllFiles.WhereFileTypeIsDocument());
         _parent.NextStep();
     }
 

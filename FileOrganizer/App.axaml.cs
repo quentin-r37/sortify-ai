@@ -35,13 +35,14 @@ public class App : Application
             services.AddSingleton<IAIConfigurationService, AIConfigurationService>();
             services.AddSingleton<ITextExtractorService, TextExtractorService>();
             services.AddSingleton<ITextExtractionService, TextExtractionService>();
-
             services.AddDbContext<AppDbContext>(options =>
             {
                 var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.db");
                 options.UseSqlite($"Data Source={dbPath}");
             });
             services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+            services.AddTextExtraction();
+
 
             var serviceProvider = services.BuildServiceProvider();
             using (var scope = serviceProvider.CreateScope())
@@ -50,11 +51,21 @@ public class App : Application
                 dbContext.Database.EnsureCreated();
             }
 
+
+            var factory = serviceProvider.GetService<TextExtractorFactory>();
+            var documentExtractor = serviceProvider.GetService<IDocumentTextExtractor>();
+
+            if (factory == null)
+                throw new InvalidOperationException("TextExtractorFactory is not registered properly");
+            if (documentExtractor == null)
+                throw new InvalidOperationException("IDocumentTextExtractor is not registered properly");
+
+
             var mainWindow = serviceProvider.GetRequiredService<MainWindow>();
             var viewModel = serviceProvider.GetRequiredService<MainWindowViewModel>();
             mainWindow.DataContext = viewModel;
             desktop.MainWindow = mainWindow;
-            
+
             mainWindow.Activated += (s, e) => viewModel.UpdateWindowState(true);
             mainWindow.Deactivated += (s, e) => viewModel.UpdateWindowState(false);
         }

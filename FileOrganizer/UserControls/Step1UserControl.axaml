@@ -15,7 +15,7 @@
                              Margin="0,0,20,0" />
                     <Button Content="Browse" Command="{Binding BrowseCommand}" />
                 </StackPanel>
-                <Button Content="Next"  Theme="{DynamicResource OutlineButton}" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
+                <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
             </StackPanel>
         </Border>
 

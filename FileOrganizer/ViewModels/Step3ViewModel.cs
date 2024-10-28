@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using Avalonia.Threading;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Embeddings;
+using FileOrganizer.Services;
 #pragma warning disable SKEXP0001
 
 namespace FileOrganizer.ViewModels;
@@ -98,7 +99,7 @@ public partial class Step3ViewModel : StepViewModel
     [RelayCommand]
     private async Task Next()
     {
-        _parent.Step4.LoadFileList(AllFiles.Where(model => model.FileType == ".pdf").ToList());
+        _parent.Step4.LoadFileList(AllFiles.WhereFileTypeIsDocument());
         _parent.NextStep();
         await _parent.Step4.PrepareOrganizeAsync(SelectedOrganizationType);
 

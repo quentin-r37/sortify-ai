@@ -14,7 +14,7 @@ using Microsoft.SemanticKernel.Text;
 
 namespace FileOrganizer.Services;
 
-public class TextExtractionService(ITextExtractorService extractorService) : ITextExtractionService
+public class TextExtractionService(IDocumentTextExtractor documentTextExtractor) : ITextExtractionService
 {
     private const int MaxConcurrentOperations = 10;
 
@@ -26,21 +26,14 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         IProgress<(int Processed, int Total, string Message)> progress,
         CancellationToken cancellationToken = default)
     {
-        var pdfFiles = new List<FileItemViewModel>();
-        foreach (var file in files)
-        {
-            if (file.FileType.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
-            {
-                pdfFiles.Add(file);
-            }
-        }
+        var documentFiles = files.WhereFileTypeIsDocument();
 
-        var totalFiles = pdfFiles.Count;
+        var totalFiles = documentFiles.Count;
         var processedFiles = 0;
         var semaphore = new SemaphoreSlim(MaxConcurrentOperations);
         var tasks = new List<Task>();
 
-        foreach (var pdfFile in pdfFiles)
+        foreach (var document in documentFiles)
         {
             await semaphore.WaitAsync(cancellationToken);
 
@@ -50,7 +43,7 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    await ProcessFileAsync(keys,pdfFile, vectorStoreCollection, textEmbeddingGenerationService);
+                    await ProcessFileAsync(keys, document, vectorStoreCollection, textEmbeddingGenerationService);
 
                     Interlocked.Increment(ref processedFiles);
                     progress.Report((processedFiles, totalFiles,
@@ -62,10 +55,10 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
                 }
                 catch (Exception ex)
                 {
-                    pdfFile.Model.Content = ex.Message;
+                    document.Model.Content = ex.Message;
                     Interlocked.Increment(ref processedFiles);
                     progress.Report((processedFiles, totalFiles,
-                        $"Error processing {pdfFile.Name}: {ex.Message}"));
+                        $"Error processing {document.Name}: {ex.Message}"));
                 }
                 finally
                 {
@@ -77,12 +70,12 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         await Task.WhenAll(tasks);
     }
 
-    private async Task ProcessFileAsync(List<string> keys,FileItemViewModel pdfFile,
+    private async Task ProcessFileAsync(List<string> keys, FileItemViewModel pdfFile,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         ITextEmbeddingGenerationService textEmbeddingGenerationService)
     {
         await using var fileStream = File.OpenRead(pdfFile.Model.Path);
-        var extractedText = extractorService.ExtractTextFromPdf(
+        var extractedText = documentTextExtractor.ExtractTextAsync(
             pdfFile.Name, pdfFile.FileType, fileStream).Text;
         var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 256);
         var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
@@ -110,14 +103,14 @@ public class TextExtractionService(ITextExtractorService extractorService) : ITe
         }
     }
 
-    private float[] CombineEmbeddings(ReadOnlyMemory<float> embedding1, ReadOnlyMemory<float> embedding2, float weight1, float weight2)
+    private static float[] CombineEmbeddings(ReadOnlyMemory<float> embedding1, ReadOnlyMemory<float> embedding2, float weight1, float weight2)
     {
         if (embedding1.Length != embedding2.Length)
         {
             throw new ArgumentException("Embeddings must have the same length");
         }
         var combinedEmbedding = new float[embedding1.Length];
-        var span1 = embedding1.Span; 
+        var span1 = embedding1.Span;
         var span2 = embedding2.Span;
         for (var i = 0; i < span1.Length; i++)
         {

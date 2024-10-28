@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileOrganizer.Database", "F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileOrganizer.Shared", "FileOrganizer.Shared\FileOrganizer.Shared.csproj", "{DCBC37DC-FB0B-4C27-BC6B-41C04CA12E3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileOrganizer.DataExtractor", "FileOrganizer.DataExtractor\FileOrganizer.DataExtractor.csproj", "{A3A7A5D3-AED0-4F92-AF32-8A4C4517DCDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileOrganizer.DataExtractor", "FileOrganizer.DataExtractor\FileOrganizer.DataExtractor.csproj", "{A3A7A5D3-AED0-4F92-AF32-8A4C4517DCDA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileOrganizer.Tests", "FileOrganizer.Tests\FileOrganizer.Tests.csproj", "{D4C59F3D-812F-4601-8C00-F0ECD451919E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A3A7A5D3-AED0-4F92-AF32-8A4C4517DCDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3A7A5D3-AED0-4F92-AF32-8A4C4517DCDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3A7A5D3-AED0-4F92-AF32-8A4C4517DCDA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4C59F3D-812F-4601-8C00-F0ECD451919E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4C59F3D-812F-4601-8C00-F0ECD451919E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4C59F3D-812F-4601-8C00-F0ECD451919E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4C59F3D-812F-4601-8C00-F0ECD451919E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
