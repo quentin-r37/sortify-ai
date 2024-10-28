@@ -2,7 +2,7 @@
 
 namespace FileOrganizer.DataExtractor;
 
-public class TextExtractorFactory: ITextExtractorFactory
+public class TextExtractorFactory : ITextExtractorFactory
 {
     private readonly IDictionary<string, Func<ITextExtractor>> _extractors;
 

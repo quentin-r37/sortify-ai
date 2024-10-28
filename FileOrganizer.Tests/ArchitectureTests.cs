@@ -1,10 +1,7 @@
-﻿using System.Linq;
-using System.Reflection;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using Mono.Cecil;
 using NetArchTest.Rules;
 using Xunit.Abstractions;
-using static SkiaSharp.HarfBuzz.SKShaper;
 
 namespace FileOrganizer.Tests;
 

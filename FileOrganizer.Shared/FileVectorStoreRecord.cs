@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.Extensions.VectorData;
+﻿using Microsoft.Extensions.VectorData;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FileOrganizer.Shared;
 

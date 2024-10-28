@@ -1,16 +1,9 @@
-﻿using Xunit;
-using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using FileOrganizer.Models;
-using FileOrganizer.ViewModels;
-using Microsoft.SemanticKernel.ChatCompletion;
-using System.Linq;
-using FileOrganizer.Services;
+﻿using FileOrganizer.Services;
 using FileOrganizer.Shared;
+using FileOrganizer.ViewModels;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using NSubstitute;
 
 namespace FileOrganizer.Tests;
 
@@ -143,7 +136,7 @@ public class CostEfficientFileOrganizerTests
         Assert.Contains(progressValues, v => v > 0);
         Assert.Contains(progressValues, v => v <= 100);
 
-       
+
     }
 
     [Theory]

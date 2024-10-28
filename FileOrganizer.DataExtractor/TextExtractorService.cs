@@ -1,11 +1,6 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-using System.Collections.Concurrent;
-using System.Text;
-using UglyToad.PdfPig;
-using System.Formats.Asn1;
-using System.Text.RegularExpressions;
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using FileOrganizer.DataExtractor.DocumentConnectors;
 using HtmlAgilityPack;
 using NPOI.HSSF.UserModel;
 using NPOI.HWPF;
@@ -13,10 +8,11 @@ using NPOI.HWPF.Extractor;
 using NPOI.POIFS.FileSystem;
 using RtfPipe;
 using SkiaSharp;
+using System.Collections.Concurrent;
+using System.Text;
+using System.Text.RegularExpressions;
 using Tesseract;
-using UglyToad.PdfPig.Util;
-using NPOI;
-using FileOrganizer.DataExtractor.DocumentConnectors;
+using UglyToad.PdfPig;
 
 namespace FileOrganizer.DataExtractor
 {
