@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Avalonia.Controls.Shapes;
 
 namespace FileOrganizer.ViewModels;
 
@@ -23,15 +24,14 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
 
-
     [ObservableProperty] private AnalysisViewModel _selectedAnalysis;
     [ObservableProperty] private string _embeddingModelProvider;
     [ObservableProperty] private string _embeddingModelName;
     [ObservableProperty] private string _completionModelProvider;
     [ObservableProperty] private string _completionModelName;
 
-    [ObservableProperty] private SolidColorBrush _primaryBrush = new SolidColorBrush(new Color(255, 40, 40, 40), 1);
-    [ObservableProperty] private SolidColorBrush _secondaryBrush = new SolidColorBrush(new Color(255, 20, 20, 20), 1);
+    [ObservableProperty] private SolidColorBrush _primaryBrush = new(new Color(255, 40, 40, 40), 1);
+    [ObservableProperty] private SolidColorBrush _secondaryBrush = new(new Color(255, 20, 20, 20), 1);
 
     public ObservableCollection<AnalysisViewModel> Analyses
     {
@@ -43,7 +43,6 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         PrimaryBrush = isActive ? new SolidColorBrush(Colors.Black, 0.7) : new SolidColorBrush(new Color(255, 40, 40, 40), 1);
         SecondaryBrush = isActive ? new SolidColorBrush(Colors.Black, 0.4) : new SolidColorBrush(new Color(255, 20, 20, 20), 1);
-
     }
 
     private async Task InitConfiguration()
@@ -88,7 +87,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             Name = "New Analysis",
             CreatedDate = DateTime.Now,
-            Path = "C:\\Users\\quent\\Downloads"
+            Path = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
         };
         var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel, this, _notificationService);
         var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();

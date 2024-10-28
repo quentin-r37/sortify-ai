@@ -26,7 +26,8 @@ namespace FileOrganizer.Database
             modelBuilder.Entity<Analysis>()
                 .HasMany(a => a.Vectors)
                 .WithOne(f => f.Analysis)
-                .HasForeignKey(f => f.AnalysisId);
+                .HasForeignKey(f => f.AnalysisId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<FileItem>();
 
