@@ -13,7 +13,7 @@ using FileOrganizer.Database;
 using FileOrganizer.Models;
 using FileOrganizer.Services;
 using FileOrganizer.Shared;
-using FileOrganizer.Views;
+using FileOrganizer.UIService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using static FileOrganizer.ViewModels.SettingsWindowViewModel;
@@ -27,6 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private ObservableCollection<AnalysisViewModel> _analyses;
     private readonly WindowNotificationManager _notificationManager;
     private readonly IDialogService _dialogService;
+    private readonly INotificationService _notificationService;
 
 
     [ObservableProperty] private AnalysisViewModel _selectedAnalysis;
@@ -74,16 +75,12 @@ public partial class MainWindowViewModel : ViewModelBase
         };
     }
 
-    public MainWindowViewModel(MainWindow window, IViewModelFactory viewModelFactory, IServiceProvider serviceProvider, IDialogService dialogService)
+    public MainWindowViewModel(IViewModelFactory viewModelFactory, IServiceProvider serviceProvider, IDialogService dialogService, INotificationService notificationService)
     {
         _viewModelFactory = viewModelFactory;
         _serviceProvider = serviceProvider;
         _dialogService = dialogService;
-        _notificationManager = new WindowNotificationManager(TopLevel.GetTopLevel(window))
-        {
-            MaxItems = 3,
-            Position = NotificationPosition.TopCenter
-        };
+        _notificationService = notificationService;
         _analyses = [];
         _selectedAnalysis = null;
         Analyses = new ObservableCollection<AnalysisViewModel>(LoadAnalysesFromDatabaseAsync());
@@ -99,7 +96,7 @@ public partial class MainWindowViewModel : ViewModelBase
             CreatedDate = DateTime.Now,
             Path = "C:\\Users\\quent\\Downloads"
         };
-        var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel, this, _notificationManager);
+        var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel, this, _notificationService);
         var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
         dbContext.Analyses.Add(newAnalysisModel);
         await dbContext.SaveChangesAsync();
@@ -139,6 +136,6 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var currentModel = this;
         var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
-        return dbContext.Analyses.Select(analysis => _viewModelFactory.CreateAnalysisViewModel(analysis, currentModel, _notificationManager));
+        return dbContext.Analyses.Select(analysis => _viewModelFactory.CreateAnalysisViewModel(analysis, currentModel, _notificationService));
     }
 }

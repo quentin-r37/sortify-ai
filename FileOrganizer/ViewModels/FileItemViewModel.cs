@@ -7,7 +7,7 @@ using FileOrganizer.Shared;
 
 namespace FileOrganizer.ViewModels;
 
-public partial class FileItemViewModel(FileItem model) : ObservableObject
+public partial class FileItemViewModel(FileItem model) : ViewModelBase
 {
     public FileItem Model { get; } = model;
     public string Name => Model.Name;

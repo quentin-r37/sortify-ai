@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 
-namespace FileOrganizer.Services;
+namespace FileOrganizer.UIService;
 
 public interface IFolderPickerService
 {

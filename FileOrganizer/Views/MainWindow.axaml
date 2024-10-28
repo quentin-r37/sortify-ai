@@ -25,7 +25,6 @@
 		<vm:MainWindowViewModel />
 	</Design.DataContext>
 	<Panel>
-		
 		<Border IsHitTestVisible="False" Background="{Binding PrimaryBrush}"></Border>
 		<DockPanel>
 			<Border Margin="20,35,20,20" DockPanel.Dock="Left">

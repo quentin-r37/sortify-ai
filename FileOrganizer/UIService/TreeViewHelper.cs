@@ -6,7 +6,7 @@ using System.Linq;
 using FileOrganizer.Models;
 using FileOrganizer.ViewModels;
 
-namespace FileOrganizer.Services;
+namespace FileOrganizer.UIService;
 
 public class TreeViewHelper
 {

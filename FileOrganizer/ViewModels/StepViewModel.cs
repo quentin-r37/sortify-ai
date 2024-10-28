@@ -2,7 +2,7 @@
 
 namespace FileOrganizer.ViewModels;
 
-public partial class StepViewModel : ObservableObject
+public partial class StepViewModel : ViewModelBase
 {
     [ObservableProperty] private bool _isCompleted;
 

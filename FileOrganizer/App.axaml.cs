@@ -2,15 +2,18 @@ using System;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Notifications;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using FileOrganizer.Database;
 using FileOrganizer.DataExtractor;
 using FileOrganizer.Services;
+using FileOrganizer.UIService;
 using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using static FileOrganizer.App;
 
 namespace FileOrganizer;
 
@@ -29,6 +32,7 @@ public class App : Application
 
             var services = new ServiceCollection();
 
+
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<SettingsWindow>();
@@ -44,6 +48,18 @@ public class App : Application
             services.AddSingleton<IViewModelFactory, ViewModelFactory>();
             services.AddSingleton<IFolderPickerService, FolderPickerService>();
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<INotificationService>(provider =>
+            {
+                var window = provider.GetRequiredService<MainWindow>();
+                var notificationManager = new WindowNotificationManager(window)
+                {
+                    MaxItems = 3,
+                    Position = NotificationPosition.TopCenter
+                };
+                return new NotificationService(notificationManager);
+            });
+
+
             services.AddTextExtraction();
 
 

@@ -8,7 +8,7 @@ using Avalonia.Threading;
 using FileOrganizer.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FileOrganizer.Services;
+namespace FileOrganizer.UIService;
 
 public class DialogService(IServiceProvider serviceProvider) : IDialogService
 {

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using FileOrganizer.ViewModels;
 
-namespace FileOrganizer.Services;
+namespace FileOrganizer.UIService;
 
 public interface IDialogService
 {

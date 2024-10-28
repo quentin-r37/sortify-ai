@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FileOrganizer.Models;
+using FileOrganizer.UIService;
 using FileOrganizer.ViewModels;
 using Microsoft.SemanticKernel.ChatCompletion;
 

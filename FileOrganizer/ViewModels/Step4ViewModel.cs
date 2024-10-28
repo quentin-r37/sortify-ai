@@ -9,7 +9,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using System.IO;
 using System.Collections.ObjectModel;
 using FileOrganizer.Models;
-using FileOrganizer.Services;
+using FileOrganizer.UIService;
 
 namespace FileOrganizer.ViewModels;
 

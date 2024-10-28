@@ -17,6 +17,7 @@ using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Connectors.InMemory;
+using FileOrganizer.UIService;
 #pragma warning disable SKEXP0010
 #pragma warning disable SKEXP0020
 #pragma warning disable SKEXP0050
@@ -25,11 +26,11 @@ using Microsoft.SemanticKernel.Connectors.InMemory;
 
 namespace FileOrganizer.ViewModels;
 
-public partial class AnalysisViewModel : ObservableObject
+public partial class AnalysisViewModel : ViewModelBase
 {
     public Analysis Model { get; set; }
     private readonly MainWindowViewModel _mainWindowViewModel;
-    private readonly WindowNotificationManager _notificationManager;
+    private readonly INotificationService _notificationService;
     private readonly IServiceProvider _serviceProvider;
 
     public ITextEmbeddingGenerationService TextEmbeddingGenerationService { get; set; }
@@ -42,13 +43,13 @@ public partial class AnalysisViewModel : ObservableObject
     private AIServiceConfiguration _aiServiceConfiguration;
 
     public AnalysisViewModel(Analysis analysis,
-       MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager,
+       MainWindowViewModel mainWindowViewModel, INotificationService notificationService,
         IViewModelFactory viewModelFactory, IServiceProvider serviceProvider)
     {
 
         Model = analysis;
         _mainWindowViewModel = mainWindowViewModel;
-        _notificationManager = notificationManager;
+        _notificationService = notificationService;
         _serviceProvider = serviceProvider;
         Step1 = viewModelFactory.CreateStep1ViewModel(this);
         Step1.Path = analysis.Path;
@@ -191,7 +192,7 @@ public partial class AnalysisViewModel : ObservableObject
     {
         IsEditing = false;
         await _mainWindowViewModel.SaveNameAsync(this);
-        _notificationManager.Show("Analysis saved successfully", NotificationType.Success);
+        _notificationService.ShowNotification("Operation succeeded", "Analysis saved successfully", NotificationType.Success);
     }
 
     [RelayCommand]

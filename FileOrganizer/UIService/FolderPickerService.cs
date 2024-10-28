@@ -4,7 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using FileOrganizer.Views;
 
-namespace FileOrganizer.Services;
+namespace FileOrganizer.UIService;
 
 public class FolderPickerService(MainWindow window) : IFolderPickerService
 {
