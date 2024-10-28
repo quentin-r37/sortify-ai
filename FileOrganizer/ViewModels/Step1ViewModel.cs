@@ -2,12 +2,12 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DocumentFormat.OpenXml.Spreadsheet;
 using FileOrganizer.Database;
-using FileOrganizer.Views;
+using FileOrganizer.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FileOrganizer.ViewModels;
@@ -15,19 +15,19 @@ namespace FileOrganizer.ViewModels;
 public partial class Step1ViewModel : StepViewModel
 {
     private readonly AnalysisViewModel _parent;
-    private readonly MainWindow _window;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IFolderPickerService _folderPickerService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(NextCommand))]
     private string _path;
 
-    public Step1ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
+    public Step1ViewModel(AnalysisViewModel parent, IServiceProvider serviceProvider)
     {
 
         _parent = parent;
-        _window = window;
         _serviceProvider = serviceProvider;
+        _folderPickerService = _serviceProvider.GetRequiredService<IFolderPickerService>();
         StepNumber = 1;
         Icon = "fa-folder";
         Description = "Step 1";
@@ -54,16 +54,12 @@ public partial class Step1ViewModel : StepViewModel
     [RelayCommand]
     private async Task Browse()
     {
-        var topLevel = TopLevel.GetTopLevel(_window);
-        if (topLevel is not null)
-        {
-            var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-            {
-                Title = "Select Folder"
-            });
 
-            if (folders.Count > 0) Path = folders[0].Path.LocalPath;
-        }
+      var folders=  await _folderPickerService.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Select Folder"
+        });
+        if (folders.Count > 0) Path = folders[0].Path.LocalPath;
     }
 
     partial void OnPathChanged(string value)
@@ -81,5 +77,5 @@ public partial class Step1ViewModel : StepViewModel
         await dbContext.SaveChangesAsync();
     }
 
-  
+
 }

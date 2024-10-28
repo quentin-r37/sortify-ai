@@ -28,36 +28,33 @@ namespace FileOrganizer.ViewModels;
 public partial class AnalysisViewModel : ObservableObject
 {
     public Analysis Model { get; set; }
-    private readonly MainWindow _window;
     private readonly MainWindowViewModel _mainWindowViewModel;
     private readonly WindowNotificationManager _notificationManager;
     private readonly IServiceProvider _serviceProvider;
 
-    public ITextEmbeddingGenerationService TextEmbeddingGenerationService{ get; set; }
+    public ITextEmbeddingGenerationService TextEmbeddingGenerationService { get; set; }
     public IChatCompletionService ChatCompletionService { get; set; }
 
-    public string EmbeddingModelName {get; set; }
+    public string EmbeddingModelName { get; set; }
 
     [ObservableProperty] private int _currentStep;
     [ObservableProperty] private bool _isEditing;
     private AIServiceConfiguration _aiServiceConfiguration;
 
     public AnalysisViewModel(Analysis analysis,
-        MainWindow window, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager,
+       MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager,
         IViewModelFactory viewModelFactory, IServiceProvider serviceProvider)
     {
 
         Model = analysis;
-        _window = window;
         _mainWindowViewModel = mainWindowViewModel;
         _notificationManager = notificationManager;
         _serviceProvider = serviceProvider;
-        Step1 = viewModelFactory.CreateStep1ViewModel(this, window);
+        Step1 = viewModelFactory.CreateStep1ViewModel(this);
         Step1.Path = analysis.Path;
-        Step2 = viewModelFactory.CreateStep2ViewModel(this, window);
-        Step3 = viewModelFactory.CreateStep3ViewModel(this, window);
-        Step4 = viewModelFactory.CreateStep4ViewModel(this, window);
-
+        Step2 = viewModelFactory.CreateStep2ViewModel(this);
+        Step3 = viewModelFactory.CreateStep3ViewModel(this);
+        Step4 = viewModelFactory.CreateStep4ViewModel(this);
         Steps = [Step1, Step2, Step3, Step4];
         CurrentStep = 1;
         _ = InitVectorCollectionAsync();
@@ -99,23 +96,23 @@ public partial class AnalysisViewModel : ObservableObject
         switch (_aiServiceConfiguration.CompletionService.SelectedProvider)
         {
             case ServiceProviders.Ollama:
-            {
-                var ollamaAiFields = _aiServiceConfiguration.CompletionService.OllamaFields;
-                ChatCompletionService = new OllamaChatCompletionService(ollamaAiFields.ModelId, ollamaAiFields.OllamaUrl);
-                break;
-            }
+                {
+                    var ollamaAiFields = _aiServiceConfiguration.CompletionService.OllamaFields;
+                    ChatCompletionService = new OllamaChatCompletionService(ollamaAiFields.ModelId, ollamaAiFields.OllamaUrl);
+                    break;
+                }
             case ServiceProviders.AzureOpenAI:
-            {
-                var azOpenAiFields = _aiServiceConfiguration.CompletionService.AzureOpenAiFields;
-                ChatCompletionService = new AzureOpenAIChatCompletionService(azOpenAiFields.DeploymentName, azOpenAiFields.Endpoint.AbsoluteUri, azOpenAiFields.ApiKey);
-                break;
-            }
+                {
+                    var azOpenAiFields = _aiServiceConfiguration.CompletionService.AzureOpenAiFields;
+                    ChatCompletionService = new AzureOpenAIChatCompletionService(azOpenAiFields.DeploymentName, azOpenAiFields.Endpoint.AbsoluteUri, azOpenAiFields.ApiKey);
+                    break;
+                }
             case ServiceProviders.OpenAI:
-            {
-                var openAiFields = _aiServiceConfiguration.CompletionService.OpenAiFields;
-                ChatCompletionService = new OpenAIChatCompletionService(openAiFields.ModelId, openAiFields.ApiKey);
-                break;
-            }
+                {
+                    var openAiFields = _aiServiceConfiguration.CompletionService.OpenAiFields;
+                    ChatCompletionService = new OpenAIChatCompletionService(openAiFields.ModelId, openAiFields.ApiKey);
+                    break;
+                }
         }
 
     }

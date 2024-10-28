@@ -30,7 +30,7 @@ public class App : Application
             var services = new ServiceCollection();
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
-            services.AddTransient<SettingsWindow>();
+            services.AddSingleton<SettingsWindow>();
             services.AddSingleton<SettingsWindowViewModel>();
             services.AddSingleton<IAIConfigurationService, AIConfigurationService>();
             services.AddSingleton<ITextExtractorService, TextExtractorService>();
@@ -39,8 +39,9 @@ public class App : Application
             {
                 var dbPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.db");
                 options.UseSqlite($"Data Source={dbPath}");
-            }, ServiceLifetime.Scoped);
+            });
             services.AddSingleton<IViewModelFactory, ViewModelFactory>();
+            services.AddSingleton<IFolderPickerService, FolderPickerService>();
             services.AddTextExtraction();
 
 
@@ -50,7 +51,6 @@ public class App : Application
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 dbContext.Database.EnsureCreated();
             }
-
 
             var factory = serviceProvider.GetService<TextExtractorFactory>();
             var documentExtractor = serviceProvider.GetService<IDocumentTextExtractor>();

@@ -81,7 +81,7 @@ public partial class Step3ViewModel : StepViewModel
     public ObservableCollection<FileItemViewModel> FilteredFiles { get; set; }
     public ObservableCollection<FileItemViewModel> AllFiles { get; set; }
 
-    public Step3ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
+    public Step3ViewModel(AnalysisViewModel parent,  IServiceProvider serviceProvider)
     {
         _parent = parent;
         StepNumber = 3;

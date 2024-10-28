@@ -101,8 +101,7 @@ public partial class MainWindowViewModel : ViewModelBase
             CreatedDate = DateTime.Now,
             Path = "C:\\Users\\quent\\Downloads"
         };
-        var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel, _mainWindow, this, _notificationManager);
-
+        var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel,  this, _notificationManager);
         var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
         dbContext.Analyses.Add(newAnalysisModel);
         await dbContext.SaveChangesAsync();
@@ -146,6 +145,6 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var currentModel = this;
         var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
-        return dbContext.Analyses.Select(analysis => _viewModelFactory.CreateAnalysisViewModel(analysis, _mainWindow, currentModel, _notificationManager));
+        return dbContext.Analyses.Select(analysis => _viewModelFactory.CreateAnalysisViewModel(analysis, currentModel, _notificationManager));
     }
 }

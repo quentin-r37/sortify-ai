@@ -34,7 +34,7 @@ public partial class Step4ViewModel : StepViewModel
 
     private readonly AnalysisViewModel _parent;
 
-    public Step4ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
+    public Step4ViewModel(AnalysisViewModel parent, IServiceProvider serviceProvider)
     {
         StepNumber = 4;
         Icon = "fa-brain";

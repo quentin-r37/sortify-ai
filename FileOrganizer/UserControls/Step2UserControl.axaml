@@ -167,9 +167,9 @@
 				</Grid>
 			</Grid>
 		</Border>
-		<StackPanel Margin="0,5" IsVisible="True" MaxWidth="250"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">
+		<StackPanel Margin="0,5" IsVisible="True"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">
             <Label FontSize="12" Foreground="LightGray" Content="{Binding StatusMessage}"></Label>
-			<ProgressBar Value="{Binding Progress}"></ProgressBar>
+			<ProgressBar Width="250" Value="{Binding Progress}"></ProgressBar>
 		</StackPanel>
 	</Grid>
 

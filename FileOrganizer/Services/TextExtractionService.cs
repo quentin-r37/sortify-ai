@@ -36,9 +36,16 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
         var totalFiles = documentFiles.Count;
         var processedFiles = 0;
 
-        var processedFilePaths = await RestoreExistingVectorsAsync(analysisId, vectorStoreCollection, keys, progress, totalFiles);
-        if (processedFilePaths.Any())
-            processedFiles = documentFiles.Count(f => processedFilePaths.Contains(f.Model.Path));
+        var (processedFilePaths, restoredCount) = await RestoreExistingVectorsAsync(
+            analysisId,
+            vectorStoreCollection,
+            keys,
+            progress,
+            totalFiles,
+            documentFiles,
+            cancellationToken);
+
+        processedFiles = restoredCount;
 
         var remainingFiles = documentFiles.Where(f => !processedFilePaths.Contains(f.Model.Path)).ToList();
         if (!remainingFiles.Any())
@@ -70,6 +77,7 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
                 catch (Exception ex)
                 {
                     document.Model.Content = ex.Message;
+                    document.Model.HasContent = false;
                     Interlocked.Increment(ref processedFiles);
                     progress.Report((processedFiles, totalFiles,
                         $"Error processing {document.Name}: {ex.Message}"));
@@ -90,17 +98,21 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
     {
         await using var dbContext = new AppDbContext(new DbContextOptions<AppDbContext>());
         var analysis = await dbContext.Analyses.FindAsync(analysisId);
-        await using var fileStream = File.OpenRead(file.Model.Path);
-        var extractedText = documentTextExtractor.ExtractTextAsync(
-            file.Name, file.FileType, fileStream).Text;
-        var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 256);
-        var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
 
-        var titleEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(file.Name);
+        // Extract text content
+        var extractedText = await ExtractTextFromFileAsync(file);
+
+        // Update file model
         file.Model.Content = extractedText;
         file.Model.HasContent = !string.IsNullOrEmpty(extractedText);
+
         if (file.Model.HasContent)
         {
+            var splitInLines = TextChunker.SplitPlainTextLines(extractedText, 256);
+            var paragraphs = TextChunker.SplitPlainTextParagraphs(splitInLines, 512, 32);
+
+            var titleEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(file.Name);
+
             for (var index = 0; index < paragraphs.Count; index++)
             {
                 var paragraph = paragraphs[index];
@@ -131,14 +143,23 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
         }
     }
 
-    private async Task<HashSet<string>> RestoreExistingVectorsAsync(
+    private async Task<string> ExtractTextFromFileAsync(FileItemViewModel file)
+    {
+        await using var fileStream = File.OpenRead(file.Model.Path);
+        return documentTextExtractor.ExtractTextAsync(file.Name, file.FileType, fileStream).Text;
+    }
+
+    private async Task<(HashSet<string> ProcessedPaths, int ProcessedCount)> RestoreExistingVectorsAsync(
         int analysisId,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorStoreCollection,
         List<string> keys,
         IProgress<(int Processed, int Total, string Message)> progress,
-        int totalFiles)
+        int totalFiles,
+        IEnumerable<FileItemViewModel> files,
+        CancellationToken cancellationToken = default)
     {
         var processedFilePaths = new HashSet<string>();
+        var processedCount = 0;
 
         await using var dbContext = new AppDbContext(new DbContextOptions<AppDbContext>());
         var analysis = await dbContext.Analyses
@@ -147,21 +168,59 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
 
         if (analysis?.Vectors != null && analysis.Vectors.Any())
         {
+            var filePathsToProcess = analysis.Vectors
+                .Select(v => v.AdditionalMetadata)
+                .Distinct()
+                .ToList();
+
+            var semaphore = new SemaphoreSlim(MaxConcurrentOperations);
+            var tasks = new List<Task>();
+
+            foreach (var filePath in filePathsToProcess)
+            {
+                await semaphore.WaitAsync(cancellationToken);
+
+                tasks.Add(Task.Run(async () =>
+                {
+                    try
+                    {
+                        var file = files.FirstOrDefault(f => f.Model.Path == filePath);
+                        if (file != null)
+                        {
+                            // Extract text content for restored files
+                            var extractedText = await ExtractTextFromFileAsync(file);
+                            file.Model.Content = extractedText;
+                            file.Model.HasContent = !string.IsNullOrEmpty(extractedText);
+
+                            var currentCount = Interlocked.Increment(ref processedCount);
+                            progress.Report((currentCount, totalFiles,
+                                $"Restored and extracted content from {currentCount} of {totalFiles} files"));
+                        }
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }, cancellationToken));
+            }
+
+            await Task.WhenAll(tasks);
+
+            // Now restore vectors
             foreach (var vector in analysis.Vectors.Where(vector => !string.IsNullOrEmpty(vector.EmbeddingAsString)))
             {
                 vector.Embedding = JsonSerializer.Deserialize<float[]>(vector.EmbeddingAsString);
-                await vectorStoreCollection.UpsertAsync(vector);
+                await vectorStoreCollection.UpsertAsync(vector, cancellationToken: cancellationToken);
                 keys.Add(vector.Id);
                 processedFilePaths.Add(vector.AdditionalMetadata);
             }
-            var alreadyProcessedCount = processedFilePaths.Count;
-            progress.Report((alreadyProcessedCount, totalFiles,
-                $"Restored {alreadyProcessedCount} previously processed files"));
+
+            progress.Report((processedCount, totalFiles,
+                $"Completed vector restoration for {processedCount} files"));
         }
 
-        return processedFilePaths;
+        return (processedFilePaths, processedCount);
     }
-
 
     private static float[] CombineEmbeddings(ReadOnlyMemory<float> embedding1, ReadOnlyMemory<float> embedding2, float weight1, float weight2)
     {
@@ -179,6 +238,4 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
 
         return combinedEmbedding;
     }
-
-
 }

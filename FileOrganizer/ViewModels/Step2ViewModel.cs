@@ -32,7 +32,6 @@ public partial class Step2ViewModel : StepViewModel
     private static readonly SKColor SizeColorFill = new(198, 40, 40, 20);
     private readonly AnalysisViewModel _parent;
     private readonly IServiceProvider _serviceProvider;
-    private readonly AppDbContext _appDbContext;
 
     [ObservableProperty] private int _fileTypesCount = 10;
     [ObservableProperty] private bool _filterAllFiles = true;
@@ -45,14 +44,13 @@ public partial class Step2ViewModel : StepViewModel
 
     public List<ZoomAndPanMode> ZoomAndPanModes { get; set; } = [ZoomAndPanMode.None, ZoomAndPanMode.X];
 
-    public Step2ViewModel(AnalysisViewModel parent, MainWindow window, IServiceProvider serviceProvider)
+    public Step2ViewModel(AnalysisViewModel parent, IServiceProvider serviceProvider)
     {
         StepNumber = 2;
         Icon = "fa-chart-simple";
         Description = "Step 2";
         _parent = parent;
         _serviceProvider = serviceProvider;
-        _appDbContext = serviceProvider.GetRequiredService<AppDbContext>();
         Files = [];
     }
 

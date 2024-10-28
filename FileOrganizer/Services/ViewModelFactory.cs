@@ -9,28 +9,28 @@ namespace FileOrganizer.Services;
 
 public class ViewModelFactory(IServiceProvider serviceProvider) : IViewModelFactory
 {
-    public AnalysisViewModel CreateAnalysisViewModel(Analysis analysis, MainWindow window, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager)
+    public AnalysisViewModel CreateAnalysisViewModel(Analysis analysis, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager)
     {
-        return new AnalysisViewModel(analysis, window, mainWindowViewModel, notificationManager, this, serviceProvider);
+        return new AnalysisViewModel(analysis,  mainWindowViewModel, notificationManager, this, serviceProvider);
     }
 
-    public Step1ViewModel CreateStep1ViewModel(AnalysisViewModel analysisViewModel, MainWindow window)
+    public Step1ViewModel CreateStep1ViewModel(AnalysisViewModel analysisViewModel)
     {
-        return new Step1ViewModel(analysisViewModel, window, serviceProvider);
+        return new Step1ViewModel(analysisViewModel, serviceProvider);
     }
 
-    public Step2ViewModel CreateStep2ViewModel(AnalysisViewModel analysisViewModel, MainWindow window)
+    public Step2ViewModel CreateStep2ViewModel(AnalysisViewModel analysisViewModel)
     {
-        return new Step2ViewModel(analysisViewModel, window, serviceProvider);
+        return new Step2ViewModel(analysisViewModel, serviceProvider);
     }
 
-    public Step3ViewModel CreateStep3ViewModel(AnalysisViewModel analysisViewModel, MainWindow window)
+    public Step3ViewModel CreateStep3ViewModel(AnalysisViewModel analysisViewModel)
     {
-        return new Step3ViewModel(analysisViewModel, window, serviceProvider);
+        return new Step3ViewModel(analysisViewModel, serviceProvider);
     }
 
-    public Step4ViewModel CreateStep4ViewModel(AnalysisViewModel analysisViewModel, MainWindow window)
+    public Step4ViewModel CreateStep4ViewModel(AnalysisViewModel analysisViewModel)
     {
-        return new Step4ViewModel(analysisViewModel, window, serviceProvider);
+        return new Step4ViewModel(analysisViewModel, serviceProvider);
     }
 }
