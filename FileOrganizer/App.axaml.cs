@@ -28,6 +28,7 @@ public class App : Application
             BindingPlugins.DataValidators.RemoveAt(0);
 
             var services = new ServiceCollection();
+
             services.AddSingleton<MainWindow>();
             services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<SettingsWindow>();
@@ -42,10 +43,14 @@ public class App : Application
             });
             services.AddSingleton<IViewModelFactory, ViewModelFactory>();
             services.AddSingleton<IFolderPickerService, FolderPickerService>();
+            services.AddSingleton<IDialogService, DialogService>();
             services.AddTextExtraction();
 
 
             var serviceProvider = services.BuildServiceProvider();
+            var dialogService = serviceProvider.GetRequiredService<IDialogService>();
+            dialogService.RegisterDialog<SettingsWindowViewModel, SettingsWindow>();
+
             using (var scope = serviceProvider.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();

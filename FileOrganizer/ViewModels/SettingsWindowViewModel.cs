@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Models;
 using FileOrganizer.Services;
-using FileOrganizer.Views;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.Ollama;
@@ -23,7 +22,7 @@ namespace FileOrganizer.ViewModels;
 public partial class SettingsWindowViewModel : ViewModelBase
 {
     private readonly IAIConfigurationService _configurationService;
-    public SettingsWindow RefWindow { get; set; }
+    private readonly IDialogService _dialogService;
 
     [ObservableProperty]
     private string _selectedEmbeddingProvider = "Ollama";
@@ -53,9 +52,10 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     public ObservableCollection<string> Providers { get; set; } = ["Ollama", "Azure OpenAI", "OpenAI"];
 
-    public SettingsWindowViewModel(IAIConfigurationService configurationService)
+    public SettingsWindowViewModel(IAIConfigurationService configurationService, IDialogService dialogService)
     {
         _configurationService = configurationService;
+        _dialogService = dialogService;
         _ = InitConfigAsync();
     }
 
@@ -64,7 +64,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
     }
 
- 
+
 
     private async Task InitConfigAsync()
     {
@@ -226,10 +226,9 @@ public partial class SettingsWindowViewModel : ViewModelBase
             }
         };
         await _configurationService.SaveConfiguration(confToSave);
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            RefWindow.Close();
-        });
+
+        _dialogService.CloseDialog(this);
+
     }
 
 

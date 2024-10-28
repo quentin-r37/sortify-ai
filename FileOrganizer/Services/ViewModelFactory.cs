@@ -9,7 +9,7 @@ namespace FileOrganizer.Services;
 
 public class ViewModelFactory(IServiceProvider serviceProvider) : IViewModelFactory
 {
-    public AnalysisViewModel CreateAnalysisViewModel(Analysis analysis, MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager)
+    public AnalysisViewModel CreateAnalysisViewModel(Analysis analysis,  MainWindowViewModel mainWindowViewModel, WindowNotificationManager notificationManager)
     {
         return new AnalysisViewModel(analysis,  mainWindowViewModel, notificationManager, this, serviceProvider);
     }

@@ -22,11 +22,12 @@ namespace FileOrganizer.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly MainWindow _mainWindow;
     private readonly IViewModelFactory _viewModelFactory;
     private readonly IServiceProvider _serviceProvider;
     private ObservableCollection<AnalysisViewModel> _analyses;
     private readonly WindowNotificationManager _notificationManager;
+    private readonly IDialogService _dialogService;
+
 
     [ObservableProperty] private AnalysisViewModel _selectedAnalysis;
     [ObservableProperty] private string _embeddingModelProvider;
@@ -34,11 +35,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string _completionModelProvider;
     [ObservableProperty] private string _completionModelName;
 
-
-    [ObservableProperty] private SolidColorBrush _primaryBrush = new SolidColorBrush(new Color(255,40,40,40),1) ;
-    [ObservableProperty] private SolidColorBrush _secondaryBrush = new SolidColorBrush(new Color(255,20,20,20),1) ;
-
-
+    [ObservableProperty] private SolidColorBrush _primaryBrush = new SolidColorBrush(new Color(255, 40, 40, 40), 1);
+    [ObservableProperty] private SolidColorBrush _secondaryBrush = new SolidColorBrush(new Color(255, 20, 20, 20), 1);
 
     public ObservableCollection<AnalysisViewModel> Analyses
     {
@@ -48,8 +46,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void UpdateWindowState(bool isActive)
     {
-        PrimaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.7) :  new SolidColorBrush(new Color(255,40,40,40),1) ;
-        SecondaryBrush = isActive ? new SolidColorBrush(Colors.Black,0.4) :  new SolidColorBrush(new Color(255,20,20,20),1) ;
+        PrimaryBrush = isActive ? new SolidColorBrush(Colors.Black, 0.7) : new SolidColorBrush(new Color(255, 40, 40, 40), 1);
+        SecondaryBrush = isActive ? new SolidColorBrush(Colors.Black, 0.4) : new SolidColorBrush(new Color(255, 20, 20, 20), 1);
 
     }
 
@@ -76,11 +74,11 @@ public partial class MainWindowViewModel : ViewModelBase
         };
     }
 
-    public MainWindowViewModel(MainWindow window, IViewModelFactory viewModelFactory, IServiceProvider serviceProvider)
+    public MainWindowViewModel(MainWindow window, IViewModelFactory viewModelFactory, IServiceProvider serviceProvider, IDialogService dialogService)
     {
-        _mainWindow = window;
         _viewModelFactory = viewModelFactory;
         _serviceProvider = serviceProvider;
+        _dialogService = dialogService;
         _notificationManager = new WindowNotificationManager(TopLevel.GetTopLevel(window))
         {
             MaxItems = 3,
@@ -101,7 +99,7 @@ public partial class MainWindowViewModel : ViewModelBase
             CreatedDate = DateTime.Now,
             Path = "C:\\Users\\quent\\Downloads"
         };
-        var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel,  this, _notificationManager);
+        var newAnalysisViewModel = _viewModelFactory.CreateAnalysisViewModel(newAnalysisModel, this, _notificationManager);
         var dbContext = _serviceProvider.GetRequiredService<AppDbContext>();
         dbContext.Analyses.Add(newAnalysisModel);
         await dbContext.SaveChangesAsync();
@@ -114,12 +112,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenSettings()
     {
-        var v = _serviceProvider.GetRequiredService<SettingsWindow>();
         var model = _serviceProvider.GetRequiredService<SettingsWindowViewModel>();
-        model.RefWindow = v;
-        v.Activate();
-        v.DataContext = model;
-        await v.ShowDialog(_mainWindow);
+        await _dialogService.ShowDialogAsync(model);
     }
 
     public async Task DeleteAnalyseAsync(AnalysisViewModel analysis)
