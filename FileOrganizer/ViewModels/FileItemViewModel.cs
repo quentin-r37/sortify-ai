@@ -1,9 +1,8 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Shared;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using FileOrganizer.Shared;
 
 namespace FileOrganizer.ViewModels;
 

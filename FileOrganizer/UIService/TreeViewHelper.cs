@@ -1,10 +1,8 @@
-﻿using System;
+﻿using FileOrganizer.Models;
+using FileOrganizer.ViewModels;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using FileOrganizer.Models;
-using FileOrganizer.ViewModels;
 
 namespace FileOrganizer.UIService;
 

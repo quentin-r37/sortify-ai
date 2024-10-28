@@ -1,16 +1,15 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using FileOrganizer.Shared;
-using FileOrganizer.Views;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Services;
+using FileOrganizer.Shared;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Embeddings;
-using FileOrganizer.Services;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 #pragma warning disable SKEXP0001
 
 namespace FileOrganizer.ViewModels;
@@ -81,7 +80,7 @@ public partial class Step3ViewModel : StepViewModel
     public ObservableCollection<FileItemViewModel> FilteredFiles { get; set; }
     public ObservableCollection<FileItemViewModel> AllFiles { get; set; }
 
-    public Step3ViewModel(AnalysisViewModel parent,  IServiceProvider serviceProvider)
+    public Step3ViewModel(AnalysisViewModel parent, IServiceProvider serviceProvider)
     {
         _parent = parent;
         StepNumber = 3;

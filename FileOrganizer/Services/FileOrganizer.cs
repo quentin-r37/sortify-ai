@@ -1,13 +1,13 @@
-﻿using System;
+﻿using FileOrganizer.Models;
+using FileOrganizer.UIService;
+using FileOrganizer.ViewModels;
+using Microsoft.SemanticKernel.ChatCompletion;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using FileOrganizer.Models;
-using FileOrganizer.UIService;
-using FileOrganizer.ViewModels;
-using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace FileOrganizer.Services;
 

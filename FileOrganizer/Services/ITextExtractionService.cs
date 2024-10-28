@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using FileOrganizer.Database;
-using FileOrganizer.Shared;
+﻿using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Embeddings;
-using Microsoft.SemanticKernel.Memory;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 #pragma warning disable SKEXP0001
 
 namespace FileOrganizer.Services;

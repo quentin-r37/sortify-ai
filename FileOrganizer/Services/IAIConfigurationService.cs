@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using FileOrganizer.Models;
+﻿using FileOrganizer.Models;
+using System.Threading.Tasks;
 
 namespace FileOrganizer.Services;
 

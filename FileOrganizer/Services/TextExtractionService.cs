@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Avalonia;
-using FileOrganizer.Database;
+﻿using FileOrganizer.Database;
 using FileOrganizer.DataExtractor;
 using FileOrganizer.Shared;
 using FileOrganizer.ViewModels;
@@ -14,6 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.VectorData;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Text;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 #pragma warning disable SKEXP0050
 #pragma warning disable SKEXP0001
 

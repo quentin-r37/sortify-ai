@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Avalonia.Platform.Storage;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Avalonia.Platform.Storage;
 
 namespace FileOrganizer.UIService;
 

@@ -1,6 +1,6 @@
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using FileOrganizer.ViewModels;
+using System.Threading.Tasks;
 
 namespace FileOrganizer.UIService;
 

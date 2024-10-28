@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Controls.Notifications;
-using Avalonia.Controls.Templates;
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Database;
@@ -14,9 +6,12 @@ using FileOrganizer.Models;
 using FileOrganizer.Services;
 using FileOrganizer.Shared;
 using FileOrganizer.UIService;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using static FileOrganizer.ViewModels.SettingsWindowViewModel;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FileOrganizer.ViewModels;
 
@@ -25,7 +20,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IViewModelFactory _viewModelFactory;
     private readonly IServiceProvider _serviceProvider;
     private ObservableCollection<AnalysisViewModel> _analyses;
-    private readonly WindowNotificationManager _notificationManager;
     private readonly IDialogService _dialogService;
     private readonly INotificationService _notificationService;
 
@@ -104,7 +98,6 @@ public partial class MainWindowViewModel : ViewModelBase
         Analyses.Add(newAnalysisViewModel);
         SelectedAnalysis = newAnalysisViewModel;
     }
-
 
     [RelayCommand]
     private async Task OpenSettings()

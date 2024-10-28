@@ -1,10 +1,7 @@
-using System;
-using Avalonia.Controls.Notifications;
-using FileOrganizer.Database;
 using FileOrganizer.Shared;
 using FileOrganizer.UIService;
 using FileOrganizer.ViewModels;
-using FileOrganizer.Views;
+using System;
 
 namespace FileOrganizer.Services;
 
@@ -12,7 +9,7 @@ public class ViewModelFactory(IServiceProvider serviceProvider) : IViewModelFact
 {
     public AnalysisViewModel CreateAnalysisViewModel(Analysis analysis, MainWindowViewModel mainWindowViewModel, INotificationService notificationService)
     {
-        return new AnalysisViewModel(analysis,  mainWindowViewModel, notificationService, this, serviceProvider);
+        return new AnalysisViewModel(analysis, mainWindowViewModel, notificationService, this, serviceProvider);
     }
 
     public Step1ViewModel CreateStep1ViewModel(AnalysisViewModel analysisViewModel)

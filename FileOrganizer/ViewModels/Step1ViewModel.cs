@@ -1,14 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Avalonia.Platform.Storage;
+﻿using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using DocumentFormat.OpenXml.Spreadsheet;
 using FileOrganizer.Database;
 using FileOrganizer.UIService;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FileOrganizer.ViewModels;
 
@@ -55,7 +54,7 @@ public partial class Step1ViewModel : StepViewModel
     private async Task Browse()
     {
 
-      var folders=  await _folderPickerService.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        var folders = await _folderPickerService.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
             Title = "Select Folder"
         });

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using FileOrganizer.Views;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace FileOrganizer.UIService;
 

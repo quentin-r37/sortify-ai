@@ -1,8 +1,7 @@
-﻿using System;
-using Avalonia;
-using Avalonia.Media;
+﻿using Avalonia;
 using Projektanker.Icons.Avalonia;
 using Projektanker.Icons.Avalonia.FontAwesome;
+using System;
 
 namespace FileOrganizer;
 

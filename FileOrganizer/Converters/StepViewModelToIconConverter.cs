@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Avalonia.Data.Converters;
+using FileOrganizer.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Avalonia.Data.Converters;
-using FileOrganizer.ViewModels;
 
 namespace FileOrganizer.Converters;
 

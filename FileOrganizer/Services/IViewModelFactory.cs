@@ -1,8 +1,6 @@
-using Avalonia.Controls.Notifications;
 using FileOrganizer.Shared;
 using FileOrganizer.UIService;
 using FileOrganizer.ViewModels;
-using FileOrganizer.Views;
 
 namespace FileOrganizer.Services;
 

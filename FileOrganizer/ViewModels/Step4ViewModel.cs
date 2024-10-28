@@ -1,15 +1,14 @@
-﻿using FileOrganizer.Shared;
-using FileOrganizer.Views;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using FileOrganizer.Models;
+using FileOrganizer.Shared;
+using FileOrganizer.UIService;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.IO;
 using System.Collections.ObjectModel;
-using FileOrganizer.Models;
-using FileOrganizer.UIService;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FileOrganizer.ViewModels;
 

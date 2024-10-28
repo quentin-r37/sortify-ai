@@ -1,4 +1,7 @@
-﻿using System;
+﻿using FileOrganizer.Models;
+using FileOrganizer.ViewModels;
+using Microsoft.SemanticKernel.ChatCompletion;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -6,9 +9,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using FileOrganizer.Models;
-using FileOrganizer.ViewModels;
-using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace FileOrganizer.Services;
 
@@ -48,89 +48,89 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
     // Common date patterns
     // Will be used for dating
 
-public async Task<List<ProcessedFileData>> OrganizeFilesAsync(
-    IEnumerable<FileItemViewModel> files,
-    IProgress<double> progress = null,
-    CancellationToken cancellationToken = default)
-{
-    var results = new List<ProcessedFileData>();
-    var unknownFiles = new List<FileItemViewModel>();
-    var fileItemViewModels = files.ToList();
-    var totalFiles = fileItemViewModels.Count;
-    var processed = 0;
-
-    const double firstPassWeight = 0.1;
-    
-    // First pass: Use pattern matching and heuristics
-    foreach (var file in fileItemViewModels)
+    public async Task<List<ProcessedFileData>> OrganizeFilesAsync(
+        IEnumerable<FileItemViewModel> files,
+        IProgress<double> progress = null,
+        CancellationToken cancellationToken = default)
     {
-        if (cancellationToken.IsCancellationRequested)
-            break;
+        var results = new List<ProcessedFileData>();
+        var unknownFiles = new List<FileItemViewModel>();
+        var fileItemViewModels = files.ToList();
+        var totalFiles = fileItemViewModels.Count;
+        var processed = 0;
 
-        var processedData = TryProcessFileWithHeuristics(file);
+        const double firstPassWeight = 0.1;
 
-        if (processedData != null)
-        {
-            results.Add(processedData);
-            LogToDebug($"Successfully categorized: {file.Model.Path} -> {processedData.FolderName} (using heuristics)");
-        }
-        else
-        {
-            unknownFiles.Add(file);
-            LogToDebug($"Heuristics failed for: {file.Model.Path}");
-        }
-
-        processed++;
-        progress?.Report(processed / (double)totalFiles * 100 * firstPassWeight);
-    }
-
-    if (unknownFiles.Any())
-    {
-        var groupedUnknown = GroupSimilarFiles(unknownFiles).ToList();
-        var totalGroups = groupedUnknown.Count;
-        var processedGroups = 0;
-
-        foreach (var group in groupedUnknown)
+        // First pass: Use pattern matching and heuristics
+        foreach (var file in fileItemViewModels)
         {
             if (cancellationToken.IsCancellationRequested)
                 break;
 
-            var representative = group.First();
-            var aiProcessed = await ProcessWithAIAsync(representative, cancellationToken);
+            var processedData = TryProcessFileWithHeuristics(file);
 
-            if (aiProcessed != null)
+            if (processedData != null)
             {
-                results.AddRange(group.Select(file => new ProcessedFileData 
-                { 
-                    FilePath = file.Model.Path, 
-                    FolderName = aiProcessed.FolderName, 
-                    FileName = GenerateUniqueFileName(file, aiProcessed.FolderName), 
-                    Description = aiProcessed.Description 
-                }));
+                results.Add(processedData);
+                LogToDebug($"Successfully categorized: {file.Model.Path} -> {processedData.FolderName} (using heuristics)");
             }
             else
             {
-                LogToDebug($"AI categorization failed for group represented by: {representative.Model.Path}");
-                foreach (var file in group)
-                {
-                    LogToDebug($"  - Uncategorized file: {file.Model.Path}");
-                }
+                unknownFiles.Add(file);
+                LogToDebug($"Heuristics failed for: {file.Model.Path}");
             }
 
-            processedGroups++;
-            // Second pass uses remaining 50% of the progress bar
-            var secondPassProgress = (processedGroups / (double)totalGroups * 100 * (1 - firstPassWeight));
-            progress?.Report((firstPassWeight * 100) + secondPassProgress);
+            processed++;
+            progress?.Report(processed / (double)totalFiles * 100 * firstPassWeight);
         }
-    }
-    else
-    {
-        // If no AI processing was needed, complete the progress bar
-        progress?.Report(100);
-    }
 
-    return results;
-}
+        if (unknownFiles.Any())
+        {
+            var groupedUnknown = GroupSimilarFiles(unknownFiles).ToList();
+            var totalGroups = groupedUnknown.Count;
+            var processedGroups = 0;
+
+            foreach (var group in groupedUnknown)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                var representative = group.First();
+                var aiProcessed = await ProcessWithAIAsync(representative, cancellationToken);
+
+                if (aiProcessed != null)
+                {
+                    results.AddRange(group.Select(file => new ProcessedFileData
+                    {
+                        FilePath = file.Model.Path,
+                        FolderName = aiProcessed.FolderName,
+                        FileName = GenerateUniqueFileName(file, aiProcessed.FolderName),
+                        Description = aiProcessed.Description
+                    }));
+                }
+                else
+                {
+                    LogToDebug($"AI categorization failed for group represented by: {representative.Model.Path}");
+                    foreach (var file in group)
+                    {
+                        LogToDebug($"  - Uncategorized file: {file.Model.Path}");
+                    }
+                }
+
+                processedGroups++;
+                // Second pass uses remaining 50% of the progress bar
+                var secondPassProgress = (processedGroups / (double)totalGroups * 100 * (1 - firstPassWeight));
+                progress?.Report((firstPassWeight * 100) + secondPassProgress);
+            }
+        }
+        else
+        {
+            // If no AI processing was needed, complete the progress bar
+            progress?.Report(100);
+        }
+
+        return results;
+    }
 
     private ProcessedFileData TryProcessFileWithHeuristics(FileItemViewModel file)
     {
@@ -193,7 +193,7 @@ public async Task<List<ProcessedFileData>> OrganizeFilesAsync(
 
         return $"{extension}_{pattern}_{lengthCategory}";
     }
-    
+
     private static void LogToDebug(string message)
     {
         var logEntry = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";
@@ -262,7 +262,7 @@ Reply with just the category name, nothing else.");
 
     private static async Task<string> GetFileSampleAsync(string filePath)
     {
-        const int maxSampleSize = 1024; 
+        const int maxSampleSize = 1024;
         try
         {
             await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);

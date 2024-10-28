@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Notifications;
@@ -13,7 +11,8 @@ using FileOrganizer.ViewModels;
 using FileOrganizer.Views;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using static FileOrganizer.App;
+using System;
+using System.IO;
 
 namespace FileOrganizer;
 

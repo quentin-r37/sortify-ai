@@ -1,7 +1,7 @@
-﻿using System;
+﻿using FileOrganizer.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using FileOrganizer.ViewModels;
 
 namespace FileOrganizer.Services;
 

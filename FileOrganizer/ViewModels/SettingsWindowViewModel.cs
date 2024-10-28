@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Avalonia.Threading;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using FileOrganizer.Models;
 using FileOrganizer.Services;
@@ -13,6 +9,9 @@ using Microsoft.SemanticKernel.Connectors.Ollama;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Memory;
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 #pragma warning disable SKEXP0010
 #pragma warning disable SKEXP0070
 #pragma warning disable SKEXP0050

@@ -1,6 +1,6 @@
+using Avalonia.Data.Converters;
 using System;
 using System.Globalization;
-using Avalonia.Data.Converters;
 
 namespace FileOrganizer.Converters
 {
@@ -11,10 +11,10 @@ namespace FileOrganizer.Converters
             switch (value)
             {
                 case bool boolValue:
-                {
-                    var invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
-                    return invert ? !boolValue : boolValue;
-                }
+                    {
+                        var invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
+                        return invert ? !boolValue : boolValue;
+                    }
                 case null:
                     return false;
                 default:
@@ -27,10 +27,10 @@ namespace FileOrganizer.Converters
             switch (value)
             {
                 case bool boolValue:
-                {
-                    var invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
-                    return invert ? !boolValue : boolValue;
-                }
+                    {
+                        var invert = parameter != null && bool.TryParse(parameter.ToString(), out var isInverse) && isInverse;
+                        return invert ? !boolValue : boolValue;
+                    }
                 case null:
                     return null;
                 default:
