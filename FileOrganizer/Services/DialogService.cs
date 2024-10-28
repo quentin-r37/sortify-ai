@@ -27,7 +27,6 @@ public class DialogService(IServiceProvider serviceProvider) : IDialogService
         var window = (Window)ActivatorUtilities.CreateInstance(serviceProvider, windowType);
         window.DataContext = viewModel;
 
-        // Get the current active window as parent
         var lifetime = Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
         var activeWindow = lifetime?.MainWindow;
 
@@ -47,16 +46,13 @@ public class DialogService(IServiceProvider serviceProvider) : IDialogService
         {
             Dispatcher.UIThread.Invoke(() =>
             {
-                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
+                if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime lifetime)
+                    return;
+                foreach (var window in lifetime.Windows)
                 {
-                    foreach (var window in lifetime.Windows)
-                    {
-                        if (window.DataContext == viewModel)
-                        {
-                            window.Close();
-                            break;
-                        }
-                    }
+                    if (window.DataContext != viewModel) continue;
+                    window.Close();
+                    break;
                 }
             });
         }
