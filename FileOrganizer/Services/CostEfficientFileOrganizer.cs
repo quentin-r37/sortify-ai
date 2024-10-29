@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using FileOrganizer.Shared;
 
 namespace FileOrganizer.Services;
 
@@ -228,7 +229,7 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         try
         {
             // Only read a sample of the file content for large files
-            var content = await GetFileSampleAsync(file.Model.Path);
+            var content = GetFileSample(file.Model);
 
             var chatHistory = new ChatHistory();
             chatHistory.AddUserMessage($@"Categorize this file based on its name and sample content. 
@@ -260,22 +261,15 @@ Reply with just the category name, nothing else.");
         return null;
     }
 
-    private static async Task<string> GetFileSampleAsync(string filePath)
+    private static string GetFileSample(FileItem file)
     {
         const int maxSampleSize = 1024;
-        try
+        if (!string.IsNullOrEmpty(file.Content))
         {
-            await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            using var reader = new StreamReader(stream);
-
-            var sample = new char[maxSampleSize];
-            var read = await reader.ReadBlockAsync(sample, 0, maxSampleSize);
-
-            return new string(sample, 0, read);
+            return file.Content.Length > maxSampleSize
+                ? file.Content[..maxSampleSize]
+                : file.Content;
         }
-        catch
-        {
-            return Path.GetFileName(filePath);
-        }
+        return file.Path;
     }
 }

@@ -24,14 +24,14 @@
 								<Label Margin="20,0">Organisation preview</Label>
 							</TabItem.Header>
 							<Grid ColumnDefinitions="*,*">
-								<TreeView ItemsSource="{Binding CurrentStructure}">
+								<TreeView SelectedItem="{Binding SelectedNode, Mode=TwoWay}" ItemsSource="{Binding CurrentStructure}">
 									<TreeView.ItemTemplate>
 										<TreeDataTemplate ItemsSource="{Binding SubNodes}">
 											<TextBlock Text="{Binding Title}"/>
 										</TreeDataTemplate>
 									</TreeView.ItemTemplate>
 								</TreeView>
-								<TreeView Grid.Column="1" ItemsSource="{Binding ProposedStructure}">
+								<TreeView SelectedItem="{Binding SelectedNode, Mode=TwoWay}" Grid.Column="1" ItemsSource="{Binding ProposedStructure}">
 									<TreeView.ItemTemplate>
 										<TreeDataTemplate ItemsSource="{Binding SubNodes}">
                                             <TextBlock Text="{Binding Title}"/>

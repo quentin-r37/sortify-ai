@@ -20,6 +20,9 @@ public partial class Step4ViewModel : StepViewModel
     public List<FileMove> FileMoves { get; private set; }
 
     [ObservableProperty]
+    private Node _selectedNode;
+
+    [ObservableProperty]
     private double _progress;
 
     [ObservableProperty]
