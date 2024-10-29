@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace FileOrganizer.UIService;
 
-public class EnhancedTreeViewHelper : TreeViewHelper
+public abstract class EnhancedTreeViewHelper : TreeViewHelper
 {
     public static OrganizationPreview BuildOrganizationPreview(
         ObservableCollection<FileItemViewModel> currentFiles,
