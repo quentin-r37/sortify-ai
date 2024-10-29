@@ -83,7 +83,7 @@ public class CostEfficientFileOrganizerTests
         await cts.CancelAsync(); // Cancel immediately
 
         // Act
-        var results = await _organizer.OrganizeFilesAsync(files, cancellationToken: cts.Token);
+        var results = await _organizer.OrganizeFilesAsync(files,null,new List<string>(), cancellationToken: cts.Token);
 
         // Assert
         Assert.Empty(results);

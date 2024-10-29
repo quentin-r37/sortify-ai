@@ -73,7 +73,7 @@ public partial class Step4ViewModel : StepViewModel
             _fileOrganizer = new Services.FileOrganizer(_parent.ChatCompletionService, _targetBasePath);
 
             var preview = await _fileOrganizer.PreviewOrganizationAsync(
-                AllFiles, progress);
+                AllFiles, _parent.VectorCollection, _parent.Keys, progress);
 
             CurrentStructure = preview.CurrentStructure;
             ProposedStructure = preview.ProposedStructure;

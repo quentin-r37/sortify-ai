@@ -114,6 +114,7 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
 
             for (var index = 0; index < paragraphs.Count; index++)
             {
+                var key = $"{analysisId}-{file.Model.Path}-${index}";
                 var paragraph = paragraphs[index];
                 var paragraphEmbedding = await textEmbeddingGenerationService.GenerateEmbeddingAsync(paragraph);
                 var combinedEmbedding = CombineEmbeddings(titleEmbedding, paragraphEmbedding, 0.4f, 0.6f);
@@ -124,7 +125,7 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
                     Embedding = combinedEmbedding,
                     AdditionalMetadata = file.Model.Path,
                     Text = paragraph,
-                    Id = $"{file.Model.Path}-${index}",
+                    Id = key,
                     EmbeddingAsString = JsonSerializer.Serialize(combinedEmbedding),
                     ExternalSourceName = string.Empty,
                 };
@@ -135,7 +136,7 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
                     analysis.Vectors.Add(fileVector);
                 }
 
-                keys.Add($"{file.Model.Path}-${index}");
+                keys.Add(key);
             }
 
             await dbContext.SaveChangesAsync();
@@ -163,7 +164,7 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
         await using var dbContext = new AppDbContext(new DbContextOptions<AppDbContext>());
         var analysis = await dbContext.Analyses
             .Include(a => a.Vectors)
-            .FirstOrDefaultAsync(a => a.Id == analysisId);
+            .FirstOrDefaultAsync(a => a.Id == analysisId, cancellationToken: cancellationToken);
 
         if (analysis?.Vectors != null && analysis.Vectors.Any())
         {
@@ -208,7 +209,8 @@ public class TextExtractionService(IDocumentTextExtractor documentTextExtractor,
             // Now restore vectors
             foreach (var vector in analysis.Vectors.Where(vector => !string.IsNullOrEmpty(vector.EmbeddingAsString)))
             {
-                vector.Embedding = JsonSerializer.Deserialize<float[]>(vector.EmbeddingAsString);
+                if (vector.EmbeddingAsString != null)
+                    vector.Embedding = JsonSerializer.Deserialize<float[]>(vector.EmbeddingAsString);
                 await vectorStoreCollection.UpsertAsync(vector, cancellationToken: cancellationToken);
                 keys.Add(vector.Id);
                 processedFilePaths.Add(vector.AdditionalMetadata);

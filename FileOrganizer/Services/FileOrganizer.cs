@@ -8,6 +8,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using FileOrganizer.Shared;
+using Microsoft.Extensions.VectorData;
 
 namespace FileOrganizer.Services;
 
@@ -17,10 +19,12 @@ public class FileOrganizer(IChatCompletionService chatService, string targetBase
 
     public async Task<OrganizationPreview> PreviewOrganizationAsync(
         ObservableCollection<FileItemViewModel> files,
+        IVectorStoreRecordCollection<string,FileVectorStoreRecord> vectorCollection,
+        List<string> embeddingKeys,
         IProgress<double> progress = null,
         CancellationToken cancellationToken = default)
     {
-        var processedFiles = await _organizationStrategy.OrganizeFilesAsync(files, progress, cancellationToken);
+        var processedFiles = await _organizationStrategy.OrganizeFilesAsync(files, vectorCollection, embeddingKeys, progress, cancellationToken);
         return EnhancedTreeViewHelper.BuildOrganizationPreview(files, processedFiles, targetBasePath);
     }
 

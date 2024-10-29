@@ -20,7 +20,7 @@ public partial class FileItemViewModel(FileItem model) : ViewModelBase
     public List<string> DirectoryLevels => Model.DirectoryLevels;
 
     [RelayCommand]
-    public void OpenFile()
+    private void OpenFile()
     {
         try
         {
