@@ -17,7 +17,13 @@ public partial class Step4ViewModel : StepViewModel
     public ObservableCollection<FileItemViewModel> AllFiles { get; set; }
     public ObservableCollection<Node> CurrentStructure { get; set; }
     public ObservableCollection<Node> ProposedStructure { get; set; }
-    public List<FileMove> FileMoves { get; private set; }
+    private List<FileMove> FileMoves { get; set; }
+    
+    [ObservableProperty]
+    private int _currentStructureNodesCount;
+    
+    [ObservableProperty]
+    private int _proposedStructureNodesCount;
 
     [ObservableProperty]
     private Node _selectedNode;
@@ -52,6 +58,7 @@ public partial class Step4ViewModel : StepViewModel
     {
         AllFiles = new ObservableCollection<FileItemViewModel>(files);
         CurrentStructure = TreeViewHelper.BuildTree(AllFiles);
+        CurrentStructureNodesCount = CurrentStructure.CountNodes();
         OnPropertyChanged(nameof(AllFiles));
         OnPropertyChanged(nameof(CurrentStructure));
     }
@@ -77,6 +84,9 @@ public partial class Step4ViewModel : StepViewModel
 
             CurrentStructure = preview.CurrentStructure;
             ProposedStructure = preview.ProposedStructure;
+            CurrentStructureNodesCount = CurrentStructure.CountNodes();
+            ProposedStructureNodesCount = ProposedStructure.CountNodes();
+
             FileMoves = preview.FileMoves;
 
             StatusMessage = $"Preview ready. {FileMoves.Count} files will be organized.";

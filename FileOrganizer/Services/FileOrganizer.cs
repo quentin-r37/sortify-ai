@@ -46,8 +46,11 @@ public class FileOrganizer(IChatCompletionService chatService, string targetBase
             {
                 // Create destination directory if it doesn't exist
                 var destinationDir = Path.GetDirectoryName(move.DestinationPath);
-                Directory.CreateDirectory(destinationDir);
-
+                var directoryInfo = new DirectoryInfo(destinationDir);
+                if (!directoryInfo.Exists)
+                {
+                    directoryInfo.Create();
+                }
                 // Move the file
                 if (File.Exists(move.DestinationPath))
                 {

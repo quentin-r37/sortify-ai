@@ -18,56 +18,31 @@ namespace FileOrganizer.Services;
 
 public class CostEfficientFileOrganizer(IChatCompletionService chatService)
 {
-   private readonly Dictionary<string, string> _commonPatterns = new()
-{
-    // Financial documents
-    { @"(?i)(invoice|receipt|budget|expense|financial|bank|statement|tax)", "Financial" },
-    { @"(?i)(payroll|salary|invoice_\d+|quote|purchase[-_]order)", "Financial" },
-    
-    // Images and Photos
-    { @"(?i)(IMG_|DCIM|photo|image|camera|screenshot)", "Photos" },
-    { @"(?i)(PNG|JPG|JPEG|GIF|RAW|CR2|NEF|PSD|BMP)", "Photos" },
-    { @"(?i)(wallpaper|background|album|gallery)", "Photos" },
-    
-    // Documents and Notes
-    { @"(?i)(meeting|notes|memo|minutes|agenda)", "Meetings" },
-    { @"(?i)(report|proposal|presentation|draft)", "Work" },
-    { @"(?i)(manual|guide|instruction|tutorial)", "Documentation" },
-    { @"(?i)(contract|agreement|legal|policy|terms)", "Legal" },
-    { @"(?i)(resume|CV|cover[-_]letter|application)", "Career" },
-    
-    // Personal
-    { @"(?i)(travel|vacation|trip|itinerary)", "Travel" },
-    { @"(?i)(recipe|food|meal|cooking)", "Recipes" },
-    { @"(?i)(medical|health|prescription|doctor)", "Health" },
-    { @"(?i)(family|kids|baby|personal)", "Personal" },
-    
-    // Education
-    { @"(?i)(homework|assignment|study|exam|course)", "Education" },
-    { @"(?i)(thesis|dissertation|research|paper)", "Education" },
-    
-    // Media
-    { @"(?i)(video|movie|film|MP4|AVI|MOV)", "Videos" },
-    { @"(?i)(music|song|audio|MP3|WAV|playlist)", "Audio" },
-    { @"(?i)(ebook|book|novel|pdf|epub)", "Books" },
-    
-    // Software and Development
-    { @"(?i)(source|code|project|git|dev)", "Development" },
-    { @"(?i)(backup|archive|copy|old|version)", "Backups" },
-    { @"(?i)(config|setting|preference|setup)", "Settings" },
-    
-    // Common date patterns
-    { @"(?i)(\d{4}[-_]\d{2}[-_]\d{2}|\d{2}[-_]\d{2}[-_]\d{4})", null },  // Will be used for dating
-    { @"(?i)(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[-_]\d{4}", null }  // Month-year pattern
-};
-
-private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIgnoreCase)
-{
-    "Financial", "Photos", "Documents", "Work", "Personal",
-    "Travel", "Recipes", "Meetings", "Documentation", "Legal",
-    "Career", "Health", "Education", "Videos", "Audio",
-    "Books", "Development", "Backups", "Settings"
-};
+    private readonly Dictionary<string, string> _commonPatterns = new()
+    {
+        // Financial documents
+        { @"(?i)(invoice|receipt|budget|expense|financial|bank|statement|tax)", "Financial" },
+            
+        // Images and Photos
+        { @"(?i)(IMG_|DCIM|photo|image|camera|screenshot)", "Photos" },
+            
+        // Documents and Notes
+        { @"(?i)(meeting|notes|memo|minutes|agenda)", "Meetings" },
+        { @"(?i)(report|proposal|presentation|draft)", "Work" },
+        { @"(?i)(manual|guide|instruction|tutorial)", "Documentation" },
+            
+        // Personal
+        { @"(?i)(travel|vacation|trip|itinerary)", "Travel" },
+        { @"(?i)(recipe|food|meal|cooking)", "Recipes" },
+            
+        // Common date patterns
+        { @"(?i)(\d{4}[-_]\d{2}[-_]\d{2}|\d{2}[-_]\d{2}[-_]\d{4})", null }  // Will be used for dating
+    };
+    private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Financial", "Photos", "Documents", "Work", "Personal",
+        "Travel", "Recipes", "Meetings", "Documentation"
+    };
 
     // Pre-defined patterns for common file types
     // Financial documents
@@ -136,7 +111,7 @@ private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIg
                     {
                         FilePath = file.Model.Path,
                         FolderName = aiProcessed.FolderName,
-                        FileName = GenerateUniqueFileName(file, aiProcessed.FolderName),
+                        FileName = CleanFileName(file.Name),
                         Description = aiProcessed.Description
                     }));
                 }
@@ -184,7 +159,7 @@ private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIg
             {
                 FilePath = file.Model.Path,
                 FolderName = category,
-                FileName = GenerateUniqueFileName(file, category),
+                FileName = CleanFileName(file.Name),
                 Description = $"Automatically categorized based on {(category == GetCategoryFromExtension(extension) ? "file type" : "filename pattern")}"
             };
         }
@@ -203,15 +178,14 @@ private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIg
     }
     
   
-
-
     private async Task<IEnumerable<IGrouping<uint, FileItemViewModel>>> ClusterSimilarFilesAsync(
         List<FileItemViewModel> files,
         IVectorStoreRecordCollection<string, FileVectorStoreRecord> vectorCollection,
         List<string> embeddingKeys,
         CancellationToken cancellationToken)
     {
-        var vectorAsyncEnumerable =  vectorCollection.GetBatchAsync(embeddingKeys, cancellationToken: cancellationToken);
+        // Load embeddings
+        var vectorAsyncEnumerable = vectorCollection.GetBatchAsync(embeddingKeys, cancellationToken: cancellationToken);
         var data = new List<EmbeddingData>();
         await foreach (var vectorFile in vectorAsyncEnumerable)
         {
@@ -221,47 +195,92 @@ private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIg
                 Features = vectorFile.Embedding.ToArray()
             });
         }
-        
+
         var mlContext = new MLContext();
         var dataView = mlContext.Data.LoadFromEnumerable(data);
-        int clusterCount = 6;
-        var pipeline = mlContext.Clustering.Trainers.KMeans(numberOfClusters: clusterCount);
+
+        // Determine optimal number of clusters
+        var optimalClusters = DetermineOptimalClusters(mlContext, dataView, minClusters: 5, maxClusters: 15);
+    
+        // Train model with optimal clusters
+        var pipeline = mlContext.Clustering.Trainers.KMeans(numberOfClusters: optimalClusters);
         var model = pipeline.Fit(dataView);
         var predictions = model.Transform(dataView);
         var predictedClusters = mlContext.Data.CreateEnumerable<ClusteringPrediction>(predictions, reuseRowObject: false).ToList();
 
-        // Step 1: Associate embeddings with predicted clusters and files
+        // Associate embeddings with predicted clusters
         var embeddingClusters = data.Zip(predictedClusters, (embeddingData, prediction) => new
         {
             FilePath = embeddingData.FilePath,
             ClusterId = prediction.PredictedClusterId
         }).ToList();
 
-        // Step 2: Group embeddings by FilePath
         var fileEmbeddings = embeddingClusters.GroupBy(ec => ec.FilePath);
 
-        // Step 3: Determine the majority cluster for each file
+        // Determine majority cluster for each file
         var fileClusterAssignments = fileEmbeddings.Select(group =>
         {
             var filePath = group.Key;
-            var clusterCounts = group.GroupBy(ec => ec.ClusterId)
-                .Select(g => new { ClusterId = g.Key, Count = g.Count() })
-                .ToList();
-            var assignedClusterId = clusterCounts.OrderByDescending(c => c.Count)
-                .First().ClusterId;
+            var majorityCluster = group.GroupBy(ec => ec.ClusterId)
+                .OrderByDescending(g => g.Count())
+                .First().Key;
             return new
             {
                 FileItem = files.FirstOrDefault(f => f.Model.Path == filePath),
-                ClusterId = assignedClusterId
+                ClusterId = majorityCluster
             };
         }).Where(x => x.FileItem != null).ToList();
 
-        // Step 4: Group files by their assigned clusters
-        var clusteredFiles = fileClusterAssignments
-            .GroupBy(x => x.ClusterId, x => x.FileItem)
-            .ToList();
+        // Group files by cluster
+        return fileClusterAssignments.GroupBy(x => x.ClusterId, x => x.FileItem);
+    }
 
-        return clusteredFiles;
+    private int DetermineOptimalClusters(MLContext mlContext, IDataView data, int minClusters = 5, int maxClusters = 15)
+    {
+        var inertias = new List<double>();
+    
+        // Calculate inertia for different K values
+        for (int k = minClusters; k <= maxClusters; k++)
+        {
+            var pipeline = mlContext.Clustering.Trainers.KMeans(numberOfClusters: k);
+            var model = pipeline.Fit(data);
+            var predictions = model.Transform(data);
+        
+            // Calculate inertia (within-cluster sum of squares)
+            var inertia = CalculateInertia(mlContext, predictions);
+            inertias.Add(inertia);
+        }
+    
+        // Find elbow point using the second derivative
+        var optimalK = FindElbowPoint(inertias, minClusters);
+    
+        return optimalK;
+    }
+
+    private double CalculateInertia(MLContext mlContext, IDataView predictions)
+    {
+        // Get predictions and calculate distance to cluster centers
+        var predictionData = mlContext.Data.CreateEnumerable<ClusteringPrediction>(
+            predictions, reuseRowObject: false).ToList();
+    
+        return predictionData.Sum(p => p.Score.Sum(s => s * s));
+    }
+
+    private int FindElbowPoint(List<double> inertias, int minClusters)
+    {
+        // Calculate second derivatives
+        var secondDerivatives = new List<double>();
+        for (int i = 1; i < inertias.Count - 1; i++)
+        {
+            var secondDerivative = inertias[i - 1] - 2 * inertias[i] + inertias[i + 1];
+            secondDerivatives.Add(secondDerivative);
+        }
+    
+        // Find the point of maximum curvature
+        var maxCurvatureIndex = secondDerivatives.IndexOf(secondDerivatives.Max());
+    
+        // Add minClusters to get back to the original K value
+        return maxCurvatureIndex + minClusters + 1;
     }
 
     private static string GetFileSignature(FileItemViewModel file)
@@ -287,25 +306,10 @@ private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIg
         Console.WriteLine(logEntry);
     }
 
-    private string GenerateUniqueFileName(FileItemViewModel file, string category)
-    {
-        var fileName = Path.GetFileNameWithoutExtension(file.Model.Path);
-        var cleaned = CleanFileName(fileName);
-
-        var dateMatch = Regex.Match(fileName, @"(\d{4}[-_]\d{2}[-_]\d{2}|\d{2}[-_]\d{2}[-_]\d{4})");
-        if (dateMatch.Success)
-        {
-            cleaned = $"{cleaned}_{dateMatch.Value}";
-        }
-
-        return cleaned;
-    }
-
     private static string CleanFileName(string fileName)
     {
-        var cleaned = Regex.Replace(fileName, @"[^\w\s-]", "");
-        cleaned = Regex.Replace(cleaned, @"[-\s]+", "_");
-        return cleaned.Trim('_');
+        var cleaned = Path.GetFileNameWithoutExtension(fileName);
+        return cleaned;
     }
 
     private async Task<ProcessedFileData> ProcessWithAIAsync(
@@ -334,7 +338,7 @@ Reply with just the category name, nothing else.");
                 {
                     FilePath = file.Model.Path,
                     FolderName = category,
-                    FileName = GenerateUniqueFileName(file, category),
+                    FileName = CleanFileName(file.Name),
                     Description = "Categorized using AI assistance"
                 };
             }
