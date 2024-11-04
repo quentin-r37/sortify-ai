@@ -99,6 +99,6 @@ After:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/file-organizer.git
+   git clone https://github.com/quentin-r37/sortify-ai.git
 Install dependencies and build the app.
 Run the app locally, and start organizing your files!
