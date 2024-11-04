@@ -1,0 +1,153 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+        xmlns:avalonia="https://github.com/projektanker/icons.avalonia"
+        xmlns:converters="clr-namespace:FileOrganizer.Converters"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="FileOrganizer.Views.SettingsWindow"
+        Title="SettingsWindow"
+        SystemDecorations="Full"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="Manual" Width="800" Height="600"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True" x:DataType="viewModels:SettingsWindowViewModel"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+        FontFamily="{DynamicResource MontserratFont}"
+        >
+	
+	<Window.Resources>
+		<converters:NullableBooleanConverter x:Key="NullableBooleanConverter"/>
+	</Window.Resources>
+
+	<Design.DataContext>
+		<viewModels:SettingsWindowViewModel />
+	</Design.DataContext>
+	<Panel >
+        <Border IsHitTestVisible="False" Background="#80000000"></Border>
+		<Grid RowDefinitions="*, Auto" Margin="0,0,20,20">
+			<ScrollViewer Margin="5,30,5,10">
+				<StackPanel Margin="20,0" >
+					<TextBlock Text="AI Service Configuration" FontSize="16" FontWeight="DemiBold" Margin="0,0,0,20"/>
+					<!-- Embedding Configuration -->
+					<Border CornerRadius="10" BorderBrush="{DynamicResource SemiGrey2Color}" BorderThickness="1" Padding="10" Margin="0,0,0,20">
+						<StackPanel>
+							<TextBlock Text="Embedding Service"  FontWeight="DemiBold" Margin="0,0,0,10"/>
+							<Grid ColumnDefinitions="*,*,*" Margin="0,0,0,10">
+								<ComboBox ItemsSource="{Binding Providers}"
+								          SelectedItem="{Binding SelectedEmbeddingProvider}"
+								          Width="200"
+								          />
+								<Button Theme="{DynamicResource Outline}" Grid.Column="1" Background="{DynamicResource ButtonBackground}" Command="{Binding TestEmbeddingCommand}"
+								        FontWeight="550"  Width="200" >
+									<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+										<avalonia:Icon Value="fa-check" Margin="0,0,5,0" />
+										<TextBlock FontWeight="550" Text="Test Service" />
+									</StackPanel>
+								</Button>
+							</Grid>
+							<TextBlock Foreground="LightGreen" IsVisible="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+							<TextBlock Foreground="Red" IsVisible="{Binding EmbeddingTestPassed, Converter={StaticResource NullableBooleanConverter}, ConverterParameter=true}" Text="The service connection test failed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+							<Expander Padding="10" IsExpanded="True">
+								<Expander.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <avalonia:Icon Value="fa-sliders" />
+                                        <Label Margin="20,0,0,0" FontWeight="Normal" Content="{Binding SelectedEmbeddingProvider}"></Label>
+                                        <Label Margin="3,0,0,0" FontWeight="Normal"> Configuration</Label>
+
+									</StackPanel>
+								</Expander.Header>
+								<StackPanel>
+									<!-- Ollama Fields -->
+									<StackPanel IsVisible="{Binding ShowEmbeddedOllamaFields}">
+										<TextBox Watermark="Model ID" Text="{Binding EmbeddingModelId}" Margin="0,5"/>
+										<TextBox Watermark="URL" Text="{Binding EmbeddingEndpoint}" Margin="0,5"/>
+									</StackPanel>
+
+									<!-- Azure OpenAI Fields -->
+									<StackPanel IsVisible="{Binding ShowEmbeddedAzureFields}">
+										<TextBox Watermark="Deployment Name" Text="{Binding EmbeddingDeploymentName}" Margin="0,5"/>
+										<TextBox Watermark="Endpoint" Text="{Binding EmbeddingEndpoint}" Margin="0,5"/>
+										<TextBox Watermark="API Key" Text="{Binding EmbeddingApiKey}" PasswordChar="*" Margin="0,5"/>
+										<TextBox Watermark="Model ID" Text="{Binding EmbeddingModelId}" Margin="0,5"/>
+									</StackPanel>
+
+									<!-- OpenAI Fields -->
+									<StackPanel IsVisible="{Binding ShowEmbeddedOpenAIFields}">
+										<TextBox Watermark="Model ID" Text="{Binding EmbeddingModelId}" Margin="0,5"/>
+										<TextBox Watermark="API Key" Text="{Binding EmbeddingApiKey}" PasswordChar="*" Margin="0,5"/>
+									</StackPanel>
+								</StackPanel>
+							</Expander>
+						</StackPanel>
+					</Border>
+
+					<!-- Completion Configuration -->
+					<Border CornerRadius="10" BorderBrush="{DynamicResource SemiGrey2Color}" BorderThickness="1" Padding="10" Margin="0,0,0,20">
+						<StackPanel>
+							
+							<Grid ColumnDefinitions="*,*,*" Margin="0,0,0,10">
+								<ComboBox ItemsSource="{Binding Providers}"
+								          SelectedItem="{Binding SelectedCompletionProvider}"
+								          Width="200"
+								          HorizontalAlignment="Left"
+								          />
+								
+								<Button Theme="{DynamicResource Outline}" Grid.Column="1" Background="{DynamicResource ButtonBackground}" Command="{Binding TestCompletionCommand}"
+								        FontWeight="550" Width="200" >
+									<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+										<avalonia:Icon Value="fa-check" Margin="0,0,5,0" />
+										<TextBlock FontWeight="550" Text="Test Service" />
+									</StackPanel>
+								</Button>
+							</Grid>
+
+                            <TextBlock Foreground="LightGreen" IsVisible="{Binding CompletionTestPassed, Converter={StaticResource NullableBooleanConverter}}" Text="The service connection test passed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+                            <TextBlock Foreground="Red" IsVisible="{Binding CompletionTestPassed, Converter={StaticResource NullableBooleanConverter}, ConverterParameter=true}" Text="The service connection test failed" VerticalAlignment="Bottom" TextWrapping="Wrap" FontWeight="DemiBold" Margin="0,0,0,10"/>
+
+                            <Expander Padding="10" IsExpanded="True" BorderThickness="0">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <avalonia:Icon Value="fa-sliders" />
+                                        <Label Margin="20,0,0,0" FontWeight="Normal" Content="{Binding SelectedCompletionProvider}"></Label>
+                                        <Label Margin="3,0,0,0" FontWeight="Normal"> Configuration</Label>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel>
+                                    <!-- Ollama Fields -->
+                                    <StackPanel IsVisible="{Binding ShowCompletionOllamaFields}">
+                                        <TextBox Watermark="Model ID" Text="{Binding CompletionModelId}" Margin="0,5"/>
+                                        <TextBox Watermark="URL" Text="{Binding CompletionEndpoint}" Margin="0,5"/>
+                                    </StackPanel>
+
+                                    <!-- Azure OpenAI Fields -->
+                                    <StackPanel IsVisible="{Binding ShowCompletionAzureFields}">
+                                        <TextBox Watermark="Deployment Name" Text="{Binding CompletionDeploymentName}" Margin="0,5"/>
+                                        <TextBox Watermark="Endpoint" Text="{Binding CompletionEndpoint}" Margin="0,5"/>
+                                        <TextBox Watermark="API Key" Text="{Binding CompletionApiKey}" PasswordChar="*" Margin="0,5"/>
+                                        <TextBox Watermark="Model ID" Text="{Binding CompletionModelId}" Margin="0,5"/>
+                                    </StackPanel>
+
+                                    <!-- OpenAI Fields -->
+                                    <StackPanel IsVisible="{Binding ShowCompletionOpenAIFields}">
+                                        <TextBox Watermark="Model ID" Text="{Binding CompletionModelId}" Margin="0,5"/>
+                                        <TextBox Watermark="API Key" Text="{Binding CompletionApiKey}" PasswordChar="*" Margin="0,5"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Expander>
+						</StackPanel>
+					</Border>
+
+					<!-- Provider-specific configuration -->
+
+				</StackPanel>
+			</ScrollViewer>
+			<Button Content="Save Configuration" Grid.Row="1" Command="{Binding SaveConfigCommand}"
+					HorizontalAlignment="Right"
+					Margin="0,20,0,0"/>
+		</Grid>
+
+	</Panel>
+</Window>

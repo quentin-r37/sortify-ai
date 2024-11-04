@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FileOrganizer.UserControls.Step1UserControl" x:DataType="viewModels:Step1ViewModel">
+
+        <Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20" Padding="20"
+                BorderBrush="{DynamicResource SemiGrey2Color}">
+            <StackPanel Orientation="Vertical">
+                <Label Content="Folder selection" FontWeight="DemiBold" Margin="0,0,0,40" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBox MinWidth="300" Text="{Binding Path=Path, Mode=TwoWay}" Watermark="Enter the directory path"
+                             Margin="0,0,20,0" />
+                    <Button Content="Browse" Command="{Binding BrowseCommand}" />
+                </StackPanel>
+                <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
+            </StackPanel>
+        </Border>
+
+</UserControl>

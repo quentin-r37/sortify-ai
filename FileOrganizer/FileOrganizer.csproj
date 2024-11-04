@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <UserSecretsId>c8a3d816-aca1-4568-adca-6cc390a1f909</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+    <AdditionalFiles Include="Assets/folder_icon.svg" NamespaceName="FileOrganizer" ClassName="Folder" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\folder_icon.svg" />
+    <None Remove="Assets\Montserrat-Regular.ttf" />
+    <None Remove="Assets\SourceHanSansCN-Regular.otf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.1.4" />
+    <PackageReference Include="Avalonia.Controls.Skia" Version="11.1.0.1" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.1.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.4" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.Avalonia" Version="2.0.0-rc3.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.ML" Version="3.0.1" />
+    <PackageReference Include="Microsoft.ML.Tokenizers" Version="0.21.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.AzureOpenAI" Version="1.24.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.24.1-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Ollama" Version="1.21.1-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.OpenAI" Version="1.24.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Sqlite" Version="1.24.1-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.24.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.21.1-alpha" />
+    <PackageReference Include="Projektanker.Icons.Avalonia.FontAwesome" Version="9.4.1" />
+    <PackageReference Include="Semi.Avalonia" Version="11.1.0.4" />
+    <PackageReference Include="Semi.Avalonia.DataGrid" Version="11.1.0.4" />
+    <PackageReference Include="Svg.SourceGenerator.Skia" Version="2.0.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FileOrganizer.Database\FileOrganizer.Database.csproj" />
+    <ProjectReference Include="..\FileOrganizer.DataExtractor\FileOrganizer.DataExtractor.csproj" />
+    <ProjectReference Include="..\FileOrganizer.Shared\FileOrganizer.Shared.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,176 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:converters="clr-namespace:FileOrganizer.Converters"
+             xmlns:avalonia1="https://github.com/projektanker/icons.avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" Name="Root"
+             x:Class="FileOrganizer.UserControls.Step2UserControl" x:DataType="viewModels:Step2ViewModel">
+
+	<UserControl.Resources>
+		<converters:InverseBooleanConverter x:Key="InverseBoolConverter" />
+	</UserControl.Resources>
+
+	<Grid RowDefinitions="*,Auto" >
+		<Border BorderThickness="1" VerticalAlignment="Stretch" CornerRadius="20"
+						BorderBrush="{DynamicResource SemiGrey2Color}">
+
+			<Grid RowDefinitions="Auto,*,Auto" >
+				<DockPanel Margin="20,20,20,20">
+					<Label DockPanel.Dock="Left" VerticalAlignment="Center" Content="Analysis" FontSize="16"
+						   FontWeight="DemiBold" />
+					<StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Orientation="Horizontal">
+						<Border Theme="{DynamicResource RadioButtonGroupBorder}">
+							<ListBox Theme="{DynamicResource ButtonRadioGroupListBox}">
+								<ListBoxItem Classes="Small" IsSelected="{Binding FilterAllFiles, Mode=TwoWay}">All files</ListBoxItem>
+								<ListBoxItem Classes="Small"
+											 IsSelected="{Binding FilterAllFiles, Mode=TwoWay, Converter={StaticResource InverseBoolConverter}}">
+									Only content files
+								</ListBoxItem>
+							</ListBox>
+						</Border>
+					</StackPanel>
+				</DockPanel>
+				<Panel Grid.Row="1" >
+					<TabControl>
+						<TabItem >
+							<TabItem.Header>
+								<Label Margin="20,0">By date</Label>
+							</TabItem.Header>
+							
+							<Grid Margin="20" ColumnDefinitions="*,Auto">
+								<avalonia:CartesianChart ZoomMode="{Binding ZoomModeByDate}"
+														 PointerWheelChanged="InputElement_OnPointerWheelChanged"
+														 Series="{Binding FilesByMonthSeries}"
+														 XAxes="{Binding FilesByMonthXAxis}"
+														 YAxes="{Binding FilesByMonthYAxes}"
+														  LegendPosition="Top" LegendTextPaint="{Binding LegendTextPaint}" />
+
+
+								<Expander Grid.Column="1" ExpandDirection="Left">
+									<Expander.Header>
+										<StackPanel Orientation="Horizontal">
+											<avalonia1:Icon Value="fa-cog" />
+											<Label Margin="20,0,0,0" FontWeight="Normal">Chart controls</Label>
+										</StackPanel>
+									</Expander.Header>
+									<StackPanel HorizontalAlignment="Stretch">
+										<Label HorizontalAlignment="Left" FontWeight="Normal">Zoom mode</Label>
+										<ComboBox Margin="0,20,0,0" SelectedItem="{Binding ZoomModeByDate}" ItemsSource="{Binding ZoomAndPanModes}"  VerticalAlignment="Center" DockPanel.Dock="Right" HorizontalAlignment="Left" ></ComboBox>
+									</StackPanel>
+								</Expander>
+							</Grid>
+
+						</TabItem>
+						<TabItem>
+							
+							<TabItem.Header>
+								<Label Margin="20,0">By type</Label>
+							</TabItem.Header>
+							
+							<Grid Margin="20" ColumnDefinitions="*,Auto">
+								<avalonia:CartesianChart DockPanel.Dock="Top"
+														 Series="{Binding FilesByTypeSeries}"
+														 XAxes="{Binding FilesByTypeXAxis}"
+														 YAxes="{Binding FilesByTypeYAxes}"
+														 LegendPosition="Top"
+														 LegendTextPaint="{Binding LegendTextPaint}"
+														 ZoomMode="{Binding ZoomModeByType}"
+														 PointerWheelChanged="InputElement_OnPointerWheelChanged"
+														 />
+
+
+								<Expander Grid.Column="1" ExpandDirection="Left">
+									<Expander.Header>
+										<StackPanel Orientation="Horizontal">
+											<avalonia1:Icon Value="fa-cog" />
+											<Label Margin="20,0,0,0" FontWeight="Normal">Chart controls</Label>
+										</StackPanel>
+									</Expander.Header>
+									<StackPanel HorizontalAlignment="Stretch">
+										<Label HorizontalAlignment="Left" FontWeight="Normal">Zoom mode</Label>
+										<ComboBox Margin="0,20,0,0" SelectedItem="{Binding ZoomModeByType}" ItemsSource="{Binding ZoomAndPanModes}"  VerticalAlignment="Center" DockPanel.Dock="Right" HorizontalAlignment="Left" ></ComboBox>
+										<Label Margin="0,20,0,0" HorizontalAlignment="Left" FontWeight="Normal">Limit types</Label>
+										<StackPanel Orientation="Horizontal"  Margin="0,20,0,0">
+											<Slider
+												Minimum="1"
+												Maximum="{Binding MaxFileTypes}"
+												Value="{Binding FileTypesCount}"
+												Width="200"
+                                                    />
+											<TextBlock Text="{Binding FileTypesCount}"  Margin="10,0,0,0" VerticalAlignment="Center" />
+										</StackPanel>
+
+                                        <Label HorizontalAlignment="Left" Margin="0,20,0,0"  FontWeight="Normal">Sort by</Label>
+                                        <ComboBox Margin="0,20,0,0" SelectedItem="{Binding SortTypeSelected}" ItemsSource="{Binding SortTypes}"  VerticalAlignment="Center" DockPanel.Dock="Right" HorizontalAlignment="Left" ></ComboBox>
+
+
+									</StackPanel>
+								</Expander>
+							</Grid>
+
+						</TabItem>
+						<TabItem >
+							<TabItem.Header>
+								<Label Margin="20,0">File list</Label>
+							</TabItem.Header>
+							<Grid Margin="20" ColumnDefinitions="*,Auto">
+								<DataGrid ItemsSource="{Binding GroupedGridData}"
+                                          IsScrollInertiaEnabled="True"
+                                          AutoGenerateColumns="False" IsReadOnly="True"
+                                          GridLinesVisibility="All"
+                                          ScrollViewer.AllowAutoHide="True"
+                                          CanUserResizeColumns="True"
+                                          Margin="0,0,0,20">
+									<DataGrid.Styles>
+										<Style Selector="TextBlock">
+											<Setter Property="TextWrapping" Value="WrapWithOverflow" />
+										</Style>
+									</DataGrid.Styles>
+
+									<DataGrid.Columns>
+										<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Name" Width="*"
+															Binding="{Binding Name}" />
+										<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Created Date" Width="*"
+															Binding="{Binding CreatedDate}" />
+										<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="FileType" Width="*"
+															Binding="{Binding FileType}" />
+										<DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Size" Width="*"
+															Binding="{Binding Size}" />
+										<DataGridCheckBoxColumn x:DataType="viewModels:FileItemViewModel" Header="HasContent" 
+																Binding="{Binding HasContent}" />
+									</DataGrid.Columns>
+								</DataGrid>
+
+								<Expander Grid.Column="1" ExpandDirection="Left">
+									<Expander.Header>
+										<StackPanel Orientation="Horizontal">
+											<avalonia1:Icon Value="fa-cog" />
+											<Label Margin="20,0,0,0" FontWeight="Normal">DataGrid controls</Label>
+										</StackPanel>
+									</Expander.Header>
+									<StackPanel HorizontalAlignment="Stretch">
+										<Label HorizontalAlignment="Left" FontWeight="Normal">Show Subdirectories</Label>
+										<ToggleSwitch Margin="0,20,0,0" IsChecked="{Binding ShowSubDirectories}" VerticalAlignment="Center" DockPanel.Dock="Right" HorizontalAlignment="Right" OnContent="Show sub folder" OffContent="Show sub folder"></ToggleSwitch>
+									</StackPanel>
+								</Expander>
+							</Grid>
+						</TabItem>
+					</TabControl>
+				</Panel>
+
+				<Grid Margin="20,0,20,20" Grid.Row="2">
+					<Button Content="Previous" Theme="{DynamicResource OutlineButton}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+					<Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
+				</Grid>
+			</Grid>
+		</Border>
+		<StackPanel Margin="0,5" IsVisible="True"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">
+            <Label FontSize="12" Foreground="LightGray" Content="{Binding StatusMessage}"></Label>
+			<ProgressBar Width="250" Value="{Binding Progress}"></ProgressBar>
+		</StackPanel>
+	</Grid>
+
+</UserControl>

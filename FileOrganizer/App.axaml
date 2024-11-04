@@ -1,0 +1,32 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="FileOrganizer.App"
+             xmlns:local="using:FileOrganizer"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             xmlns:userControls="clr-namespace:FileOrganizer.UserControls"
+             xmlns:semi="https://irihi.tech/semi"
+             xmlns:locale="clr-namespace:Semi.Avalonia.Locale;assembly=Semi.Avalonia"
+             RequestedThemeVariant="Dark">
+    <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+    <Application.DataTemplates>
+        <DataTemplate DataType="{x:Type viewModels:AnalysisViewModel}">
+            <userControls:AnalysisUserControl DataContext="{Binding}" />
+        </DataTemplate>
+    </Application.DataTemplates>
+
+    <Application.Styles>
+        <semi:SemiTheme Locale="en-US" />
+        <StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />
+        <StyleInclude Source="avares://Semi.Avalonia.DataGrid/Index.axaml" />
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <locale:en_us/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        <FontFamily x:Key="MontserratFont">avares://FileOrganizer/Assets#Montserrat</FontFamily>
+    </Application.Resources>
+</Application>

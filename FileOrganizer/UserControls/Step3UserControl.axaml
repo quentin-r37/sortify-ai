@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FileOrganizer.UserControls.Step3UserControl" x:DataType="viewModels:Step3ViewModel">
+    <Border BorderThickness="1,1,1,1" VerticalAlignment="Top" CornerRadius="20" Padding="20"
+            BorderBrush="{DynamicResource SemiGrey2Color}">
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+            <Label Content="Search files" FontWeight="DemiBold" Margin="0,0,0,40" />
+            <TextBox Grid.Row="1" Margin="0,10,0,0" Watermark="Search..." Text="{Binding SearchQuery}"  />
+
+            <DataGrid Grid.Row="2"  ItemsSource="{Binding FilteredFiles}"
+                      IsScrollInertiaEnabled="True"
+                      AutoGenerateColumns="False" IsReadOnly="True"
+                      GridLinesVisibility="All"
+                      ScrollViewer.AllowAutoHide="True"
+                      CanUserResizeColumns="True"
+                      Margin="0,20,0,20">
+                <DataGrid.Styles>
+                    <Style Selector="TextBlock">
+                        <Setter Property="TextWrapping" Value="WrapWithOverflow" />
+                    </Style>
+                </DataGrid.Styles>
+                <DataGrid.Columns>
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Name" Width="*"
+                                        Binding="{Binding Name}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Created Date" Width="*"
+                                        Binding="{Binding CreatedDate}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="FileType" Width="*"
+                                        Binding="{Binding FileType}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Size" Width="*"
+                                        Binding="{Binding Size}" />
+                    <DataGridTextColumn x:DataType="viewModels:FileItemViewModel" Header="Relevance" Width="*"
+                                        Binding="{Binding Relevance}"></DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Actions" Width="auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate x:DataType="viewModels:FileItemViewModel">
+                                <Button Content="Show" Margin="5"
+                                        Command="{Binding OpenFileCommand}"
+                                        Theme="{DynamicResource BorderlessButton}"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <Grid Grid.Row="3">
+                <Button Content="Previous" Theme="{DynamicResource OutlineButton}" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+                <Button Content="Next" HorizontalAlignment="Right" Command="{Binding NextCommand}" />
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

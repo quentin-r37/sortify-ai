@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:FileOrganizer.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:userControls="clr-namespace:FileOrganizer.UserControls"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="FileOrganizer.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="FileOrganizer"
+        SystemDecorations="Full"
+        SizeToContent="Manual" Width="1280" Height="720"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="PreferSystemChrome"
+		FontFamily="{DynamicResource MontserratFont}"
+        >
+
+
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+		<vm:MainWindowViewModel />
+	</Design.DataContext>
+	
+        <Panel>
+            <Border IsHitTestVisible="False" Background="{Binding PrimaryBrush}"></Border>
+            <DockPanel>
+                <Border Margin="20,35,20,20" DockPanel.Dock="Left">
+                    <userControls:SidebarView DataContext="{Binding}" Width="250" />
+                </Border>
+                <Panel>
+                    <Border Background="{Binding SecondaryBrush}" IsHitTestVisible="False"></Border>
+                    <Grid RowDefinitions="*,Auto">
+                        <Border Margin="10,35,10,20" CornerRadius="20">
+                            <ContentControl Padding="20,0" Content="{Binding SelectedAnalysis}" />
+                        </Border>
+                        <DockPanel Background="#10000000" IsVisible="True" HorizontalAlignment="Stretch" Grid.Row="1" >
+                            <Grid ColumnDefinitions="*,Auto,Auto" Margin="10,5" >
+                                <Label Grid.Column="1" Margin="0,0,5,0" Classes="Ghost Teal" Theme="{StaticResource TagLabel}" Content="{Binding EmbeddingModelName}"></Label>
+                                <Label Grid.Column="2" Classes="Ghost Blue" Theme="{StaticResource TagLabel}" Content="{Binding CompletionModelName}"></Label>
+                            </Grid>
+                        </DockPanel>
+                    </Grid>
+                </Panel>
+            </DockPanel>
+        </Panel>
+    <!--<ThemeVariantScope RequestedThemeVariant="{Binding Theme}">
+	</ThemeVariantScope>-->
+
+</Window>

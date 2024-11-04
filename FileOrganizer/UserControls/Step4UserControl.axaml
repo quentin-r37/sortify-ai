@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonia="clr-namespace:LiveChartsCore.SkiaSharpView.Avalonia;assembly=LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"  x:DataType="viewModels:Step4ViewModel"
+             x:Class="FileOrganizer.UserControls.Step4UserControl">
+
+
+	<Grid RowDefinitions="*,Auto" >
+		<Border BorderThickness="1" VerticalAlignment="Stretch" CornerRadius="20"
+							BorderBrush="{DynamicResource SemiGrey2Color}">
+
+			<Grid RowDefinitions="Auto,*,Auto" >
+				<DockPanel Margin="20,20,20,20">
+					<Label DockPanel.Dock="Left" VerticalAlignment="Center" Content="Organizer" FontSize="16"
+					       FontWeight="DemiBold" />
+				</DockPanel>
+				<Panel Margin="0" Grid.Row="1" >
+					<TabControl>
+						<TabItem >
+							<TabItem.Header>
+								<Label Margin="20,0">Organisation preview</Label>
+							</TabItem.Header>
+							<Grid Margin="20" ColumnDefinitions="*,*">
+								
+								<Grid RowDefinitions="*,Auto">
+									<TreeView SelectedItem="{Binding SelectedNode, Mode=TwoWay}" ItemsSource="{Binding CurrentStructure}">
+										<TreeView.ItemTemplate>
+											<TreeDataTemplate ItemsSource="{Binding SubNodes}">
+												<TextBlock Text="{Binding Title}"/>
+											</TreeDataTemplate>
+										</TreeView.ItemTemplate>
+									</TreeView>
+									<StackPanel Margin="0,5" Grid.Row="1" Orientation="Horizontal">
+										<TextBlock FontWeight="Bold" Text="{Binding CurrentStructureNodesCount, FallbackValue=0}"></TextBlock>
+										<TextBlock Margin="5,0">items</TextBlock>
+									</StackPanel>
+								</Grid>
+								
+								<Grid RowDefinitions="*,Auto" Grid.Column="1" >
+									<TreeView SelectedItem="{Binding SelectedNode, Mode=TwoWay}" ItemsSource="{Binding ProposedStructure}">
+										<TreeView.ItemTemplate>
+											<TreeDataTemplate ItemsSource="{Binding SubNodes}">
+												<TextBlock Text="{Binding Title}"/>
+											</TreeDataTemplate>
+										</TreeView.ItemTemplate>
+									</TreeView>
+									<StackPanel Margin="0,5" Grid.Row="1" Orientation="Horizontal">
+										<TextBlock FontWeight="Bold" Text="{Binding ProposedStructureNodesCount, FallbackValue=0}"></TextBlock>
+										<TextBlock VerticalAlignment="Center" Margin="5,0">items</TextBlock>
+									</StackPanel>
+								</Grid>
+								
+							</Grid>
+						</TabItem>
+						<TabItem Header="By Type">
+						</TabItem>
+						<TabItem Header="Files List">
+						</TabItem>
+					</TabControl>
+				</Panel>
+
+				<Grid Margin="20,20" Grid.Row="2">
+					<Button Content="Previous" Theme="{DynamicResource OutlineButton}" HorizontalAlignment="Left" Command="{Binding PreviousCommand}" />
+					<Button Content="Organize" HorizontalAlignment="Right" Classes="Danger" Theme="{DynamicResource SolidButton}" Command="{Binding ExecuteOrganizationCommand}" />
+				</Grid>
+			</Grid>
+		</Border>
+		<StackPanel Margin="0,5" IsVisible="True"  HorizontalAlignment="Right" Grid.Row="1" Orientation="Vertical">
+			<Label FontSize="12" Foreground="LightGray" Content="{Binding StatusMessage}"></Label>
+			<ProgressBar Width="250" Value="{Binding Progress}"></ProgressBar>
+		</StackPanel>
+	</Grid>
+
+</UserControl>

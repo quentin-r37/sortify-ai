@@ -1,0 +1,145 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:FileOrganizer.ViewModels"
+             xmlns:userControls="clr-namespace:FileOrganizer.UserControls"
+             xmlns:avalonia="https://github.com/projektanker/icons.avalonia"
+             xmlns:converters="clr-namespace:FileOrganizer.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FileOrganizer.UserControls.AnalysisUserControl" x:DataType="viewModels:AnalysisViewModel">
+
+	<UserControl.Resources>
+		<converters:StepViewModelToIconConverter x:Key="StepViewModelToIconConverter" />
+		<converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+	</UserControl.Resources>
+
+	<UserControl.DataTemplates>
+		<DataTemplate DataType="viewModels:Step1ViewModel">
+			<userControls:Step1UserControl />
+		</DataTemplate>
+		<DataTemplate DataType="viewModels:Step2ViewModel">
+			<userControls:Step2UserControl />
+		</DataTemplate>
+		<DataTemplate DataType="viewModels:Step3ViewModel">
+			<userControls:Step3UserControl />
+		</DataTemplate>
+		<DataTemplate DataType="viewModels:Step4ViewModel">
+			<userControls:Step4UserControl />
+		</DataTemplate>
+	</UserControl.DataTemplates>
+
+	<DockPanel>
+		<StackPanel DockPanel.Dock="Top" Orientation="Vertical" Margin="0,0,0,0">
+			<DockPanel HorizontalAlignment="Stretch" Margin="0,0,0,20">
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+
+					<ContentControl Content="{Binding}">
+						<ContentControl.ContentTemplate>
+							<DataTemplate x:DataType="viewModels:AnalysisViewModel">
+								<TextBox Text="{Binding Path=AnalysisName, UpdateSourceTrigger=PropertyChanged}"
+                                         VerticalAlignment="Center" FontSize="18"
+                                         IsVisible="{Binding IsEditing}" />
+							</DataTemplate>
+						</ContentControl.ContentTemplate>
+					</ContentControl>
+
+					<ContentControl Content="{Binding}">
+						<ContentControl.ContentTemplate>
+							<DataTemplate x:DataType="viewModels:AnalysisViewModel">
+								<Label Content="{Binding AnalysisName}"
+                                       VerticalAlignment="Center" FontSize="18"
+                                       IsVisible="{Binding IsEditing, Converter={StaticResource InverseBooleanConverter}}" />
+							</DataTemplate>
+						</ContentControl.ContentTemplate>
+					</ContentControl>
+
+					<Button avalonia:Attached.Icon="fa-pencil" IsVisible="{Binding IsEditing, Converter={StaticResource InverseBooleanConverter}}" Command="{Binding ToggleEditModeCommand}"
+                            Margin="10,0,0,0" />
+					<Button avalonia:Attached.Icon="fa-check" IsVisible="{Binding IsEditing}" Foreground="LightGreen" Command="{Binding SaveNameCommand}"
+                            Margin="10,0,0,0" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right">
+					<Button avalonia:Attached.Icon="fa-chevron-left" Command="{Binding Path=PreviousCommand}" />
+					<Button avalonia:Attached.Icon="fa-chevron-right" Margin="10,0,0,0"
+                            Command="{Binding Path=NextCommand}" />
+				</StackPanel>
+			</DockPanel>
+			<ItemsControl x:DataType="viewModels:AnalysisViewModel" ItemsSource="{Binding Steps}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<WrapPanel HorizontalAlignment="Stretch" />
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="viewModels:StepViewModel">
+						<Grid ColumnDefinitions="*,Auto" Margin="10">
+							<StackPanel Grid.Column="0" Orientation="Vertical">
+								<Button Width="48" Height="48" CornerRadius="100" Margin="0,0,0,10"
+                                        Classes.IsCurrentStep="{Binding Path=IsCurrentStep}"
+                                        Classes.IsCompleted="{Binding Path=IsCompleted}">
+									<Panel>
+										<avalonia:Icon FontSize="20" Margin="0,0,0,0"
+                                                       Classes.IsCompleted="{Binding Path=IsCompleted}">
+											<avalonia:Icon.Value>
+												<MultiBinding Converter="{StaticResource StepViewModelToIconConverter}">
+													<Binding Path="IsCompleted" />
+													<Binding Path="." />
+												</MultiBinding>
+											</avalonia:Icon.Value>
+											<avalonia:Icon.Styles>
+												<Style Selector="avalonia|Icon.IsCompleted">
+													<Setter Property="Foreground" Value="LightGreen" />
+												</Style>
+											</avalonia:Icon.Styles>
+										</avalonia:Icon>
+									</Panel>
+									<Button.Styles>
+										<Style Selector="Button.IsCurrentStep">
+											<Setter Property="BorderBrush" Value="{DynamicResource SemiColorPrimary}" />
+											<Setter Property="BorderThickness" Value="2" />
+										</Style>
+										<Style Selector="Button.IsCompleted">
+											<Setter Property="BorderBrush" Value="LightGreen" />
+											<Setter Property="BorderThickness" Value="1" />
+										</Style>
+									</Button.Styles>
+								</Button>
+								<Label HorizontalAlignment="Center"
+                                       Classes.IsCurrentStep="{Binding Path=IsCurrentStep}"
+                                       Content="{Binding Description}">
+									<Label.Styles>
+										<Style Selector="Label.IsCurrentStep">
+											<Setter Property="FontWeight" Value="DemiBold" />
+										</Style>
+									</Label.Styles>
+								</Label>
+
+							</StackPanel>
+							<Grid Grid.Column="1" HorizontalAlignment="Stretch" Width="150" VerticalAlignment="Top"
+                                  Margin="0,32,0,0" IsVisible="{Binding IsNotLastStep}">
+								<Border Classes.IsCompleted="{Binding IsCompleted}" Height="2" CornerRadius="5"
+                                        Margin="20,0,0,0"
+                                        VerticalAlignment="Center"
+                                        HorizontalAlignment="Stretch">
+									<Border.Styles>
+										<Style Selector="Border">
+											<Setter Property="Background" Value="Gray" />
+										</Style>
+										<Style Selector="Border.IsCompleted">
+											<Setter Property="Background" Value="LightGreen" />
+										</Style>
+									</Border.Styles>
+								</Border>
+							</Grid>
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</StackPanel>
+		<ContentControl Margin="0,20,0,0" Content="{Binding CurrentStepViewModel}" />
+
+  
+	</DockPanel>
+
+</UserControl>
