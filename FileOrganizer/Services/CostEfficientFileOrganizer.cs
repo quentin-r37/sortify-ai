@@ -36,21 +36,15 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         { @"(?i)(recipe|food|meal|cooking)", "Recipes" },
             
         // Common date patterns
-        { @"(?i)(\d{4}[-_]\d{2}[-_]\d{2}|\d{2}[-_]\d{2}[-_]\d{4})", null }  // Will be used for dating
+        { @"(?i)(\d{4}[-_]\d{2}[-_]\d{2}|\d{2}[-_]\d{2}[-_]\d{4})", null } 
     };
+
     private readonly HashSet<string> _knownCategories = new(StringComparer.OrdinalIgnoreCase)
     {
         "Financial", "Photos", "Documents", "Work", "Personal",
         "Travel", "Recipes", "Meetings", "Documentation", "Archive", "Miscellaneous"
     };
 
-    // Pre-defined patterns for common file types
-    // Financial documents
-    // Images and Photos
-    // Documents and Notes
-    // Personal
-    // Common date patterns
-    // Will be used for dating
 
     public async Task<List<ProcessedFileData>> OrganizeFilesAsync(
         IEnumerable<FileItemViewModel> files,
@@ -192,7 +186,6 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         List<string> embeddingKeys,
         CancellationToken cancellationToken)
     {
-        // Load embeddings
         var vectorAsyncEnumerable = vectorCollection.GetBatchAsync(embeddingKeys, cancellationToken: cancellationToken);
         var data = new List<EmbeddingData>();
         await foreach (var vectorFile in vectorAsyncEnumerable)
@@ -213,16 +206,13 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         schemaDefinition["Features"].ColumnType = new VectorDataViewType(NumberDataViewType.Single, embeddingSize);
         var dataView = mlContext.Data.LoadFromEnumerable(data, schemaDefinition);
 
-        // Determine optimal number of clusters
         var optimalClusters = DetermineOptimalClusters(mlContext, dataView, minClusters: 5, maxClusters: 15);
 
-        // Train model with optimal clusters
         var pipeline = mlContext.Clustering.Trainers.KMeans(numberOfClusters: optimalClusters);
         var model = pipeline.Fit(dataView);
         var predictions = model.Transform(dataView);
         var predictedClusters = mlContext.Data.CreateEnumerable<ClusteringPrediction>(predictions, reuseRowObject: false).ToList();
 
-        // Associate embeddings with predicted clusters
         var embeddingClusters = data.Zip(predictedClusters, (embeddingData, prediction) => new
         {
             FilePath = embeddingData.FilePath,
@@ -267,7 +257,7 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         return optimalK;
     }
 
-    private double CalculateInertia(MLContext mlContext, IDataView predictions)
+    private static double CalculateInertia(MLContext mlContext, IDataView predictions)
     {
         var predictionData = mlContext.Data.CreateEnumerable<ClusteringPrediction>(
             predictions, reuseRowObject: false).ToList();
@@ -275,10 +265,10 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         return predictionData.Sum(p => p.Score.Sum(s => s * s));
     }
 
-    private int FindElbowPoint(List<double> inertias, int minClusters)
+    private static int FindElbowPoint(List<double> inertias, int minClusters)
     {
         var secondDerivatives = new List<double>();
-        for (int i = 1; i < inertias.Count - 1; i++)
+        for (var i = 1; i < inertias.Count - 1; i++)
         {
             var secondDerivative = inertias[i - 1] - 2 * inertias[i] + inertias[i + 1];
             secondDerivatives.Add(secondDerivative);
@@ -345,8 +335,6 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
 
             var messages = await chatService.GetChatMessageContentsAsync(chatHistory, cancellationToken: cancellationToken);
             var s = messages.FirstOrDefault()?.Content;
-            Debug.WriteLine("Category:"+s);
-            Debug.WriteLine("Content:" + content);
 
             if (s != null)
             {

@@ -55,10 +55,6 @@
 								
 							</Grid>
 						</TabItem>
-						<TabItem Header="By Type">
-						</TabItem>
-						<TabItem Header="Files List">
-						</TabItem>
 					</TabControl>
 				</Panel>
 
