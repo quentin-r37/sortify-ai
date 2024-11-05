@@ -204,8 +204,14 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
             });
         }
 
+        int embeddingSize = data.FirstOrDefault()?.Features.Length ?? 0;
+        if (embeddingSize == 0) throw new InvalidOperationException("No embeddings found.");
+
         var mlContext = new MLContext();
-        var dataView = mlContext.Data.LoadFromEnumerable(data);
+
+        var schemaDefinition = SchemaDefinition.Create(typeof(EmbeddingData));
+        schemaDefinition["Features"].ColumnType = new VectorDataViewType(NumberDataViewType.Single, embeddingSize);
+        var dataView = mlContext.Data.LoadFromEnumerable(data, schemaDefinition);
 
         // Determine optimal number of clusters
         var optimalClusters = DetermineOptimalClusters(mlContext, dataView, minClusters: 5, maxClusters: 15);
@@ -239,7 +245,6 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
             };
         }).Where(x => x.FileItem != null).ToList();
 
-        // Group files by cluster
         return fileClusterAssignments.GroupBy(x => x.ClusterId, x => x.FileItem);
     }
 
@@ -247,19 +252,16 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
     {
         var inertias = new List<double>();
 
-        // Calculate inertia for different K values
         for (int k = minClusters; k <= maxClusters; k++)
         {
             var pipeline = mlContext.Clustering.Trainers.KMeans(numberOfClusters: k);
             var model = pipeline.Fit(data);
             var predictions = model.Transform(data);
 
-            // Calculate inertia (within-cluster sum of squares)
             var inertia = CalculateInertia(mlContext, predictions);
             inertias.Add(inertia);
         }
 
-        // Find elbow point using the second derivative
         var optimalK = FindElbowPoint(inertias, minClusters);
 
         return optimalK;
@@ -267,7 +269,6 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
 
     private double CalculateInertia(MLContext mlContext, IDataView predictions)
     {
-        // Get predictions and calculate distance to cluster centers
         var predictionData = mlContext.Data.CreateEnumerable<ClusteringPrediction>(
             predictions, reuseRowObject: false).ToList();
 
@@ -276,7 +277,6 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
 
     private int FindElbowPoint(List<double> inertias, int minClusters)
     {
-        // Calculate second derivatives
         var secondDerivatives = new List<double>();
         for (int i = 1; i < inertias.Count - 1; i++)
         {
@@ -284,10 +284,8 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
             secondDerivatives.Add(secondDerivative);
         }
 
-        // Find the point of maximum curvature
         var maxCurvatureIndex = secondDerivatives.IndexOf(secondDerivatives.Max());
 
-        // Add minClusters to get back to the original K value
         return maxCurvatureIndex + minClusters + 1;
     }
 
@@ -326,7 +324,6 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
     {
         try
         {
-            // Only read a sample of the file content for large files
             var content = GetFileSample(file.Model);
 
             var chatHistory = new ChatHistory();
@@ -385,21 +382,4 @@ public class CostEfficientFileOrganizer(IChatCompletionService chatService)
         }
         return file.Path;
     }
-}
-
-public class EmbeddingData
-{
-    [ColumnName("Features")]
-    [VectorType(384)]
-    public float[] Features { get; set; }
-
-    public string FilePath { get; set; }
-}
-
-public class ClusteringPrediction
-{
-    [ColumnName("PredictedLabel")]
-    public uint PredictedClusterId { get; set; }
-
-    public float[] Score { get; set; }
 }
