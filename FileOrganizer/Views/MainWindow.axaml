@@ -26,10 +26,10 @@
 	</Design.DataContext>
 	
         <Panel>
-            <Border IsHitTestVisible="False" Background="{Binding PrimaryBrush}"></Border>
+             <Border IsHitTestVisible="False" Background="{Binding PrimaryBrush}"></Border>
             <DockPanel>
                 <Border Margin="20,35,20,20" DockPanel.Dock="Left">
-                    <userControls:SidebarView DataContext="{Binding}" Width="250" />
+                    <userControls:SidebarView Width="250" />
                 </Border>
                 <Panel>
                     <Border Background="{Binding SecondaryBrush}" IsHitTestVisible="False"></Border>
