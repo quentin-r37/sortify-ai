@@ -1,0 +1,64 @@
+name: Avalonia Desktop App
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        configuration: [Debug, Release]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      Solution_Name: FileOrganizer.sln                         # Replace with your solution name, e.g., MyAvaloniaApp.sln.
+      Test_Project_Path: FileOrganizer.Tests/FileOrganizer.Tests.csproj  # Path to your test project.
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # Set up .NET Core SDK for Avalonia
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # Install Avalonia templates (if needed)
+    - name: Install Avalonia templates
+      run: dotnet new install Avalonia.Templates
+
+    # Restore dependencies
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.Solution_Name }}
+
+    # Build the application
+    - name: Build
+      run: dotnet build ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }}
+
+    # Run unit tests
+    - name: Run tests
+      run: dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }}
+
+    # Publish for cross-platform deployment
+    - name: Publish
+      run: |
+        dotnet publish ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --output ./publish/${{ matrix.os }}
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Upload artifacts for each platform build
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: AvaloniaApp-${{ matrix.os }}-${{ matrix.configuration }}
+        path: ./publish/${{ matrix.os }}
