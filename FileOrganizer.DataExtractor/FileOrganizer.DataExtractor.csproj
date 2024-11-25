@@ -7,17 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="PdfPig" Version="0.1.9" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.70" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
     <PackageReference Include="HtmlToOpenXml.dll" Version="3.2.1" />
     <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
-    <PackageReference Include="MsgReader" Version="5.6.6" />
+    <PackageReference Include="MsgReader" Version="5.7.0" />
     <PackageReference Include="RtfPipe" Version="2.0.7677.4303" />
     <PackageReference Include="ScratchPad.NPOI.HWPF" Version="2.5.7" />
     <PackageReference Include="PDFtoImage" Version="4.1.1" />
-    <PackageReference Include="System.Drawing.Common" Version="8.0.8" />
-    <PackageReference Include="System.IO.Packaging" Version="8.0.1" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+    <PackageReference Include="System.IO.Packaging" Version="9.0.0" />
     <PackageReference Include="Tesseract" Version="5.2.0" />
   </ItemGroup>
 
