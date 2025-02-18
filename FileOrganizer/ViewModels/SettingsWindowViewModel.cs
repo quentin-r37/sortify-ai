@@ -156,7 +156,7 @@ public partial class SettingsWindowViewModel : ViewModelBase
 
         try
         {
-            await textCompletionService.GetChatMessageContentsAsync(new ChatHistory("test"));
+            await textCompletionService.GetChatMessageContentsAsync(new ChatHistory("Hello, answer only one word."));
             CompletionTestPassed = true;
         }
         catch (Exception)
